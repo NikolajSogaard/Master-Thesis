@@ -1,3 +1,0 @@
-wordsl
-sdasa
-dsadsad
