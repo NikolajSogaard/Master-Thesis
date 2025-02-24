@@ -27,7 +27,7 @@ class ProgramGenerator:
         graph.add_node('critic', self.critic)
 
         # Arcs
-        graph.add_edges(
+        graph.add_edge(
             start_key='writer',
             end_key='critic',
         )
