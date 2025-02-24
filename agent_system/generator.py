@@ -25,6 +25,7 @@ class ProgramGenerator:
         # Agent nodes
         graph.add_node('writer', self.writer)
         graph.add_node('critic', self.critic)
+        graph.add_node('editor', self.editor)
 
         # Arcs
         graph.add_edge(
