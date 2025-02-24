@@ -104,7 +104,7 @@ def main():
 
     # Create program
     program = program_generator.create_program(
-        ...,
+        user_input=args.user_input,
     )
     print(program) # FIXME proper logging
 
