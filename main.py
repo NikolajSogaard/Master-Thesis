@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     # User settings
-    parser.add_argument('--mode', type=str, default='new', choices=['new', 'revise'])
+    parser.add_argument('--mode', type=str, default='new', choices=['new', 'revise']) # TODO only implemented a "new" version, could add control flow logic to handle the revise case, probably with a slightly modified agent framework..?
     parser.add_argument('--user-input', type=str, help='Some instructions') # TODO probably want to pass this as an fname or smth
 
     # Data settings
@@ -65,7 +65,7 @@ def setup_agents(
         role=writer_prompt_settings.role,
         structure=writer_prompt_settings.structure,
         task=writer_prompt_settings.task,
-        task_revision=writer_prompt_settings.task_revisison,
+        task_revision=writer_prompt_settings.task_revision,
     )
     critic = Critic(
         model=llm_critic,
