@@ -34,6 +34,28 @@ Make sure the revised progam follows the format below, making sure to only retur
 
 PROGRAM_STRUCTURE = '''
 {
+  "program_name": "Name of the strength training program",
+  "duration_weeks": 8,
+  "sessions_per_week": 3,
+  "target_goals": ["strength", "hypertrophy", "endurance"],
+  "difficulty_level": "beginner/intermediate/advanced",
+  "notes": "Any general notes about the program",
+  "workouts": [
+    {
+      "day": 1,
+      "name": "Upper Body",
+      "exercises": [
+        {
+          "name": "Exercise name",
+          "sets": 3,
+          "reps": "8-12",
+          "rest_seconds": 60,
+          "notes": "Optional form cues or tips"
+        }
+      ]
+    }
+  ],
+  "progression_plan": "Description of how to progress over time"
 }
 ''' # Structure output this way, e.g., some JSON format
 
@@ -42,7 +64,7 @@ WRITER_PROMPT_SETTINGS: dict[str, WriterPromptSettings] = {}
 WRITER_PROMPT_SETTINGS['v1'] = WriterPromptSettings(
     role={
         'role': 'system',
-        'content': '', # You are an AI system for creating trainign prgrams, etc etc
+        'content': 'You are an AI system specialized in creating personalized strength training programs. You have expertise in exercise science, biomechanics, and training periodization. Your task is to create effective, safe, and evidence-based strength training programs tailored to the user\'s needs, goals, experience level, and available equipment. Always prioritize proper progression, injury prevention, and training variety. Provide clear, actionable instructions that are appropriate for the specified experience level.'
     },
     task=TASK,
     task_revision=TASK_REVISION,
