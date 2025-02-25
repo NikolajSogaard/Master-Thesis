@@ -27,11 +27,10 @@ class Writer:
                 ),
             },
         ]
-
-        # Implement the below with a real LLM call...
-        # draft = self.model(prompt)
-        draft = 'bad program'
-
+        # Convert prompt to a single string as expected by the Gemini API
+        combined_prompt = "\n".join(item.get("content", "") if isinstance(item, dict) else str(item) for item in prompt)
+        # Real LLM call
+        draft = self.model(combined_prompt)
         return draft
 
     def revise(
@@ -49,11 +48,10 @@ class Writer:
                 ),
             },
         ]
-
-        # Implement the below with a real LLM call...
-        # draft = self.model.invoke(prompt).content
-        draft = 'good program'
-
+        # Convert prompt to a single string as expected by the Gemini API
+        combined_prompt = "\n".join(item.get("content", "") if isinstance(item, dict) else str(item) for item in prompt)
+        # Real LLM call for revision
+        draft = self.model(combined_prompt)
         return draft
 
     def __call__(self, program: dict[str, str | None]) -> dict[str, str | None]:

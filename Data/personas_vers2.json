@@ -1,6 +1,6 @@
 {
-  "Personas": [
-    {
+  "Personas": {
+    "1": {
       "Persona": "Persona 1: The busy business individual",
       "Background & Lifting Experience": "I have a demanding job with an unpredictable schedule that takes up most of my time and energy. I've always wanted to make strength training a regular part of my life, but work, travel, and other responsibilities often get in the way. I’ve tried to get into it multiple times but have never been able to stay consistent. I know my way around the gym and have done some basic workouts, but I’ve never followed a structured program long enough to see real progress.",
       "Training Focus": "I want to focus on general strength and fitness. My goal is to get stronger and build some muscle without spending hours in the gym. Since my time is limited, I prefer efficient workouts that give me the best results in the least amount of time.",
@@ -9,7 +9,7 @@
       "Available Time for Training": "2 days a week, with around 1.5 hours available per session. I prefer time-efficient workouts.",
       "Additional Information": "Staying motivated is a challenge for me. If I don’t see progress or if workouts feel too complicated, I tend to lose interest. Additionally, after long hours in the office, I often deal with an aching back."
     },
-    {
+    "2": {
       "Persona": "Persona 2: The bodybuilding enthusiast",
       "Background & Lifting Experience": "I’ve been training consistently for the past seven years with a strong focus on bodybuilding. Strength training has been a major part of my life, and I’m passionate about building muscle, improving my physique, and pushing my limits in the gym. Over the years, I’ve followed structured bodybuilding programs and gained experience with various training techniques, including progressive overload, hypertrophy-focused workouts, and isolation exercises. I’ve also experimented with different splits and training styles to optimize muscle growth.",
       "Training Focus": "My main focus is muscle hypertrophy and aesthetics. I want to build a well-balanced physique with impressive muscle definition and size. I pay close attention to form, mind-muscle connection, and overall intensity during my workouts.",
@@ -23,7 +23,7 @@
       "Available Time for Training": "I train 4-6 days a week, typically dedicating 1.5 to 2 hours per session. I like splitting my workouts into specific muscle groups (e.g., push/pull/legs) to focus on each area in detail.",
       "Additional Information": ""
     },
-    {
+    "3": {
       "Persona": "Persona 3: The powerlifting enthusiast",
       "Background & Lifting Experience": "I’ve been training consistently for 10 years, evolving from general lifting to structured powerlifting programs. In my earlier years, I was heavily inspired by powerlifting’s big three - squat, bench press, and deadlift—but over time, I refined my approach. While I still train with a strength-focused mindset, my core lifts have shifted to squat, bench press, and weighted chin-ups. I have extensive experience in strength training and a deep understanding of concepts like periodization, progressive overload, and recovery optimization.",
       "Training Focus": "My primary goal is absolute strength, but I also aim to build a well-rounded, functional physique. My current program revolves around squat, bench press, and weighted chin-ups.",
@@ -59,5 +59,5 @@
       "Available Time for Training": "I train 4 days per week, with sessions typically lasting 1.5 to 2.5 hours depending on the intensity of the workout. Recovery and mobility work are also a crucial part of my routine.",
       "Additional Information": "I take my programming seriously and have a deep understanding of autoregulation, RPE scaling, and fatigue management. I enjoy experimenting with advanced periodization models and tracking strength progression across multiple rep ranges."
     }
-  ]
+  }
 }
