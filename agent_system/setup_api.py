@@ -3,6 +3,22 @@ import os
 import google.generativeai as genai
 import json
 
+# Load environment variables from cre.env
+load_dotenv('cre.env')  # adjust the path if needed
+
+# Get your credentials from the environment variables
+credentials_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+api_key = os.environ.get("GOOGLE_GEMINI_API_KEY")
+
+# Check if both credentials are available
+if not credentials_path or not api_key:
+    raise EnvironmentError("Required environment variables are missing.")
+
+print("Sensitive credentials loaded successfully!")
+
+# Configure the Gemini API using your API key
+genai.configure(api_key=api_key)
+
 def setup_llm(
         model: str,
         max_tokens: int | None = None,
@@ -10,22 +26,6 @@ def setup_llm(
         top_p: float = 0.9,
         respond_as_json: bool = True,
 ):
-    # Load environment variables from cre.env
-    load_dotenv('cre.env')  # adjust the path if needed
-
-    # Get your credentials from the environment variables
-    credentials_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-    api_key = os.environ.get("GOOGLE_GEMINI_API_KEY")
-
-    # Check if both credentials are available
-    if not credentials_path or not api_key:
-        raise EnvironmentError("Required environment variables are missing.")
-
-    print("Sensitive credentials loaded successfully!")
-
-    # Configure the Gemini API using your API key
-    genai.configure(api_key=api_key)
-
     generation_config = {
         "temperature": temperature,
         "top_p": top_p,
