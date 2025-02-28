@@ -3,7 +3,7 @@ from typing import List, Dict, Any
 from langchain_chroma import Chroma  # Updated import to fix deprecation warning
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from .setup_api import setup_embeddings
+from .setup_api import setup_embeddings, setup_llm
 
 class RagRetriever:
     """
@@ -25,6 +25,13 @@ class RagRetriever:
         
         # Setup embedding model
         self.embedding_model = setup_embeddings(model="models/text-embedding-004")
+        
+        # Setup summarization model
+        self.summarize_model = setup_llm(
+            model="gemini-2.0-flash", 
+            temperature=0.2,
+            respond_as_json=False
+        )
         
         # Rebuild database if requested
         if rebuild_db:
@@ -103,9 +110,52 @@ class RagRetriever:
         
         return formatted_results
     
+    def summarize_documents(self, documents: List[str], query: str) -> str:
+        """
+        Summarize retrieved documents into structured insights relevant to the query.
+        
+        Args:
+            documents: List of text documents to summarize
+            query: The original query to provide context
+            
+        Returns:
+            Structured summary of key insights from the documents
+        """
+        if not documents:
+            return ""
+        
+        # Combine documents but limit total length
+        combined_text = "\n\n".join(doc[:3000] for doc in documents[:5])  # Limit size to avoid token limits
+        
+        summarization_prompt = f"""
+        Below are excerpts from fitness and training resources related to: "{query}"
+        
+        EXCERPTS:
+        {combined_text}
+        
+        Extract and organize the key insights from these excerpts into the following categories:
+        
+        1. TRAINING PRINCIPLES: Key training principles mentioned
+        2. PROGRESSION STRATEGIES: How to progress in training (weight, reps, sets, RPE.)
+        3. Training intensity: Recommendations for training intensity. Include Rate of Perceived Exertion (RPE) if available.
+        3. EXERCISE SELECTION: Guidelines for selecting appropriate exercises 
+        4. VOLUME & FREQUENCY: Recommendations for training volume and frequency
+        
+        For each category, provide 2-3 concise, actionable bullet points. If a category isn't addressed in the excerpts, write "No specific information available."
+        
+        Format your response in clear sections with bullet points. Focus on factual information, not opinions.
+        """
+        
+        try:
+            summary = self.summarize_model(summarization_prompt)
+            return summary
+        except Exception as e:
+            print(f"Error in summarization: {e}")
+            return "Error generating summary. Using raw excerpts instead."
+    
     def query_with_context(self, query_text: str) -> str:
         """
-        Query the vector store and format the results into a context string.
+        Query the vector store and format the results into a structured context string.
         
         Args:
             query_text: The query text to search for
@@ -118,14 +168,28 @@ class RagRetriever:
         if not results:
             return "No relevant information found."
         
-        context_parts = []
-        for i, result in enumerate(results):
-            context_parts.append(f"SOURCE {i+1}: {result['metadata'].get('filename', 'Unknown')}")
-            context_parts.append(f"EXCERPT: {result['text'][:500]}...")  # Limit text length
-            context_parts.append(f"RELEVANCE: {result['similarity_score']:.4f}")
-            context_parts.append("-" * 40)
+        # Extract text content from results
+        documents = [result["text"] for result in results]
         
-        return "\n".join(context_parts)
+        # Get source information for citation purposes
+        sources = [result["metadata"].get("filename", "Unknown source") for result in results]
+        unique_sources = list(set(sources))
+        source_info = "SOURCES: " + ", ".join(unique_sources[:5])
+        
+        # Generate structured summary
+        summary = self.summarize_documents(documents, query_text)
+        
+        if summary:
+            return f"STRUCTURED KNOWLEDGE FOR TRAINING PROGRAM DESIGN:\n\n{summary}\n\n{source_info}"
+        else:
+            # Fallback to original format if summarization fails
+            context_parts = []
+            for i, result in enumerate(results):
+                context_parts.append(f"SOURCE {i+1}: {result['metadata'].get('filename', 'Unknown')}")
+                context_parts.append(f"EXCERPT: {result['text'][:500]}...")  # Limit text length
+                context_parts.append("-" * 40)
+            
+            return "\n".join(context_parts)
         
     def retrieve(self, query_text: str) -> List[str]:
         """

@@ -31,28 +31,21 @@ class Writer:
                     "frequency training major muscle groups at least twice weekly",
                     "exercise selection for balanced muscle development",
                     "progressive overload techniques for strength training",
-                    
                 ]
                 
                 # Filter out empty queries
                 queries = [q for q in queries if q]
                 
-                # Retrieve documents for each query and combine results
-                all_docs = []
+                # Combine results from different queries into one comprehensive context
+                all_contexts = []
                 for query in queries:
-                    docs = self.retriever.retrieve(query)
-                    if docs:
-                        all_docs.extend(docs)
+                    context = self.retriever.query_with_context(query)
+                    if context and context != "No relevant information found.":
+                        all_contexts.append(f"QUERY: {query}\n{context}")
                 
-                # Remove duplicates while preserving order
-                seen = set()
-                unique_docs = [doc for doc in all_docs if not (doc in seen or seen.add(doc))]
-                
-                if unique_docs:
-                    context = "\n\nRelevant information for training program design:\n"
-                    for i, doc in enumerate(unique_docs[:5]):  # Limit to top 5 to avoid overloading
-                        context += f"\n--- Document {i+1} ---\n{doc}\n"
-                    return context
+                if all_contexts:
+                    combined_context = "\n\n" + "\n\n---\n\n".join(all_contexts[:2])  # Limit to top 2 most relevant query results
+                    return combined_context
             except Exception as e:
                 print(f"RAG retrieval error: {e}")
         return ""
@@ -67,12 +60,16 @@ class Writer:
         # Add context to the user input if available
         augmented_input = program['user-input']
         if context:
-            augmented_input += context
-            print("Retrieved relevant context for program design.")
+            augmented_input += "\n\nRELEVANT TRAINING KNOWLEDGE TO INCORPORATE:\n" + context
+            print("Retrieved and structured relevant context for program design.")
         
         # Add specific instruction about muscle group frequency
         frequency_instruction = "\n\nIMPORTANT: Ensure each major muscle group (chest, back, legs) is trained at least TWICE per week for optimal results."
         augmented_input += frequency_instruction
+        
+        # Add instruction to incorporate the retrieved knowledge
+        if context:
+            augmented_input += "\n\nUse the structured training knowledge provided above to create an evidence-based program."
         
         prompt = [
             self.role,

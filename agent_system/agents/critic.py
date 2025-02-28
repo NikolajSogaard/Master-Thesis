@@ -4,7 +4,7 @@ class Critic:
             model,
             role: dict[str, str],
             task: str,
-            retriever=None,  # Add retriever parameter with default value
+            retriever=None,
             ):
         self.model = model
         self.role = role
@@ -19,11 +19,23 @@ class Critic:
         context = ""
         if self.retriever:
             try:
-                # Query for relevant information based on the draft and user requirements
-                query = f"Training program evaluation: {program['user-input'][:200]}"
-                relevant_info = self.retriever.query_with_context(query)
-                if relevant_info:
-                    context = f"\n\nConsider this information when evaluating the program:\n{relevant_info}"
+                # Create targeted queries for evaluation criteria
+                evaluation_queries = [
+                    "muscle group training frequency twice weekly evidence",
+                    "optimal training volume for strength and hypertrophy",
+                    "exercise selection principles for balanced development",
+                    f"training guidelines for {program['user-input'][:100]}"
+                ]
+                
+                all_contexts = []
+                for query in evaluation_queries:
+                    relevant_info = self.retriever.query_with_context(query)
+                    if relevant_info and "No relevant information found" not in relevant_info:
+                        all_contexts.append(f"EVIDENCE FOR {query.upper()}:\n{relevant_info}")
+                
+                if all_contexts:
+                    context = "\n\nUSE THIS EVIDENCE-BASED INFORMATION TO EVALUATE THE PROGRAM:\n"
+                    context += "\n\n".join(all_contexts[:2])  # Limit to top 2 most useful contexts
             except Exception as e:
                 print(f"Error retrieving context in critic: {e}")
         
