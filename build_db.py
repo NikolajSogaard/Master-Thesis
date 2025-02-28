@@ -10,7 +10,7 @@ from langchain.vectorstores import Chroma
 from get_embedding_function import get_embedding_function
 
 CHROMA_PATH = "chroma"
-DATA_PATH = "data"
+DATA_PATH = "data/books"
 
 def build_db(reset: bool = False):
     """
