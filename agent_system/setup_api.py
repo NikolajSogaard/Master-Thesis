@@ -5,7 +5,7 @@ import json
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import time
 
-def setup_embeddings(model="models/embedding-001"):
+def setup_embeddings(model="models/text-embedding-004"):
     """
     Set up and return a Google Generative AI embeddings model.
     
@@ -70,7 +70,6 @@ def setup_llm(
     if not credentials_path or not api_key:
         raise EnvironmentError("Required environment variables are missing.")
 
-    print("Sensitive credentials loaded successfully!")
 
     # Configure the Gemini API using your API key
     genai.configure(api_key=api_key)
