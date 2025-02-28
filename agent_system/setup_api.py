@@ -3,7 +3,7 @@ import os
 import google.generativeai as genai
 import json
 import time
-from langchain_community.embeddings import GoogleGenerativeAIEmbeddings
+from custom_embeddings import CustomGoogleEmbeddings
 
 # Load environment variables from cre.env
 load_dotenv('cre.env')
@@ -65,7 +65,7 @@ def setup_embeddings(model="models/text-embedding-004"):
 
     for attempt in range(max_retries):
         try:
-            embedding_model = GoogleGenerativeAIEmbeddings(model=model)
+            embedding_model = CustomGoogleEmbeddings(model=model)
             test_result = embedding_model.embed_query("test")
             if test_result and len(test_result) > 0:
                 print(f"Embedding model initialized successfully: {model}")
