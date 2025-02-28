@@ -4,6 +4,7 @@ from .agents import (
     Writer,
     Critic,
     Editor,
+    Retriever,
 )
 
 
@@ -26,8 +27,10 @@ class ProgramGenerator:
         graph.add_node('writer', self.writer)
         graph.add_node('critic', self.critic)
         graph.add_node('editor', self.editor)
+        graph.add_node('retriever', Retriever())
 
         # Arcs
+        graph.add_edge('retriever', 'writer')
         graph.add_edge(
             start_key='writer',
             end_key='critic',
@@ -42,7 +45,7 @@ class ProgramGenerator:
         )
 
         # Set start and end node
-        graph.set_entry_point('writer')
+        graph.set_entry_point('retriever')
         graph.set_finish_point('editor')
 
         self.app = graph.compile()
