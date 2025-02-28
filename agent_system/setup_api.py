@@ -3,10 +3,10 @@ import os
 import google.generativeai as genai
 import json
 import time
-from langchain.embeddings import GoogleGenerativeAIEmbeddings
+from langchain_community.embeddings import GoogleGenerativeAIEmbeddings
 
 # Load environment variables from cre.env
-load_dotenv('cre.env')  # adjust the path if needed
+load_dotenv('cre.env')
 
 # Get your credentials from the environment variables
 credentials_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")

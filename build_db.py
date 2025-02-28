@@ -1,27 +1,31 @@
-# File: build_db.py
-
 import argparse
 import os
 import shutil
-from langchain.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import Document
-from langchain.vectorstores import Chroma
-from get_embedding_function import get_embedding_function
+from langchain_community.vectorstores import Chroma
+from langchain.embeddings.base import Embeddings
+from agent_system.setup_api import setup_embeddings
+
 
 CHROMA_PATH = "chroma"
 DATA_PATH = "data/books"
 
-def build_db(reset: bool = False):
-    """
-    Build or update your Chroma DB by loading PDF documents from `DATA_PATH`.
-    """
+def build_db(reset=False):
     if reset:
         clear_database()
 
     documents = load_documents()
-    chunks = split_documents(documents)
-    add_to_chroma(chunks)
+    splitted_docs = split_documents(documents)
+    embedding_model: Embeddings = setup_embeddings("models/text-embedding-004")
+    vectordb = Chroma.from_texts(
+        texts=[doc.page_content for doc in splitted_docs],
+        embedding=embedding_model,
+        persist_directory="./db",
+    )
+    vectordb.persist()
+    print("Database built and persisted at: ./db")
 
 def load_documents():
     document_loader = PyPDFDirectoryLoader(DATA_PATH)
@@ -29,8 +33,8 @@ def load_documents():
 
 def split_documents(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=80,
+        chunk_size=1000,
+        chunk_overlap=100,
         length_function=len,
         is_separator_regex=False,
     )
