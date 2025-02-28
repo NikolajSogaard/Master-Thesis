@@ -1,9 +1,12 @@
 import os
+import logging
 from typing import List, Dict, Any
 from langchain_chroma import Chroma  # Updated import to fix deprecation warning
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from .setup_api import setup_embeddings, setup_llm
+
+logger = logging.getLogger(__name__)
 
 class RagRetriever:
     """
@@ -36,10 +39,10 @@ class RagRetriever:
         # Rebuild database if requested
         if rebuild_db:
             try:
-                print("Rebuilding RAG database...")
+                logger.info("Rebuilding RAG database...")
                 self._build_database()
             except Exception as e:
-                print(f"Error rebuilding database: {e}")
+                logger.error(f"Error rebuilding database: {e}")
         
         # Initialize the Chroma client with the updated import
         self.db = Chroma(
@@ -49,7 +52,7 @@ class RagRetriever:
     
     def _build_database(self):
         """Build the vector database from documents in the data directory."""
-        print("Building database from documents...")
+        logger.info("Building database from documents...")
         
         # Define the data directory
         data_dir = os.path.join('Data', 'documents')
@@ -63,10 +66,10 @@ class RagRetriever:
         documents = loader.load()
         
         if not documents:
-            print("No documents found to build the database.")
+            logger.info("No documents found to build the database.")
             return
             
-        print(f"Loaded {len(documents)} documents.")
+        logger.info(f"Loaded {len(documents)} documents.")
         
         # Split documents into chunks
         text_splitter = RecursiveCharacterTextSplitter(
@@ -76,7 +79,7 @@ class RagRetriever:
         )
         chunks = text_splitter.split_documents(documents)
         
-        print(f"Created {len(chunks)} chunks.")
+        logger.info(f"Created {len(chunks)} chunks.")
         
         # Create and persist the database
         self.db = Chroma.from_documents(
@@ -85,7 +88,7 @@ class RagRetriever:
             persist_directory=self.db_name
         )
         self.db.persist()
-        print(f"Database built and persisted to {self.db_name}")
+        logger.info(f"Database built and persisted to {self.db_name}")
     
     def query(self, query_text: str) -> List[Dict[str, Any]]:
         """
@@ -137,9 +140,9 @@ class RagRetriever:
         
         1. TRAINING PRINCIPLES: Key training principles mentioned
         2. PROGRESSION STRATEGIES: How to progress in training (weight, reps, sets, RPE.)
-        3. Training intensity: Recommendations for training intensity. Include Rate of Perceived Exertion (RPE) if available.
-        3. EXERCISE SELECTION: Guidelines for selecting appropriate exercises 
-        4. VOLUME & FREQUENCY: Recommendations for training volume and frequency
+        3. TRAINING INTENSITY: Recommendations for training intensity. Include Rate of Perceived Exertion (RPE) if available.
+        4. EXERCISE SELECTION: Guidelines for selecting appropriate exercises 
+        5. VOLUME & FREQUENCY: Recommendations for training volume and frequency
         
         For each category, provide 2-3 concise, actionable bullet points. If a category isn't addressed in the excerpts, write "No specific information available."
         
@@ -148,10 +151,15 @@ class RagRetriever:
         
         try:
             summary = self.summarize_model(summarization_prompt)
+            # Validate the summary has the expected structure
+            required_sections = ["TRAINING PRINCIPLES", "PROGRESSION STRATEGIES", "EXERCISE SELECTION"]
+            if not any(section in summary for section in required_sections):
+                logger.warning("Summary missing expected sections, may need reformatting")
             return summary
         except Exception as e:
-            print(f"Error in summarization: {e}")
-            return "Error generating summary. Using raw excerpts instead."
+            logger.error(f"Error in summarization: {e}")
+            # More informative fallback with error details
+            return f"Error generating summary: {str(e)[:100]}... Using raw excerpts instead."
     
     def query_with_context(self, query_text: str) -> str:
         """
