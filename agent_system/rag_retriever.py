@@ -1,39 +1,44 @@
 import os
-from langchain_community.vectorstores import Chroma
+from typing import List, Dict, Any
+from langchain_chroma import Chroma  # Updated import to fix deprecation warning
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from .setup_api import setup_embeddings
 
 class RagRetriever:
-    def __init__(self, db_name="chroma_db", top_k=5, rebuild_db=False):
+    """
+    Retriever class that interfaces with the RAG system to provide relevant context 
+    for the training program generator.
+    """
+    
+    def __init__(self, db_name: str = os.path.join("Data", "chroma_db"), top_k: int = 5, rebuild_db: bool = False):
         """
-        Initialize the RAG retriever with a Chroma database.
+        Initialize the RAG retriever.
         
         Args:
-            db_name: Path to the database
-            top_k: Number of documents to retrieve
-            rebuild_db: Whether to rebuild the database
+            db_name: Name of the vector database directory
+            top_k: Number of top results to retrieve
+            rebuild_db: Whether to rebuild the database from scratch
         """
         self.db_name = db_name
         self.top_k = top_k
         
-        try:
-            self.embedding_function = setup_embeddings()
-            
-            # Create the database directory if it doesn't exist
-            os.makedirs(os.path.dirname(self.db_name), exist_ok=True)
-            
-            # Initialize or load the database
-            if rebuild_db or not os.path.exists(self.db_name):
+        # Setup embedding model
+        self.embedding_model = setup_embeddings(model="models/text-embedding-004")
+        
+        # Rebuild database if requested
+        if rebuild_db:
+            try:
+                print("Rebuilding RAG database...")
                 self._build_database()
-            else:
-                self.db = Chroma(
-                    persist_directory=self.db_name,
-                    embedding_function=self.embedding_function
-                )
-        except Exception as e:
-            print(f"Error initializing RAG retriever: {e}")
-            raise
+            except Exception as e:
+                print(f"Error rebuilding database: {e}")
+        
+        # Initialize the Chroma client with the updated import
+        self.db = Chroma(
+            persist_directory=self.db_name,
+            embedding_function=self.embedding_model
+        )
     
     def _build_database(self):
         """Build the vector database from documents in the data directory."""
@@ -69,25 +74,68 @@ class RagRetriever:
         # Create and persist the database
         self.db = Chroma.from_documents(
             documents=chunks,
-            embedding=self.embedding_function,
+            embedding=self.embedding_model,
             persist_directory=self.db_name
         )
         self.db.persist()
         print(f"Database built and persisted to {self.db_name}")
     
-    def retrieve(self, query, top_k=None):
+    def query(self, query_text: str) -> List[Dict[str, Any]]:
         """
-        Retrieve relevant documents for a query.
+        Query the vector store for relevant information.
         
         Args:
-            query: The query string
-            top_k: Optional override for number of documents to retrieve
+            query_text: The query text to search for
             
         Returns:
-            List of retrieved documents
+            List of relevant document chunks with metadata and similarity scores
         """
-        if top_k is None:
-            top_k = self.top_k
+        results = self.db.similarity_search_with_score(query_text, k=self.top_k)
+        
+        # Format the results
+        formatted_results = []
+        for doc, score in results:
+            formatted_results.append({
+                "text": doc.page_content,
+                "metadata": doc.metadata,
+                "similarity_score": score
+            })
+        
+        return formatted_results
+    
+    def query_with_context(self, query_text: str) -> str:
+        """
+        Query the vector store and format the results into a context string.
+        
+        Args:
+            query_text: The query text to search for
             
-        results = self.db.similarity_search(query, k=top_k)
-        return [doc.page_content for doc in results]
+        Returns:
+            Formatted context string with retrieved information
+        """
+        results = self.query(query_text)
+        
+        if not results:
+            return "No relevant information found."
+        
+        context_parts = []
+        for i, result in enumerate(results):
+            context_parts.append(f"SOURCE {i+1}: {result['metadata'].get('filename', 'Unknown')}")
+            context_parts.append(f"EXCERPT: {result['text'][:500]}...")  # Limit text length
+            context_parts.append(f"RELEVANCE: {result['similarity_score']:.4f}")
+            context_parts.append("-" * 40)
+        
+        return "\n".join(context_parts)
+        
+    def retrieve(self, query_text: str) -> List[str]:
+        """
+        Alias for query method returning only the text content.
+        
+        Args:
+            query_text: The query text to search for
+            
+        Returns:
+            List of text content from retrieved documents
+        """
+        results = self.query(query_text)
+        return [result["text"] for result in results]

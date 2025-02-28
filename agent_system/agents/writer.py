@@ -19,9 +19,39 @@ class Writer:
         """Retrieve relevant information using RAG if available"""
         if self.retriever:
             try:
-                relevant_docs = self.retriever.retrieve(user_input)
-                if relevant_docs:
-                    context = "\n\nRelevant information:\n" + "\n".join(relevant_docs)
+                # Extract persona information if present
+                persona_info = ""
+                if "Target Persona:" in user_input:
+                    persona_info = user_input.split("Target Persona:")[1].strip()
+                
+                # Create search queries focused on both the user input and specific training aspects
+                queries = [
+                    user_input,  # Original query
+                    f"training program for {persona_info}" if persona_info else "",
+                    "frequency training major muscle groups at least twice weekly",
+                    "exercise selection for balanced muscle development",
+                    "progressive overload techniques for strength training",
+                    
+                ]
+                
+                # Filter out empty queries
+                queries = [q for q in queries if q]
+                
+                # Retrieve documents for each query and combine results
+                all_docs = []
+                for query in queries:
+                    docs = self.retriever.retrieve(query)
+                    if docs:
+                        all_docs.extend(docs)
+                
+                # Remove duplicates while preserving order
+                seen = set()
+                unique_docs = [doc for doc in all_docs if not (doc in seen or seen.add(doc))]
+                
+                if unique_docs:
+                    context = "\n\nRelevant information for training program design:\n"
+                    for i, doc in enumerate(unique_docs[:5]):  # Limit to top 5 to avoid overloading
+                        context += f"\n--- Document {i+1} ---\n{doc}\n"
                     return context
             except Exception as e:
                 print(f"RAG retrieval error: {e}")
@@ -38,6 +68,11 @@ class Writer:
         augmented_input = program['user-input']
         if context:
             augmented_input += context
+            print("Retrieved relevant context for program design.")
+        
+        # Add specific instruction about muscle group frequency
+        frequency_instruction = "\n\nIMPORTANT: Ensure each major muscle group (chest, back, legs) is trained at least TWICE per week for optimal results."
+        augmented_input += frequency_instruction
         
         prompt = [
             self.role,

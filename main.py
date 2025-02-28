@@ -97,6 +97,7 @@ def setup_agents(
         model=llm_critic,
         role=critic_prompt_settings.role,
         task=critic_prompt_settings.task,
+        retriever=retriever,  # Pass the retriever to the Critic agent too
         )
 
     editor = Editor()
