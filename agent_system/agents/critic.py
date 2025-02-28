@@ -6,7 +6,6 @@ class Critic:
             task: str,
             ):
         self.model = model
-
         self.role = role
         self.task = task
 
@@ -25,18 +24,19 @@ class Critic:
             },
         ]
 
-        # Implement the below with a real LLM call...
-        # feedback = self.model(prompt)
-        feedback = 'revise it!!' if program['draft'] == 'bad program' else 'None'
+        # Convert prompt to a single string as expected by the Gemini API
+        combined_prompt = "\n".join(item.get("content", "") if isinstance(item, dict) else str(item) for item in prompt)
+        
+        # Real LLM call
+        feedback = self.model(combined_prompt)
 
         if len(feedback) < 10 and 'none' in feedback.lower(): # just some sliiightly more flexible catching
-            print('CrititAgent has no feedback') # FIXME proper logging
+            print('CriticAgent has no feedback') # FIXME proper logging
             return {'feedback': None}
 
-        print(f'CritiAgent has feedback {feedback}') # FIXME proper logging
+        print(f'CriticAgent has feedback: {feedback[:100]}...') # FIXME proper logging, truncated for readability
         return {'feedback': feedback}
 
     def __call__(self, article: dict[str, str | None]) -> dict[str, str | None]:
         article.update(self.critique(article))
-
         return article

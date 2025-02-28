@@ -13,11 +13,13 @@ class ProgramGenerator:
             writer: Writer,
             critic: Critic,
             editor: Editor,
+            max_iterations=3,
             ):
         # Agents
         self.writer = writer
         self.critic = critic
         self.editor = editor
+        self.max_iterations = max_iterations
 
         # Build graph
         graph = Graph()
@@ -57,12 +59,42 @@ class ProgramGenerator:
             self,
             user_input: str,
             ) -> dict[str, str | None]:
-        # Prepare inputs
+        """
+        Create a training program based on user input.
+        
+        Args:
+            user_input: User's requirements for the program
+            
+        Returns:
+            Dictionary containing the final program and related information
+        """
+        # Initialize the program dictionary
         program = {
             'user-input': user_input,
-            # Maybe you add other information...
+            'draft': None,
+            'feedback': None,
+            'formatted': None,
+            'iterations': 0,
         }
-
-        final_state = self.app.invoke(program)
-
-        return final_state
+        
+        # Generate initial draft
+        program = self.writer(program)
+        
+        # Iterate until no more feedback or max iterations reached
+        for i in range(self.max_iterations):
+            program['iterations'] = i + 1
+            
+            # Get feedback from critic
+            program = self.critic(program)
+            
+            # If no feedback, break the loop
+            if not program.get('feedback'):
+                break
+                
+            # Revise based on feedback
+            program = self.writer(program)
+        
+        # Format the final program
+        program = self.editor(program)
+        
+        return program

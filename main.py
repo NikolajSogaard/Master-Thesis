@@ -1,5 +1,6 @@
 import argparse
-import json  # Added missing json import
+import json
+import os
 
 from agent_system import (
     setup_llm,
@@ -7,6 +8,7 @@ from agent_system import (
     Writer,
     Critic,
     Editor,
+    RagRetriever,
 )
 
 from prompts import (
@@ -21,12 +23,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     # User settings
-    parser.add_argument('--mode', type=str, default='new', choices=['new', 'revise']) # TODO only implemented a "new" version, could add control flow logic to handle the revise case, probably with a slightly modified agent framework..?
-    parser.add_argument('--user-input', type=str, help='Some instructions') # TODO probably want to pass this as an fname or smth
-    parser.add_argument('--persona', type=str, help='Specify the persona key to use', choices=['1', '2', '3']) # TODO probably want to pass this as an fname or smth
+    parser.add_argument('--mode', type=str, default='new', choices=['new', 'revise'])
+    parser.add_argument('--user-input', type=str, help='Some instructions')
+    parser.add_argument('--persona', type=str, help='Specify the persona key to use', choices=['1', '2', '3'])
 
     # Data settings
-    ...
+    parser.add_argument('--rebuild-db', action='store_true', help='Rebuild the RAG database')
 
     # Model/LLM/API settings
     parser.add_argument('--model', type=str, default='gemini-2.0-flash')
@@ -38,6 +40,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--writer-prompt-settings', type=str, default='v1', choices=WRITER_PROMPT_SETTINGS.keys())
     parser.add_argument('--critic-prompt-settings', type=str, default='v1', choices=CRITIC_PROMPT_SETTINGS.keys())
 
+    # RAG settings
+    parser.add_argument('--rag-top-k', type=int, default=5, help='Number of documents to retrieve')
+    parser.add_argument('--disable-rag', action='store_true', help='Disable RAG retrieval')
+    parser.add_argument('--try-without-rag', action='store_true', help='Continue without RAG if initialization fails')
+
     args = parser.parse_args()
 
     return args
@@ -48,6 +55,22 @@ def setup_agents(
         writer_prompt_settings: WriterPromptSettings,
         critic_prompt_settings: CriticPromptSettings,
         ) -> ProgramGenerator:
+    # Initialize RAG retriever if not disabled
+    retriever = None
+    if not args.disable_rag:
+        try:
+            retriever = RagRetriever(
+                db_name=os.path.join('Data', 'chroma_db'),
+                top_k=args.rag_top_k,
+                rebuild_db=args.rebuild_db
+            )
+        except Exception as e:
+            print(f"Warning: Failed to initialize RAG retriever: {e}")
+            if args.try_without_rag:
+                print("Continuing without RAG as --try-without-rag is set...")
+            else:
+                raise
+
     # Underlying LLMs
     llm_writer = setup_llm(
         model=args.model,
@@ -68,6 +91,7 @@ def setup_agents(
         structure=writer_prompt_settings.structure,
         task=writer_prompt_settings.task,
         task_revision=writer_prompt_settings.task_revision,
+        retriever=retriever,  # Pass the retriever to the Writer agent
     )
     critic = Critic(
         model=llm_critic,
@@ -94,7 +118,8 @@ def main():
     program_input = args.user_input
     if args.persona:
         try:
-            with open('c:/Users/nikol/OneDrive/Dokumenter/GitHub/Master-Thesis/Data/personas_vers2.json') as f:
+            persona_path = os.path.join('Data', 'personas', 'personas_vers2.json')
+            with open(persona_path) as f:
                 personas = json.load(f)["Personas"]
             selected_persona = personas.get(args.persona)
             if not selected_persona:
@@ -109,9 +134,6 @@ def main():
     writer_prompt_settings = WRITER_PROMPT_SETTINGS[args.writer_prompt_settings]
     critic_prompt_settings = CRITIC_PROMPT_SETTINGS[args.critic_prompt_settings]
 
-    # Load data
-    ...
-
     # Setup agents
     program_generator = setup_agents(
         args=args,
@@ -125,9 +147,6 @@ def main():
     )
     # Print formatted training program output.
     print(program.get('formatted'))
-
-    # Save program
-    ...
 
 
 if __name__ == '__main__':

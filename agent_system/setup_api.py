@@ -5,12 +5,12 @@ import json
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import time
 
-def setup_embeddings(model="text-embedding-004"):
+def setup_embeddings(model="models/embedding-001"):
     """
     Set up and return a Google Generative AI embeddings model.
     
     Args:
-        model: The embedding model to use
+        model: The embedding model to use (must use format "models/embedding-001")
     
     Returns:
         A configured embedding model

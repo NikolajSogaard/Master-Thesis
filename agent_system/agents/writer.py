@@ -6,23 +6,45 @@ class Writer:
             structure: str,
             task: str,
             task_revision: str,
+            retriever=None,
             ):
         self.model = model
         self.role = role
         self.structure = structure
         self.task = task
         self.task_revision = task_revision
+        self.retriever = retriever
+
+    def _get_relevant_context(self, user_input):
+        """Retrieve relevant information using RAG if available"""
+        if self.retriever:
+            try:
+                relevant_docs = self.retriever.retrieve(user_input)
+                if relevant_docs:
+                    context = "\n\nRelevant information:\n" + "\n".join(relevant_docs)
+                    return context
+            except Exception as e:
+                print(f"RAG retrieval error: {e}")
+        return ""
 
     def write(
             self,
             program: dict[str, str | None],
-            ) -> tuple[str, dict[str, str]]:
+            ) -> str:
+        # Get relevant context if retriever is available
+        context = self._get_relevant_context(program['user-input'])
+        
+        # Add context to the user input if available
+        augmented_input = program['user-input']
+        if context:
+            augmented_input += context
+        
         prompt = [
             self.role,
             {
                 'role': 'user',
                 'content': self.task.format(
-                    program['user-input'],
+                    augmented_input,
                     self.structure,
                 ),
             },
@@ -36,7 +58,7 @@ class Writer:
     def revise(
             self,
             program: dict[str, str | None],
-            ) -> tuple[str, dict[str, str]]:
+            ) -> str:
         prompt = [
             self.role,
             {
@@ -55,12 +77,12 @@ class Writer:
         return draft
 
     def __call__(self, program: dict[str, str | None]) -> dict[str, str | None]:
-        if 'feedback' in program:
+        if 'feedback' in program and program['feedback']:
             draft = self.revise(program)
         else:
             draft = self.write(program)
 
-        print(f'Current draft: {draft}') # FIXME proper logging
+        print(f'Current draft: {draft[:100]}...') # FIXME proper logging, but truncate for readability
 
         program['draft'] = draft
 
