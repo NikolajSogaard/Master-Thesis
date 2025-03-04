@@ -21,7 +21,6 @@ def setup_llm(
     if not credentials_path or not api_key:
         raise EnvironmentError("Required environment variables are missing.")
 
-    print("Sensitive credentials loaded successfully!")
 
     # Configure the Gemini API using your API key
     genai.configure(api_key=api_key)

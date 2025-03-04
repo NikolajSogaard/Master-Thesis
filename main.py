@@ -94,7 +94,7 @@ def main():
     program_input = args.user_input
     if args.persona:
         try:
-            with open('c:/Users/nikol/OneDrive/Dokumenter/GitHub/Master-Thesis/Data/personas_vers2.json') as f:
+            with open('Data/personas/personas_vers2.json') as f:
                 personas = json.load(f)["Personas"]
             selected_persona = personas.get(args.persona)
             if not selected_persona:
