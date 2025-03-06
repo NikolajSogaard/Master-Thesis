@@ -212,6 +212,25 @@ def submit_feedback():
     flash("Feedback submitted successfully!")
     return redirect(url_for('index'))
 
+# Simplified helper function that doesn't specify field details since they're in the prompt structure
+def create_next_week_prompt(user_input, current_program, feedback_data, current_week, persona=None):
+    """Creates the prompt for generating the next week's program"""
+    prompt = f"""
+    Original User Input: {user_input}
+    
+    Previous Program: {json.dumps(current_program)}
+    
+    User Feedback: {json.dumps(feedback_data)}
+    
+    Please generate Week {current_week + 1} program considering the feedback provided.
+    Autoregulate the training loads based on the actual performance data.
+    """
+    
+    if persona:
+        prompt += f"\nTarget Persona: {persona}"
+    
+    return prompt
+
 @app.route('/next_week', methods=['GET', 'POST'])
 def next_week():
     """Generate the next week's program based on feedback"""
@@ -255,21 +274,14 @@ def next_week():
     # Prepare input for next week's program
     current_program = session['raw_program']
     
-    # Create input that includes previous program and feedback
-    next_week_input = f"""
-    Original User Input: {session.get('user_input', '')}
-    
-    Previous Program: {json.dumps(current_program)}
-    
-    User Feedback: {json.dumps(feedback_data)}
-    
-    Please generate Week {current_week + 1} program considering the feedback provided.
-    Autoregulate the training loads based on the actual performance data.
-    
-    IMPORTANT: Since this is Week {current_week + 1}, you MUST include a specific 'suggestion' field for each exercise
-    with weight/rep recommendations based on the user's previous performance.
-    Be specific with your suggestions - include actual weight numbers, rep ranges, and RPE targets.
-    """
+    # Use the helper function to create the prompt
+    next_week_input = create_next_week_prompt(
+        user_input=session.get('user_input', ''),
+        current_program=session['raw_program'],
+        feedback_data=feedback_data,
+        current_week=current_week,
+        persona=session.get('persona_data') if session.get('persona') else None
+    )
     
     if session.get('persona'):
         try:

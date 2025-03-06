@@ -36,6 +36,8 @@ Based on feedback from your colleague below:
 IMPORTANT: Your output MUST be valid JSON and nothing else. Do not include any explanatory text, markdown formatting, or code block markers.
 Make sure the revised program strictly follows this JSON format, as it will be directly inserted into an HTML template:
 {}
+
+If this is for a subsequent week of training (Week 2+), you MUST include personalized 'suggestion' fields for each exercise based on the performance data from the previous week. Include actual weight numbers, rep ranges, and RPE targets in your suggestions.
 '''
 
 PROGRAM_STRUCTURE = '''
@@ -48,7 +50,8 @@ PROGRAM_STRUCTURE = '''
         "reps": "8-12",
         "target_rpe": 7,
         "rest": "60-90 seconds",
-        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)"
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
+        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135lb for 3x8 at RPE 8')"
       }
     ],
     "Day 2": [
@@ -58,7 +61,8 @@ PROGRAM_STRUCTURE = '''
         "reps": "5-8",
         "target_rpe": 8,
         "rest": "2-3 minutes",
-        "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)"
+        "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
+        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5lb to 225lb for 4x6 at RPE 7-8')"
       }
     ]
   }
