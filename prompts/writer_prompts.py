@@ -48,7 +48,7 @@ PROGRAM_STRUCTURE = '''
         "reps": "8-12",
         "target_rpe": 7,
         "rest": "60-90 seconds",
-        "cues": "Form cues and technique tips"
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)"
       }
     ],
     "Day 2": [
@@ -58,7 +58,7 @@ PROGRAM_STRUCTURE = '''
         "reps": "5-8",
         "target_rpe": 8,
         "rest": "2-3 minutes",
-        "cues": "Form cues and technique tips"
+        "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)"
       }
     ]
   }

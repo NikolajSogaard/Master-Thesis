@@ -2,79 +2,276 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weekly Strength Training Program</title>
   <style>
-    table, th, td {
-      border: 1px solid #333;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+    
+    h2 {
+      color: #3498db;
+      margin-top: 1.5rem;
+      border-left: 4px solid #3498db;
+      padding-left: 10px;
+    }
+    
+    table {
+      width: 100%;
       border-collapse: collapse;
-      padding: 5px;
+      margin-bottom: 25px;
+      font-size: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      table-layout: fixed;
     }
-    th, td { text-align: left; }
-    .container { width: 80%; margin: auto; }
+    
+    table * {
+      font-size: 0.75rem;
+    }
+    
+    th {
+      background-color: #f2f6f9;
+      color: #2c3e50;
+      font-weight: bold;
+      padding: 8px;
+      text-align: left;
+      border: 1px solid #ddd;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 8px;
+      text-align: left;
+      border: 1px solid #ddd;
+      vertical-align: top;
+      word-wrap: break-word;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
     .set-input {
-      display: inline-block;
-      margin-right: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      align-items: center;
+      margin-bottom: 5px;
+      padding: 2px 0;
+      border-bottom: 1px dashed #eee;
     }
+    
+    .set-number {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    
+    .set-field {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      margin-right: 5px;
+    }
+    
+    table input[type="number"], 
+    table input[type="text"],
+    table textarea {
+      padding: 3px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 0.75rem;
+    }
+    
+    input[type="number"] {
+      width: 45px;
+    }
+    
     .feedback-input {
       width: 100%;
+      padding: 8px;
+      height: 60px;
+      min-height: 60px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+    }
+    
+    a button {
+      background-color: #27ae60;
+    }
+    
+    a button:hover {
+      background-color: #219955;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+        padding: 1rem;
+      }
+      
+      table, table * {
+        font-size: 0.7rem;
+      }
+      
+      th, td {
+        padding: 5px;
+      }
+    }
+
+    .ai-note {
+      max-height: 80px;
+      overflow: auto;
+      font-style: italic;
+      color: #555;
+    }
+    
+    .week-container {
+      margin-bottom: 40px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .week-header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .ai-suggestion {
+      font-weight: bold;
+      color: #27ae60;
+      font-size: 0.75rem;
+      padding: 3px 0;
     }
   </style>
 </head>
+
 <body>
 <div class="container">
-  <h1>Weekly Strength Training Program</h1>
-  <form action="{{ url_for('submit_feedback') }}" method="post">
-    {% for day, exercises in program.items() %}
-      <h2>{{ day }}</h2>
-      <table style="width:100%; margin-bottom:20px;">
-        <thead>
-          <tr>
-            <th>Exercise</th>
-            <th>Sets x Reps</th>
-            <th>Target RPE</th>
-            <th>Rest</th>
-            <th>Cues</th>
-            <th>Set Feedback<br/>(Inline inputs)</th>
-            <th>Overall Feedback<br/>(Free Text)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for exercise_index in range(exercises|length) %}
-          {% set exercise = exercises[exercise_index] %}
-          <tr>
-            <td>
-              {{ exercise.name }}
-              <!-- Hidden field to capture exercise name -->
-              <input type="hidden" name="{{ day.replace(' ', '') }}_ex{{ exercise_index }}_name" value="{{ exercise.name }}">
-            </td>
-            <td>{{ exercise.sets }} x {{ exercise.reps }}</td>
-            <td>{{ exercise.target_rpe }}</td>
-            <td>{{ exercise.rest }}</td>
-            <td>{{ exercise.cues }}</td>
-            <td>
-              {% for i in range(exercise.sets) %}
-                <div class="set-input">
-                  <strong>Set {{ i+1 }}:</strong>
-                  Weight: <input type="number" step="0.1" name="{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_weight" required>
-                  Reps: <input type="number" name="{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_reps" required>
-                  RPE: <input type="number" step="0.1" name="{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_actual_rpe" required>
-                </div>
-              {% endfor %}
-            </td>
-            <td>
-              <input type="text" name="{{ day.replace(' ', '') }}_ex{{ exercise_index }}_feedback" class="feedback-input" placeholder="Your overall feedback">
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <h1>Strength Training Program</h1>
+  
+  <form action="{{ url_for('next_week') }}" method="post" id="training-form">
+    {% for week_program in programs %}
+    <div class="week-container" id="week-{{ week_program.week }}">
+      <div class="week-header">Week {{ week_program.week }}</div>
+      
+      {% for day, exercises in week_program.program.items() %}
+        <h2>{{ day }}</h2>
+        <table style="margin-bottom:20px;">
+          <thead>
+            <tr>
+              <th style="width:10%">Exercise</th>
+              <th style="width:10%">Sets x Reps</th>
+              <th style="width:10%">Target RPE</th>
+              <th style="width:8%">Rest</th>
+              {% if week_program.week > 1 %}
+              <th style="width:15%">AI Suggestion</th>
+              <th style="width:15%">AI Note</th>
+              {% else %}
+              <th style="width:30%">AI Note</th>
+              {% endif %}
+              <th style="width:45%">Set Feedback</th>
+              <th style="width:20%">Overall Feedback</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for exercise in exercises %}
+            {% set exercise_index = loop.index0 %}
+            <tr>
+              <td>
+                {{ exercise.name }}
+                <!-- Hidden field to capture exercise name -->
+                <input type="hidden" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_name" value="{{ exercise.name }}">
+              </td>
+              <td>{{ exercise.sets }} x {{ exercise.reps }}</td>
+              <td>{{ exercise.target_rpe }}</td>
+              <td>{{ exercise.rest }}</td>
+              {% if week_program.week > 1 %}
+              <td>
+                <div class="ai-suggestion">{{ exercise.suggestion|default('Based on last week: Try ' + exercise.sets|string + ' sets of ' + exercise.reps + ' at RPE ' + exercise.target_rpe|string) }}</div>
+              </td>
+              {% endif %}
+              <td>
+                <div class="ai-note">{{ exercise.cues }}</div>
+              </td>
+              <td>
+                {% for i in range(exercise.sets) %}
+                  <div class="set-input">
+                    <span class="set-number">Set {{ i+1 }}:</span>
+                    <span class="set-field">Weight: <input type="number" step="0.1" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_weight" {% if week_program.week != current_week %}disabled{% endif %}></span>
+                    <span class="set-field">Reps: <input type="number" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_reps" {% if week_program.week != current_week %}disabled{% endif %}></span>
+                    <span class="set-field">RPE: <input type="number" step="0.1" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_actual_rpe" {% if week_program.week != current_week %}disabled{% endif %}></span>
+                  </div>
+                {% endfor %}
+              </td>
+              <td>
+                <textarea name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_feedback" class="feedback-input" placeholder="Your overall feedback" {% if week_program.week != current_week %}disabled{% endif %}></textarea>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+    </div>
     {% endfor %}
-    <button type="submit">Submit Feedback</button>
+    
+    <div class="action-buttons">
+      <button type="submit">Generate Week {{ current_week + 1 }} Program</button>
+      <a href="{{ url_for('generate_program') }}">
+        <button type="button" style="background-color: #e74c3c;">Start New Program</button>
+      </a>
+    </div>
   </form>
-  <br>
-  <a href="{{ url_for('next_week') }}">
-    <button>Generate Next Week's Program</button>
-  </a>
 </div>
 </body>
 </html>

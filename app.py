@@ -118,7 +118,10 @@ def index():
     if 'program' not in session:
         return redirect(url_for('generate_program'))
     
-    return render_template('index.html', program=session['program'])
+    programs = session.get('all_programs', [])
+    current_week = session.get('current_week', 1)
+    
+    return render_template('index.html', programs=programs, current_week=current_week)
 
 @app.route('/generate', methods=['GET', 'POST'])
 def generate_program():
@@ -148,11 +151,19 @@ def generate_program():
         program_result = program_generator.create_program(user_input=program_input)
         
         # Parse and store the program in session
-        session['program'] = parse_program(program_result.get('formatted'))
+        parsed_program = parse_program(program_result.get('formatted'))
+        session['program'] = parsed_program
         session['raw_program'] = program_result
         session['user_input'] = user_input
         session['persona'] = persona
         session['feedback'] = {}
+        
+        # Initialize week tracking
+        session['current_week'] = 1
+        session['all_programs'] = [{
+            'week': 1,
+            'program': parsed_program
+        }]
         
         return redirect(url_for('index'))
     
@@ -166,47 +177,83 @@ def submit_feedback():
         flash("No active program to provide feedback for.")
         return redirect(url_for('index'))
     
-    # Collect feedback from form
-    feedback = {}
-    for day, exercises in session['program'].items():
+    # Collect feedback data
+    feedback_data = {}
+    program = session.get('program', {})
+    
+    for day, exercises in program.items():
         day_key = day.replace(' ', '')
-        feedback[day] = []
+        feedback_data[day] = []
         
-        for i, _ in enumerate(exercises):
+        for i, exercise in enumerate(exercises):
             exercise_feedback = {
-                'name': request.form.get(f"{day_key}_ex{i}_name", ""),
-                'sets': []
+                'name': exercise['name'],
+                'sets_data': [],
+                'overall_feedback': request.form.get(f"{day_key}_ex{i}_feedback", "")
             }
             
-            # Get all set data for this exercise
-            sets_count = len(exercises[i].get('sets', 0))
-            for set_num in range(sets_count):
-                set_data = {
-                    'weight': request.form.get(f"{day_key}_ex{i}_set{set_num}_weight", ""),
-                    'reps': request.form.get(f"{day_key}_ex{i}_set{set_num}_reps", ""),
-                    'actual_rpe': request.form.get(f"{day_key}_ex{i}_set{set_num}_actual_rpe", "")
-                }
-                exercise_feedback['sets'].append(set_data)
+            # Get the number of sets correctly - it's already an integer
+            sets_count = exercise.get('sets', 0)
             
-            # Get overall exercise feedback
-            exercise_feedback['overall'] = request.form.get(f"{day_key}_ex{i}_feedback", "")
-            feedback[day].append(exercise_feedback)
+            # Process each set's feedback
+            for j in range(sets_count):
+                set_data = {
+                    'weight': request.form.get(f"{day_key}_ex{i}_set{j}_weight"),
+                    'reps': request.form.get(f"{day_key}_ex{i}_set{j}_reps"),
+                    'actual_rpe': request.form.get(f"{day_key}_ex{i}_set{j}_actual_rpe")
+                }
+                exercise_feedback['sets_data'].append(set_data)
+            
+            feedback_data[day].append(exercise_feedback)
     
     # Store feedback in session
-    session['feedback'] = feedback
+    session['feedback'] = feedback_data
+    
     flash("Feedback submitted successfully!")
     return redirect(url_for('index'))
 
-@app.route('/next_week')
+@app.route('/next_week', methods=['GET', 'POST'])
 def next_week():
     """Generate the next week's program based on feedback"""
-    if 'program' not in session or 'feedback' not in session:
-        flash("No program or feedback available to generate next week's program")
+    if 'program' not in session:
+        flash("No program available to generate next week's program")
         return redirect(url_for('generate_program'))
+    
+    # First, collect feedback data for the current week
+    feedback_data = {}
+    program = session.get('program', {})
+    current_week = session.get('current_week', 1)
+    
+    for day, exercises in program.items():
+        day_key = day.replace(' ', '')
+        feedback_data[day] = []
+        
+        for i, exercise in enumerate(exercises):
+            exercise_feedback = {
+                'name': exercise['name'],
+                'sets_data': [],
+                'overall_feedback': request.form.get(f"{current_week}_{day_key}_ex{i}_feedback", "")
+            }
+            
+            # Get the number of sets correctly - it's already an integer
+            sets_count = exercise.get('sets', 0)
+            
+            # Process each set's feedback
+            for j in range(sets_count):
+                set_data = {
+                    'weight': request.form.get(f"{current_week}_{day_key}_ex{i}_set{j}_weight"),
+                    'reps': request.form.get(f"{current_week}_{day_key}_ex{i}_set{j}_reps"),
+                    'actual_rpe': request.form.get(f"{current_week}_{day_key}_ex{i}_set{j}_actual_rpe")
+                }
+                exercise_feedback['sets_data'].append(set_data)
+            
+            feedback_data[day].append(exercise_feedback)
+    
+    # Store feedback in session
+    session['feedback'] = feedback_data
     
     # Prepare input for next week's program
     current_program = session['raw_program']
-    feedback = session['feedback']
     
     # Create input that includes previous program and feedback
     next_week_input = f"""
@@ -214,10 +261,14 @@ def next_week():
     
     Previous Program: {json.dumps(current_program)}
     
-    User Feedback: {json.dumps(feedback)}
+    User Feedback: {json.dumps(feedback_data)}
     
-    Please generate the next week's program considering the feedback provided.
+    Please generate Week {current_week + 1} program considering the feedback provided.
     Autoregulate the training loads based on the actual performance data.
+    
+    IMPORTANT: Since this is Week {current_week + 1}, you MUST include a specific 'suggestion' field for each exercise
+    with weight/rep recommendations based on the user's previous performance.
+    Be specific with your suggestions - include actual weight numbers, rep ranges, and RPE targets.
     """
     
     if session.get('persona'):
@@ -235,11 +286,23 @@ def next_week():
     program_result = program_generator.create_program(user_input=next_week_input)
     
     # Update session with new program
-    session['program'] = parse_program(program_result.get('formatted'))
+    parsed_program = parse_program(program_result.get('formatted'))
+    session['program'] = parsed_program
     session['raw_program'] = program_result
     session['feedback'] = {}
     
-    flash("Next week's program generated successfully!")
+    # Increment week number and add to programs list
+    new_week = current_week + 1
+    session['current_week'] = new_week
+    
+    all_programs = session.get('all_programs', [])
+    all_programs.append({
+        'week': new_week,
+        'program': parsed_program
+    })
+    session['all_programs'] = all_programs
+    
+    flash(f"Week {new_week} program generated successfully!")
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
