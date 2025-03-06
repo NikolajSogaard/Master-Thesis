@@ -1,3 +1,5 @@
+import json
+
 class Writer:
     def __init__(
             self,
@@ -31,7 +33,20 @@ class Writer:
         combined_prompt = "\n".join(item.get("content", "") if isinstance(item, dict) else str(item) for item in prompt)
         # Real LLM call
         draft = self.model(combined_prompt)
-        return draft
+        
+        # Ensure draft is properly formatted
+        if isinstance(draft, dict) and 'weekly_program' in draft:
+            return draft
+        elif isinstance(draft, str):
+            try:
+                parsed = json.loads(draft)
+                if 'weekly_program' in parsed:
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+        
+        # If we get here, wrap the draft in the expected structure
+        return {"weekly_program": draft if isinstance(draft, dict) else {}}
 
     def revise(
             self,
@@ -52,7 +67,20 @@ class Writer:
         combined_prompt = "\n".join(item.get("content", "") if isinstance(item, dict) else str(item) for item in prompt)
         # Real LLM call for revision
         draft = self.model(combined_prompt)
-        return draft
+        
+        # Same formatting check as in write method
+        if isinstance(draft, dict) and 'weekly_program' in draft:
+            return draft
+        elif isinstance(draft, str):
+            try:
+                parsed = json.loads(draft)
+                if 'weekly_program' in parsed:
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+        
+        # If we get here, wrap the draft in the expected structure
+        return {"weekly_program": draft if isinstance(draft, dict) else {}}
 
     def __call__(self, program: dict[str, str | None]) -> dict[str, str | None]:
         if 'feedback' in program:
