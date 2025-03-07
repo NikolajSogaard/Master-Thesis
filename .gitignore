@@ -1,4 +1,7 @@
+# Custom ignores
+Data/books/
 cre.env
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
