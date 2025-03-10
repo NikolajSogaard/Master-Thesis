@@ -1,3 +1,7 @@
+"""
+add tasks: Get different retrival to look up different task (like volume, exercise selection, rep/rep) 
+with diffenent prompts in critic_prompt.py.
+"""
 class Critic:
     def __init__(
             self,

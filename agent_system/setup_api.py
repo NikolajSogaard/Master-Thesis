@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import google.generativeai as genai
 import json
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 def setup_llm(
         model: str,
@@ -56,3 +57,50 @@ def setup_llm(
         return response_text  # Return text by default
 
     return generate_response
+
+def setup_embeddings(model="models/text-embedding-004"):
+    """
+    Set up and return a Google Generative AI embeddings model.
+    
+    Args:
+        model: The embedding model to use (must use format "models/embedding-001")
+    
+    Returns:
+        A configured embedding model
+    """
+    # Load environment variables if not already loaded
+    load_dotenv('cre.env')  # adjust the path if needed
+    
+    # Get API key from environment variables
+    api_key = os.environ.get("GOOGLE_GEMINI_API_KEY")
+    
+    # Check if API key is available
+    if not api_key:
+        raise EnvironmentError("Google API Key is missing.")
+    
+    # Configure Gemini API if not already configured
+    genai.configure(api_key=api_key)
+    
+    print(f"Setting up embedding model: {model}")
+    
+    # Initialize with retry mechanism
+    max_retries = 3
+    retry_delay = 2
+    
+    for attempt in range(max_retries):
+        try:
+            embedding_model = GoogleGenerativeAIEmbeddings(model=model)
+            
+            # Test the model with a simple embedding
+            test_result = embedding_model.embed_query("test")
+            if test_result and len(test_result) > 0:
+                print(f"Embedding model initialized successfully: {model}")
+                return embedding_model
+        except Exception as e:
+            print(f"Attempt {attempt+1}/{max_retries} failed: {str(e)}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                retry_delay *= 2  # Exponential backoff
+    
+    raise ValueError(f"Failed to initialize embedding model after {max_retries} attempts")

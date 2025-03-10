@@ -1,3 +1,5 @@
+#to doo: add relevant retrival
+
 import json
 
 class Writer:
