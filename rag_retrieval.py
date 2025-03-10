@@ -5,7 +5,7 @@ from agent_system.setup_api import setup_embeddings, setup_llm
 
 
 embedding_model = setup_embeddings(model="models/text-embedding-004")
-generate_response = setup_llm(model="models/gemini-2.0-flash", max_tokens=500, temperature=0.7)
+generate_response = setup_llm(model="models/gemini-2.0-flash", max_tokens=1000, temperature=0.7)
 
 vector_store = Chroma(
     persist_directory="data/chroma_db",
