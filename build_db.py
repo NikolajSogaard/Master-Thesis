@@ -14,22 +14,10 @@ def main():
     
     print(f"Looking for PDF files in: {path}")
     
-    # Check if directory exists
-    if not os.path.exists(path):
-        print(f"Directory not found: {path}")
-        os.makedirs(path, exist_ok=True)
-        print(f"Created directory: {path}")
-        print(f"Please add PDF files to this directory and run again.")
-        return
-    
     documents = []
     files = os.listdir(path)
     
     print(f"Files in directory: {files}")
-    
-    if not any(file.endswith(".pdf") for file in files):
-        print(f"No PDF files found in {path}. Please add PDF files and run again.")
-        return
     
     for filename in files:
         if filename.endswith(".pdf"):

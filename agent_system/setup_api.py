@@ -15,15 +15,16 @@ def setup_embeddings(model="models/text-embedding-004"):
     Returns:
         A configured embedding model
     """
-    # Load environment variables if not already loaded
-    load_dotenv('cre.env')  # adjust the path if needed
+    # Load environment variables using absolute path
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'cre.env')
+    load_dotenv(env_path)
     
     # Get API key from environment variables
     api_key = os.environ.get("GOOGLE_GEMINI_API_KEY")
     
     # Check if API key is available
     if not api_key:
-        raise EnvironmentError("Google API Key is missing.")
+        raise EnvironmentError(f"Google API Key is missing. Tried loading from: {env_path}")
     
     # Configure Gemini API if not already configured
     genai.configure(api_key=api_key)
@@ -59,8 +60,9 @@ def setup_llm(
         top_p: float = 0.9,
         respond_as_json: bool = True,
 ):
-    # Load environment variables from cre.env
-    load_dotenv('cre.env')  # adjust the path if needed
+    # Load environment variables using absolute path
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'cre.env')
+    load_dotenv(env_path)  
 
     # Get your credentials from the environment variables
     credentials_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
@@ -68,8 +70,7 @@ def setup_llm(
 
     # Check if both credentials are available
     if not credentials_path or not api_key:
-        raise EnvironmentError("Required environment variables are missing.")
-
+        raise EnvironmentError(f"Required environment variables are missing. Tried loading from: {env_path}")
 
     # Configure the Gemini API using your API key
     genai.configure(api_key=api_key)
