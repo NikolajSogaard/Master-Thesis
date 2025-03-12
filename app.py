@@ -25,6 +25,8 @@ from prompts import (
     CRITIC_PROMPT_SETTINGS,
 )
 
+# Removed MultiCritic import as it's no longer needed
+
 from rag_retrieval import retrieve_and_generate
 
 app = Flask(__name__)
@@ -46,7 +48,7 @@ DEFAULT_CONFIG = {
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
     'critic_prompt_settings': 'v1',
-    'max_iterations': 3  # Default value for maximum critique-revision cycles
+    'max_iterations': 2
 }
 
 def get_program_generator(config=None):
@@ -80,14 +82,11 @@ def get_program_generator(config=None):
         task_revision=writer_prompt_settings.task_revision,
     )
     
-    # Task type can be specified: "general", "exercise_selection", "rep_ranges", "volume", "progression"
-    task_type = config.get('critic_task_type', 'general')
-    
+    # Always use the Critic which now handles all critique types automatically
     critic = Critic(
         model=llm_critic,
         role=critic_prompt_settings.role,
         task=critic_prompt_settings.task,
-        task_type=task_type,
         retrieval_fn=retrieve_and_generate
     )
     
@@ -98,7 +97,7 @@ def get_program_generator(config=None):
         writer=writer,
         critic=critic,
         editor=editor,
-        max_iterations=config.get('max_iterations', 3)  # Get max_iterations from config
+        max_iterations=config.get('max_iterations', 2)  # Get max_iterations from config
     )
 
 def parse_program(program_output):
@@ -149,16 +148,14 @@ def generate_program():
         user_input = request.form.get('user_input', '')
         persona = request.form.get('persona', '')
         
-        # New: Get critic task type
-        critic_task_type = request.form.get('critic_task_type', 'general')
+        # No longer need to get critic_task_type from the form
         
         # Handle empty input
         if not user_input.strip():
             user_input = "Generate a strength training program for the selected persona."
         
-        # Update config with task type
+        # Update config (no critic_task_type needed)
         config = DEFAULT_CONFIG.copy()
-        config['critic_task_type'] = critic_task_type
         
         # Generate program
         program_input = user_input

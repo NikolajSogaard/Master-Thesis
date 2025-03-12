@@ -115,10 +115,13 @@ def retrieve_and_generate(query, specialized_instructions=""):
         if unique_sources:
             source_summary = f"Information retrieved from: {', '.join(unique_sources)}"
     
+    # Add specialized instructions only if provided
+    instruction_text = ""
+    if specialized_instructions and specialized_instructions.strip():
+        instruction_text = specialized_instructions + "\n\n"
+    
     prompt = f"""You are a specialized strength training expert.
-{specialized_instructions}
-
-Using the following excerpts from strength training books and programs, provide concise guidance.
+{instruction_text}Using the following excerpts from strength training books and programs, provide concise guidance.
 Include practical advice, exercise recommendations, and clear explanations.
 {source_summary}
 

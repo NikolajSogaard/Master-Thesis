@@ -5,13 +5,6 @@ class CriticPromptSettings:
     role: dict[str, str]
     task: str
 
-TASK = '''
-Your colleague has written the following training program:
-{}
-For an individual who provided the following input:
-{}
-Provide feedback if any... otherwise only return "None"
-'''
 
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
@@ -36,8 +29,9 @@ Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-Focus specifically on the RPE (Rating of Perceived Exertion) TARGETS. Are they appropriate for this individual's experience level and goals?
-Consider whether the intensity aligns with training objectives and recovery capacity.
+Focus specifically on the RPE (Rating of Perceived Exertion) TARGETS. Are they appropriate for this individual's experience level?
+Consider whether the intensity aligns with the the specific exercise.
+Isolation exercises may require different RPE targets than compound movements.
 Provide feedback if any... otherwise only return "None"
 '''
 
@@ -53,7 +47,7 @@ Provide feedback if any... otherwise only return "None"
 # Dictionary of specialized critic settings for different evaluation tasks
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}
 
-# Default v1 setting - added back to maintain compatibility
+# Update v1 setting to use TASK_EXERCISE_SELECTION instead of the removed general TASK
 CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
     role={
         'role': 'system',
@@ -64,7 +58,7 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
             'If the program meets all criteria, simply return "None".'
         ),
     },
-    task=TASK,
+    task=TASK_EXERCISE_SELECTION,  # Changed from TASK to TASK_EXERCISE_SELECTION
 )
 
 CRITIC_PROMPT_SETTINGS['exercise_selection'] = CriticPromptSettings(

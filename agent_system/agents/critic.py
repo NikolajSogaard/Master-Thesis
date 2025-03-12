@@ -1,55 +1,60 @@
-"""
-add tasks: Get different retrival to look up different task (like volume, exercise selection, rep/rep) 
-with diffenent prompts in critic_prompt.py.
-"""
-from typing import Dict, Optional, Callable
+from typing import Dict, Optional, Callable, List
 from rag_retrieval import retrieve_and_generate, retrieve_context
 
 class Critic:
+    """
+    A critic that runs multiple specialized critiques sequentially with RAG retrieval.
+    """
     def __init__(
             self,
             model,
             role: dict[str, str],
             task: str,
-            task_type: str = "exercise_selection",  # Changed default from "general" to "exercise_selection"
+            task_type: str = None,  # No longer used but kept for backward compatibility
             retrieval_fn: Optional[Callable] = None,
             ):
         self.model = model
         self.role = role
         self.task = task
-        self.task_type = task_type
         self.retrieval_fn = retrieval_fn or retrieve_and_generate
         
         # Default specialized instructions for different task types
         self.specialized_instructions = {
-            "exercise_selection": "Focus on exercise selection appropriateness for the user",
-            "rep_ranges": "Focus on whether rep ranges are optimal for the stated training goals.",
+            "exercise_selection": "Focus on exercise selection appropriateness for the user level",
+            "rep_ranges": "Focus on whether rep ranges are optimal for the users training goals.",
             "rpe": "Focus on whether RPE (Rating of Perceived Exertion) targets are appropriate for the user and for each exercise",
             "progression": "Focus on how the program incorporates progressive overload principles."
         }
+        
+        # Define all task types to always run
+        self.task_types = ["exercise_selection", "rep_ranges", "rpe", "progression"]
 
-    def get_task_query(self, program: dict[str, str | None]) -> str:
-        """Generate an appropriate query based on task type and program content."""
-        user_input = program['user-input']
-        draft = program['draft']
+    def get_task_query(self, program: dict[str, str | None], task_type: str) -> str:
+        """Generate an appropriate query based on task type without including user input."""
         
         queries = {
-            "exercise_selection": f"Are these exercises appropriate for {user_input}?",
-            "rep_ranges": f"Are these rep ranges optimal for {user_input}?",
-            "rpe": f"Are the RPE targets appropriate for {user_input}?",
-            "progression": f"Is progression appropriately structured for {user_input}?"
+            "exercise_selection": "What makes exercise selection appropriate for strength training programs?",
+            "rep_ranges": "What are optimal rep ranges for different strength training goals?",
+            "rpe": "How to determine appropriate RPE targets based on exercise type and experience level?",
+            "progression": "What are effective progression principles in strength training programs?"
         }
         
-        return queries.get(self.task_type, f"Evaluate {self.task_type} in training program for {user_input}")
+        return queries.get(task_type, f"Best practices for {task_type} in strength training programs")
 
-    def critique(
+    def run_single_critique(
             self,
             program: dict[str, str | None],
-            ) -> dict[str, str | None]:
-        # Always use RAG retrieval since we no longer have the "general" option
-        context = ""
-        query = self.get_task_query(program)
-        specialized_instructions = self.specialized_instructions.get(self.task_type, "")
+            task_type: str
+            ) -> str:
+        """Run a single critique with specialized RAG retrieval."""
+        print(f"\n--- Running {task_type.upper()} critique ---")
+        
+        # Get query and instructions for this task type
+        query = self.get_task_query(program, task_type)
+        specialized_instructions = self.specialized_instructions.get(task_type, "")
+        
+        # Retrieve relevant context with specialized instructions
+        print(f"Retrieving context...")
         retrieval_result, _ = self.retrieval_fn(query, specialized_instructions)
         context = f"\nRelevant context from training literature:\n{retrieval_result}\n"
         
@@ -73,24 +78,58 @@ class Critic:
         # This format is compatible with both older and newer Gemini API versions
         full_prompt = f"{system_instructions}\n\n{prompt_content}"
         
+        print(f"Generating critique...")
         # Call the model with the properly formatted prompt
         try:
             feedback = self.model(full_prompt)
+            return feedback if feedback else None
         except Exception as e:
-            print(f"Error calling the model: {e}")
-            return {'feedback': f"Error in critic evaluation: {str(e)}"}
-        
-        # More robust none-checking
-        if feedback is None or (isinstance(feedback, str) and 
-                               (len(feedback.strip()) < 10 and 
-                                ('none' in feedback.lower() or not feedback.strip()))):
-            print('CriticAgent has no feedback') # FIXME proper logging
-            return {'feedback': None}
+            print(f"Error in {task_type.upper()} critique: {e}")
+            return f"Error in {task_type} critique: {str(e)}"
 
-        print(f'CriticAgent has feedback: {feedback}') # FIXME proper logging
-        return {'feedback': feedback}
+    def critique(self, program: dict[str, str | None]) -> dict[str, str | None]:
+        """Run each critique type sequentially with its own RAG retrieval."""
+        print("\n========== CRITIQUE PROCESS STARTED ==========")
+        all_feedback = []
+        
+        # Run each task type with its own specialized retrieval
+        for task_type in self.task_types:
+            feedback = self.run_single_critique(program, task_type)
+            
+            if feedback and isinstance(feedback, str) and feedback.lower() != 'none' and len(feedback.strip()) > 10:
+                # Add the formatted feedback with task type header
+                formatted_feedback = f"[{task_type.upper()} FEEDBACK]:\n{feedback}\n"
+                all_feedback.append(formatted_feedback)
+                
+                # Display the actual feedback in the terminal with clear formatting
+                print(f"\n{'='*50}")
+                print(f"{task_type.upper()} CRITIQUE:")
+                print(f"{'='*50}")
+                # Print the feedback with a max width for readability
+                words = feedback.split()
+                line = ""
+                for word in words:
+                    if len(line) + len(word) > 80:
+                        print(line)
+                        line = word + " "
+                    else:
+                        line += word + " "
+                if line:
+                    print(line)
+                print(f"{'='*50}\n")
+            else:
+                print(f"\n{task_type.upper()} - No significant feedback provided")
+        
+        if not all_feedback:
+            print('No feedback from any critique tasks')
+            return {'feedback': None}
+        
+        # Combine all feedback with section headers
+        combined_feedback = "\n".join(all_feedback)
+        print(f"\n========== CRITIQUE PROCESS COMPLETE ({len(all_feedback)}/{len(self.task_types)}) ==========")
+        return {'feedback': combined_feedback}
 
     def __call__(self, article: dict[str, str | None]) -> dict[str, str | None]:
+        """Make the Critic callable."""
         article.update(self.critique(article))
-
         return article
