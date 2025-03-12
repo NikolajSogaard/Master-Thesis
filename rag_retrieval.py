@@ -48,7 +48,7 @@ def rerank_documents(query: str, results, top_k: int = 10):
     reranked_results.sort(key=lambda x: x[1], reverse=True)  # Changed 'descending' to 'reverse'
     return [item[0] for item in reranked_results[:top_k]]
 
-def retrieve_context(query, k=5, min_relevance_score=0):
+def retrieve_context(query, k=5, min_relevance_score=0, max_context_length=1500):
     """
     Retrieves the top k relevant chunks from the vector store for the query.
     Returns both the context and the source metadata.
@@ -60,29 +60,33 @@ def retrieve_context(query, k=5, min_relevance_score=0):
     # Apply reranking to improve relevance
     reranked_results = rerank_documents(query, results, top_k=k)
     
-    # Group by source for better context organization
-    source_grouped = {}
+    # Extract key parts from each document that most directly answer the query
+    filtered_content = []
     for res in reranked_results:
-        source = res.metadata.get('source', 'unknown')
-        if source not in source_grouped:
-            source_grouped[source] = []
-        source_grouped[source].append(res)
-    
-    # Build organized context with source headings
-    context_parts = []
-    for source, docs in source_grouped.items():
-        source_name = os.path.basename(source) if isinstance(source, str) else "Unknown Source"
-        context_parts.append(f"--- From: {source_name} ---")
-        for doc in docs:
-            context_parts.append(doc.page_content)
+        # Extract the most relevant sentences (simple approach)
+        sentences = re.split(r'(?<=[.!?])\s+', res.page_content)
+        key_sentences = []
+        query_keywords = set(re.findall(r'\b\w+\b', query.lower()))
+        
+        # Keep only sentences with keyword matches or important training terms
+        for sentence in sentences[:10]:  # Limit to first 10 sentences per doc
+            sentence_lower = sentence.lower()
+            # Check for keyword overlap or important training terms
+            if (any(keyword in sentence_lower for keyword in query_keywords) or
+                any(term in sentence_lower for term in ['training', 'exercise', 'progression', 'intensity', 'volume', 'rpe'])):
+                key_sentences.append(sentence)
+        
+        # Add only relevant content
+        if key_sentences:
+            source_name = os.path.basename(res.metadata.get('source', 'unknown'))
+            filtered_content.append(f"From {source_name}: {' '.join(key_sentences[:5])}")  # Limit to 5 most relevant sentences
     
     # Join all parts with appropriate separators
-    context = "\n\n".join(context_parts)
+    context = "\n\n".join(filtered_content)
     
-    # Truncate if too long (prevent context overflow)
-    max_context_length = 2000  # Adjust based on your model's context window
+    # Ensure we don't exceed maximum context length
     if len(context) > max_context_length:
-        context = context[:max_context_length] + "\n[Content truncated due to length]"
+        context = context[:max_context_length] + "\n[Content truncated for conciseness]"
     
     # Extract metadata from results for display
     sources = []
@@ -94,12 +98,11 @@ def retrieve_context(query, k=5, min_relevance_score=0):
     
     return context, sources
 
-def retrieve_and_generate(query, specialized_instructions=""):
+def retrieve_and_generate(query):
     """
     Combines retrieval and generation:
       1. Retrieves context from the vector store.
-      2. Builds a prompt that includes any specialized instructions.
-      3. Generates and returns an answer using Gemini Flash 2.0.
+      2. Generates and returns an answer using the retrieved information.
     """
     context, sources = retrieve_context(query)
     
@@ -115,14 +118,8 @@ def retrieve_and_generate(query, specialized_instructions=""):
         if unique_sources:
             source_summary = f"Information retrieved from: {', '.join(unique_sources)}"
     
-    # Add specialized instructions only if provided
-    instruction_text = ""
-    if specialized_instructions and specialized_instructions.strip():
-        instruction_text = specialized_instructions + "\n\n"
-    
     prompt = f"""You are a specialized strength training expert.
-{instruction_text}Using the following excerpts from strength training books and programs, provide concise guidance.
-Include practical advice, exercise recommendations, and clear explanations.
+Using the following excerpts from strength training books and programs, provide concise guidance.
 {source_summary}
 
 Context:
