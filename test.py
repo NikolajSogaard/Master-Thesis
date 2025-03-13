@@ -4,13 +4,12 @@ from rag_retrieval import retrieve_and_generate, vector_store
 def test_retrieve_and_generate():
     # List of sample queries targeting different aspects of strength training.
     queries = [
-        "What are the optimal rep ranges for hypertrophy?"
+        "What are the optimal RPE ranges for hypertrophy, for specific exercises?"
     ]
     
     # You can provide any additional instructions for specialized guidance.
     specialized_instruction = (
-        "Provide detailed guidance including practical advice, scientific reasoning, "
-        "and examples from strength training literature."
+        "Provide consise guidance, and do not answer outside the scope of the query."
     )
     
     # Print information about the vector store to debug
