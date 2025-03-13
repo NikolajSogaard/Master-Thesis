@@ -21,8 +21,12 @@ TASK = '''
 Create the best strength training program based on the user input below:
 {}
 
-IMPORTANT: Your output MUST be valid JSON and nothing else. Do not include any explanatory text, markdown formatting, or code block markers.
-Create the program strictly in the following JSON format, as it will be directly inserted into an HTML template:
+IMPORTANT: 
+- Your output MUST choose a fitting training split based on the user input.
+- Remember that the frequency of training each muscle group has to be at least twice a week depending on the user.
+- Your output MUST create exactly the number of training days based the user. For example, if they want a 5-day training program, create EXACTLY 5 days labeled as "Day 1", "Day 2", etc. up to "Day 5".
+- Your output MUST be valid JSON and nothing else. Do not include any explanatory text, markdown formatting, or code block markers.
+- Create the program strictly in the following JSON format, as it will be directly inserted into an HTML template:
 {}
 '''
 
@@ -47,8 +51,8 @@ PROGRAM_STRUCTURE = '''
       {
         "name": "Exercise name",
         "sets": 3,
-        "reps": "8-12",
-        "target_rpe": 7,
+        "reps": "5-8",
+        "target_rpe": 7-8,
         "rest": "60-90 seconds",
         "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
         "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135lb for 3x8 at RPE 8')"
@@ -58,13 +62,14 @@ PROGRAM_STRUCTURE = '''
       {
         "name": "Exercise name",
         "sets": 4,
-        "reps": "5-8",
-        "target_rpe": 8,
+        "reps": "8-12",
+        "target_rpe": 8-10,
         "rest": "2-3 minutes",
         "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
         "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5lb to 225lb for 4x6 at RPE 7-8')"
       }
-    ]
+    ],
+    "Day X": etc...
   }
 }
 '''
@@ -77,6 +82,7 @@ WRITER_PROMPT_SETTINGS['v1'] = WriterPromptSettings(
                   'You have expertise in exercise science, biomechanics, and training periodization. '
                   'Your task is to create effective, safe, and evidence-based strength training programs tailored to the user\'s needs, goals, experience level, and available equipment.'
                   'Always prioritize proper progression, injury prevention, and training variety. '
+                  'You MUST generate exactly the number of training days fitting to the the user.'
                   'Provide clear, actionable instructions that are appropriate for the specified experience level.'
     },
     task=TASK,

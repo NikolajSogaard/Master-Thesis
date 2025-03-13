@@ -48,6 +48,7 @@ Focus specifically on PROGRESSION. Does the program incorporate appropriate prog
 Provide feedback if any... otherwise only return "None"
 '''
 
+
 # Dictionary of specialized critic settings for different evaluation tasks
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}
 
@@ -69,7 +70,6 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
         'exercise_selection': TASK_EXERCISE_SELECTION,
         'rep_ranges': TASK_REP_RANGES,
         'rpe': TASK_RPE,
-        'progression': TASK_PROGRESSION,
     },
 )
 
@@ -82,6 +82,5 @@ for setting_key in ['exercise_selection', 'rep_ranges', 'rpe', 'progression']:
             'exercise_selection': TASK_EXERCISE_SELECTION,
             'rep_ranges': TASK_REP_RANGES,
             'rpe': TASK_RPE,
-            'progression': TASK_PROGRESSION,
         }
 
