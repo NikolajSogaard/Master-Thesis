@@ -248,9 +248,9 @@
                 {% for i in range(exercise.sets) %}
                   <div class="set-input">
                     <span class="set-number">Set {{ i+1 }}:</span>
-                    <span class="set-field">Weight: <input type="number" step="0.1" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_weight" {% if week_program.week != current_week %}disabled{% endif %}></span>
+                    <span class="set-field">Weight: <input type="number" step="1" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_weight" {% if week_program.week != current_week %}disabled{% endif %}></span>
                     <span class="set-field">Reps: <input type="number" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_reps" {% if week_program.week != current_week %}disabled{% endif %}></span>
-                    <span class="set-field">RPE: <input type="number" step="0.1" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_actual_rpe" {% if week_program.week != current_week %}disabled{% endif %}></span>
+                    <span class="set-field">RPE: <input type="number" step="0.5" name="{{ week_program.week }}_{{ day.replace(' ', '') }}_ex{{ exercise_index }}_set{{ i }}_actual_rpe" {% if week_program.week != current_week %}disabled{% endif %}></span>
                   </div>
                 {% endfor %}
               </td>

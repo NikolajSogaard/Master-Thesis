@@ -27,7 +27,7 @@ from prompts import (
 
 # Removed MultiCritic import as it's no longer needed
 
-from rag_retrieval import retrieve_and_generate
+from rag_retrieval_old import retrieve_and_generate
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # For session management

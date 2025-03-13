@@ -1,5 +1,5 @@
 # test_rag.py
-from rag_retrieval import retrieve_and_generate, vector_store
+from rag_retrieval_old import retrieve_and_generate, vector_store
 
 def test_retrieve_and_generate():
     # List of sample queries targeting different aspects of strength training.

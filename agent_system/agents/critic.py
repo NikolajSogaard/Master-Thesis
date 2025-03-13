@@ -1,5 +1,5 @@
 from typing import Dict, Optional, Callable, List
-from rag_retrieval import retrieve_and_generate, retrieve_context
+from rag_retrieval_old import retrieve_and_generate, retrieve_context
 
 class Critic:
     """
