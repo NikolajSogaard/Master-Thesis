@@ -9,13 +9,15 @@ class Critic:
             self,
             model,
             role: dict[str, str],
-            task: str,
+            task: str = None,
+            tasks: Dict[str, str] = None,  # New parameter for task templates by type
             task_type: str = None,  # No longer used but kept for backward compatibility
             retrieval_fn: Optional[Callable] = None,
             ):
         self.model = model
         self.role = role
-        self.task = task
+        self.task = task  # Keep for backward compatibility
+        self.tasks = tasks or {}  # Dictionary of task templates by task type
         self.retrieval_fn = retrieval_fn or retrieve_and_generate
         
         # Default specialized instructions for different task types
@@ -65,8 +67,21 @@ class Critic:
             import json
             program_content = json.dumps(program_content, indent=2)
         
+        # Use the specific task template for this task_type if available
+        # Otherwise fall back to the general task template
+        task_template = self.tasks.get(task_type, self.task)
+        if task_template is None:
+            # If no template is available, use a default format
+            task_template = f'''
+            Your colleague has written the following training program:
+            {{}}
+            For an individual who provided the following input:
+            {{}}
+            Focus specifically on the {task_type.upper()}. Provide feedback if any... otherwise only return "None"
+            '''
+        
         # Create the prompt content using the task template
-        prompt_content = self.task.format(
+        prompt_content = task_template.format(
             program_content,
             program.get('user-input', ''),
         ) + context

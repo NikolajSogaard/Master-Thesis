@@ -48,7 +48,7 @@ DEFAULT_CONFIG = {
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
     'critic_prompt_settings': 'v1',
-    'max_iterations': 2
+    'max_iterations': 4
 }
 
 def get_program_generator(config=None):
@@ -82,11 +82,12 @@ def get_program_generator(config=None):
         task_revision=writer_prompt_settings.task_revision,
     )
     
-    # Always use the Critic which now handles all critique types automatically
+    # Pass both task and tasks to the Critic
     critic = Critic(
         model=llm_critic,
         role=critic_prompt_settings.role,
         task=critic_prompt_settings.task,
+        tasks=getattr(critic_prompt_settings, 'tasks', None),  # Get tasks if available
         retrieval_fn=retrieve_and_generate
     )
     
