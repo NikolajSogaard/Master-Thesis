@@ -37,7 +37,7 @@ Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-Focus specifically on the EXERCISE SELECTION. Are the exercises appropriate for this individual's goals and level?
+Focus specifically on the EXERCISE SELECTION, and look into the user to see perfered exercise IF any. Does the exercises make sence for this individual's goals and level?
 Provide feedback if any... otherwise only return "None"
 '''
 
@@ -47,9 +47,10 @@ Your colleague has written the following training program:
 For an individual who provided the following input:
 {}
 Focus specifically on the REP RANGES. Are they optimal for the stated training goals?
-For compound exercises like squat and deadlift, use a REP RANGES of 5-8.
-For isolation exercises use a REP RANGES of 5-20.
+For compound exercises like squat and deadlift, use a lower REP RANGES from 1-8.
+For isolation exercises use a REP RANGES of 8-20.
 Dont use AMRAP (As Many Reps As Possible).
+In general, use REP RANGES in small intervals of 2-3 reps. For example, use 5-8, 8-10, 10-12, 12-15.
 Provide feedback if any... otherwise only return "None"
 '''
 
