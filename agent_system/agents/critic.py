@@ -22,24 +22,24 @@ class Critic:
         
         # Default specialized instructions for different task types
         self.specialized_instructions = {
-            "frequency": "Focus on whether the program stimulates each muscle group at least two times a week",
-            "exercise_selection": "Focus on exercise selection appropriateness for the user level, find inspiration from training programs in the literature.",
-            "rep_ranges": "Focus on whether rep ranges are optimal for the users training goals.",
-            "rpe": "Focus on whether RPE (Rating of Perceived Exertion) targets are appropriate for the user and for each exercise",
-            "progression": "Focus on how the program incorporates progressive overload principles."
+            "frequency_and_split": "Provide consise guidance, and do not answer outside the scope of the query.",
+            "exercise_selection": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about exercise selection principles based on specific user goals, experience level, and any physical limitations.",
+            "rep_ranges": "Provide consise guidance, and do not answer outside the scope of the query.",
+            "rpe": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about appropriate RPE (Rating of Perceived Exertion) targets for different exercise types and experience levels. Include guidance on when to use absolute RPE values (like 8) versus RPE ranges (like 7-8), and how RPE should differ between compound and isolation exercises.",
+            "progression": "Provide consise guidance, and do not answer outside the scope of the query."
         }
         
         # Define all task types to always run
-        self.task_types = ["frequency", "exercise_selection", "rep_ranges", "rpe"]
+        self.task_types = ["frequency_and_split", "exercise_selection", "rep_ranges", "rpe"]
 
     def get_task_query(self, program: dict[str, str | None], task_type: str) -> str:
         """Generate an appropriate query based on task type without including user input."""
         
         queries = {
-            "frequency": "What makes training frequency appropriate for strength training programs?",
-            "exercise_selection": "What makes exercise selection appropriate for strength training programs?",
+            "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
+            "exercise_selection": "What exercises are most effective and appropriate for different fitness goals (strength, hypertrophy, endurance) and experience levels? What exercise substitutions work well when equipment is limited?",
             "rep_ranges": "What are optimal rep ranges for different strength training goals?",
-            "rpe": "How to determine appropriate RPE targets based on exercise type and experience level?",
+            "rpe": "How should RPE (Rating of Perceived Exertion) targets be assigned in strength training? When should RPE be expressed as a single value versus a range? How should RPE vary between compound exercises and isolation exercises?",
             "progression": "What are effective progression principles in strength training programs?"
         }
         

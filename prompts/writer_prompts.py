@@ -21,8 +21,7 @@ TASK = '''
 Create the best strength training program with a fitting frequency, training split, and numbers of training days, based on the user input below:
 {}
 
-IMPORTANT: Your output MUST be valid JSON and nothing else. Do not include any explanatory text, markdown formatting, or code block markers.
-Create the program strictly in the following JSON format, as it will be directly inserted into an HTML template:
+Follow this JSON structure as a guide for your response. The Editor will handle any formatting issues:
 {}
 '''
 
@@ -34,12 +33,12 @@ Based on feedback from your colleague below:
 {}
 
 IMPORTANT: 
-- Your output MUST be valid JSON and nothing else. Do not include any explanatory text, markdown formatting, or code block markers.
 - You MUST directly implement all the suggested changes in the program itself, not just in the suggestion field. For example, if feedback says to increase RPE from 7 to 8-9, you should change the actual target_rpe value in the exercise.
-- Make sure the revised program strictly follows this JSON format, as it will be directly inserted into an HTML template:
+
+Follow this JSON structure as a guide for your response:
 {}
 
-If this is for a subsequent week of training (Week 2+), you MUST include personalized 'suggestion' fields for each exercise based on the performance data from the previous week. Include actual weight numbers, rep ranges, and RPE targets in your suggestions.
+If this is for a subsequent week of training (Week 2+), you MUST include personalized 'suggestion' fields for each exercise based on the performance data from the previous week(except week 1). Include actual weight numbers, rep ranges, and RPE targets in your suggestions.
 '''
 
 PROGRAM_STRUCTURE = '''
@@ -78,9 +77,9 @@ WRITER_PROMPT_SETTINGS['v1'] = WriterPromptSettings(
         'role': 'system',
         'content':'You are an AI system specialized in creating personalized strength training programs.' 
                   'You have expertise in exercise science, biomechanics, and training periodization. '
-                  'Your task is to create effective, safe, and evidence-based strength training programs tailored to the user\'s needs, goals, experience level, and available equipment.'
-                  'Always prioritize proper progression, injury prevention, and training variety. '
-                  'Provide clear, actionable instructions that are appropriate for the specified experience level.'
+                  'Your task is to create effective, and evidence-based strength training programs tailored to the user\'s needs, goals, experience level'
+                  'Always prioritize proper progression, and training variety. '
+                  'Provide clear CONSISE, actionable instructions that are appropriate for the specified experience level.'
     },
     task=TASK,
     task_revision=TASK_REVISION,

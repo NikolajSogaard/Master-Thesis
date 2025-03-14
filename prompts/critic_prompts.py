@@ -7,24 +7,37 @@ class CriticPromptSettings:
     task: Optional[str] = None  # Single task for backward compatibility
     tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
 
-TASK_FREQUENCY = '''
+TASK_FREQUENCY_and_SPLIT = '''
 Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-Focus specifically on the TRAINING FREQUENCY. Are the frequency appropriate for this individual's goals, level, and any limitations?
-Does the TRAINING FREQUENCY match the type of training split?
-IMPORTANT: Make sure the program stimluate each muscle group at least two times a week
+
+Focus specifically on the TRAINING FREQUENCY and SPLIT SELECTION.
+
+Answer the following questions:
+1. Does the program provide sufficient frequency for each major muscle group? (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)
+2. Does the training split effectively utilize the user's available training days?
+3. Is the split appropriate for the user's goals (strength, hypertrophy, etc.)?
+
+For hypertrophy-focused goals, consider these common split options:
+- Full body (2x/week): Trains all muscle groups each session
+- hybrid full body (3x/week): Alternates between full body and upper/lower splits
+- Upper/Lower (4x/week): Alternates between upper and lower body days
+- Hybrid splits (5 days): Such as Push, Pull, Legs, Upper, Lower
+- Push/Pull/Legs (6x/week): One day each for pushing movements, pulling movements, and leg exercises
+
+If the training frequency or split needs improvement, provide specific recommendations that better match the user's goals and available training days.
+
 Provide feedback if any... otherwise only return "None"
 '''
-
 
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-Focus specifically on the EXERCISE SELECTION. Are the exercises appropriate for this individual's goals, level, and any limitations?
+Focus specifically on the EXERCISE SELECTION. Are the exercises appropriate for this individual's goals and level?
 Provide feedback if any... otherwise only return "None"
 '''
 
@@ -35,7 +48,8 @@ For an individual who provided the following input:
 {}
 Focus specifically on the REP RANGES. Are they optimal for the stated training goals?
 For compound exercises like squat and deadlift, use a REP RANGES of 5-8.
-For isolation exercises use a REP RANGES of 5-20. 
+For isolation exercises use a REP RANGES of 5-20.
+Dont use AMRAP (As Many Reps As Possible).
 Provide feedback if any... otherwise only return "None"
 '''
 
@@ -45,8 +59,15 @@ Your colleague has written the following training program:
 For an individual who provided the following input:
 {}
 Focus specifically on the RPE (Rating of Perceived Exertion) TARGETS. Are they appropriate for this individual's experience level?
-Consider whether the intensity aligns with the the specific exercise.
-Isolation exercises should have higher Target RPE (8-10). Compound movements should have a little lower.
+
+Consider these factors:
+1. Is the intensity appropriate for each specific exercise?
+2. Isolation exercises typically should have higher RPE targets (e.g.,9-10 or 10) compared to compound movements
+3. RPE can be expressed as either a single value (e.g., 8) or a range (e.g., 7-8) depending on the exercise and training goal
+4. More experienced lifters can generally train at higher RPE values
+
+When providing feedback, be clear about whether RPE values should be absolute numbers or ranges.
+
 Provide feedback if any... otherwise only return "None"
 '''
 
@@ -69,7 +90,7 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
         'role': 'system',
         'content': (
             'You are an experienced strength and conditioning coach with deep expertise in exercise science and program design.'
-            'Your task is to critically evaluate the training program provided above, considering factors such as safety, effectiveness, exercise selection, and overall balance.' 
+            'Your task is to critically evaluate the training program provided above, considering factors such as, effectiveness, exercise selection, and overall balance.' 
             'Provide clear, actionable, and evidence-based feedback to help improve the program.'
             'If the program meets all criteria, simply return "None".'
         ),
@@ -78,7 +99,7 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
     task=TASK_EXERCISE_SELECTION,
     # Add all tasks
     tasks={
-        'frequency': TASK_FREQUENCY,
+        'frequency_and_split': TASK_FREQUENCY_and_SPLIT,
         'exercise_selection': TASK_EXERCISE_SELECTION,
         'rep_ranges': TASK_REP_RANGES,
         'rpe': TASK_RPE,
@@ -86,12 +107,12 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
 )
 
 # Update other settings to include all tasks
-for setting_key in ['frequency', 'exercise_selection', 'rep_ranges', 'rpe', 'progression']:
+for setting_key in ['frequency_and_split', 'exercise_selection', 'rep_ranges', 'rpe', 'progression']:
     if setting_key in CRITIC_PROMPT_SETTINGS:
         task_var_name = f"TASK_{setting_key.upper()}"
         task_template = locals().get(task_var_name, globals().get(task_var_name))
         CRITIC_PROMPT_SETTINGS[setting_key].tasks = {
-            'frequency': TASK_FREQUENCY,
+            'frequency_and_split': TASK_FREQUENCY_and_SPLIT,
             'exercise_selection': TASK_EXERCISE_SELECTION,
             'rep_ranges': TASK_REP_RANGES,
             'rpe': TASK_RPE,
