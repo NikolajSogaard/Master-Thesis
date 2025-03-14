@@ -41,7 +41,6 @@ class ProgramGenerator:
                 'accept': 'editor',
                 'revise': 'writer',
             },
-            # Remove the unsupported parameter
         )
 
         # Set start and end node

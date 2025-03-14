@@ -1,17 +1,36 @@
+import json
+
 class Editor:
     def __init__(self):
         pass
 
     def format_program(self, program: dict[str, str | None]) -> dict:
-        # Now the draft is already a properly formatted dictionary,
-        # so we just need to return it as-is or with minimal processing
+        """Ensure the program is in the correct format for the web application."""
         draft = program['draft']
         
-        # If draft is already in the right format, return it directly
-        if isinstance(draft, dict):
+        # Case 1: If draft is already a dict with 'weekly_program' key
+        if isinstance(draft, dict) and 'weekly_program' in draft:
             return draft
-            
-        # If it's not a dict (unlikely with our fixes), return an empty structure
+        
+        # Case 2: If draft is a dict but missing 'weekly_program' key
+        if isinstance(draft, dict):
+            return {"weekly_program": draft}
+        
+        # Case 3: If draft is a string, try to parse it as JSON
+        if isinstance(draft, str):
+            try:
+                parsed = json.loads(draft)
+                # If parsed JSON has 'weekly_program' key
+                if isinstance(parsed, dict) and 'weekly_program' in parsed:
+                    return parsed
+                # If parsed JSON is missing 'weekly_program' key
+                elif isinstance(parsed, dict):
+                    return {"weekly_program": parsed}
+            except json.JSONDecodeError:
+                # If string is not valid JSON, wrap it in a default structure
+                return {"weekly_program": {}}
+        
+        # Default case: Return empty structure for any other type
         return {"weekly_program": {}}
 
     def __call__(self, program: dict[str, str | None]) -> dict[str, str | None]:
