@@ -1,14 +1,14 @@
 """
 This file should be the new main file insteed of main.py.
 This is to get the output as a web application. 
-
-
 """
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_session import Session  # Import Flask-Session extension
 import json
 import os
 import argparse
-from datetime import datetime
+import tempfile
+from datetime import datetime, timedelta
 
 from agent_system import (
     setup_llm,
@@ -25,8 +25,20 @@ from prompts import (
     CRITIC_PROMPT_SETTINGS,
 )
 
+# Removed MultiCritic import as it's no longer needed
+
+from rag_retrieval import retrieve_and_generate
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # For session management
+
+# Configure server-side sessions to avoid cookie size limit issues
+app.config["SESSION_TYPE"] = "filesystem"  # Store sessions on filesystem instead of cookies
+app.config["SESSION_FILE_DIR"] = os.path.join(tempfile.gettempdir(), "flask_session_files")
+app.config["SESSION_PERMANENT"] = True
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)  # Session timeout
+app.config["SESSION_USE_SIGNER"] = True  # Sign the session cookie
+Session(app)  # Initialize Flask-Session
 
 # Default configuration
 DEFAULT_CONFIG = {
@@ -35,7 +47,8 @@ DEFAULT_CONFIG = {
     'writer_temperature': 0.6,
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
-    'critic_prompt_settings': 'v1'
+    'critic_prompt_settings': 'v1',
+    'max_iterations': 4
 }
 
 def get_program_generator(config=None):
@@ -68,10 +81,14 @@ def get_program_generator(config=None):
         task=writer_prompt_settings.task,
         task_revision=writer_prompt_settings.task_revision,
     )
+    
+    # Pass both task and tasks to the Critic
     critic = Critic(
         model=llm_critic,
         role=critic_prompt_settings.role,
         task=critic_prompt_settings.task,
+        tasks=getattr(critic_prompt_settings, 'tasks', None),  # Get tasks if available
+        retrieval_fn=retrieve_and_generate
     )
     
     editor = Editor()
@@ -81,6 +98,7 @@ def get_program_generator(config=None):
         writer=writer,
         critic=critic,
         editor=editor,
+        max_iterations=config.get('max_iterations', 2)  # Get max_iterations from config
     )
 
 def parse_program(program_output):
@@ -131,9 +149,14 @@ def generate_program():
         user_input = request.form.get('user_input', '')
         persona = request.form.get('persona', '')
         
+        # No longer need to get critic_task_type from the form
+        
         # Handle empty input
         if not user_input.strip():
             user_input = "Generate a strength training program for the selected persona."
+        
+        # Update config (no critic_task_type needed)
+        config = DEFAULT_CONFIG.copy()
         
         # Generate program
         program_input = user_input
@@ -147,7 +170,7 @@ def generate_program():
             except Exception as e:
                 flash(f"Error loading persona: {e}")
         
-        program_generator = get_program_generator()
+        program_generator = get_program_generator(config)
         program_result = program_generator.create_program(user_input=program_input)
         
         # Parse and store the program in session
