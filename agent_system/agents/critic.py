@@ -9,14 +9,11 @@ class Critic:
             self,
             model,
             role: dict[str, str],
-            task: str = None,
-            tasks: Dict[str, str] = None,  # New parameter for task templates by type
-            task_type: str = None,  # No longer used but kept for backward compatibility
+            tasks: Dict[str, str] = None,  # Task templates by type
             retrieval_fn: Optional[Callable] = None,
             ):
         self.model = model
         self.role = role
-        self.task = task  # Keep for backward compatibility
         self.tasks = tasks or {}  # Dictionary of task templates by task type
         self.retrieval_fn = retrieval_fn or retrieve_and_generate
         
@@ -68,8 +65,8 @@ class Critic:
             program_content = json.dumps(program_content, indent=2)
         
         # Use the specific task template for this task_type if available
-        # Otherwise fall back to the general task template
-        task_template = self.tasks.get(task_type, self.task)
+        # Otherwise use a default format
+        task_template = self.tasks.get(task_type)
         if task_template is None:
             # If no template is available, use a default format
             task_template = f'''

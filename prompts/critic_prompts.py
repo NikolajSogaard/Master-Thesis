@@ -7,6 +7,15 @@ class CriticPromptSettings:
     task: Optional[str] = None  # Single task for backward compatibility
     tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
 
+TASK_FREQUENCY = '''
+Your colleague has written the following training program:
+{}
+For an individual who provided the following input:
+{}
+Focus specifically on the TRAINING FREQUENCY. Are the frequency appropriate for this individual's goals, level, and any limitations?
+Does the TRAINING FREQUENCY match the type of training split?
+Provide feedback if any... otherwise only return "None"
+'''
 
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
@@ -62,10 +71,8 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
             'If the program meets all criteria, simply return "None".'
         ),
     },
-    # Keep original task for backward compatibility
-    task=TASK_EXERCISE_SELECTION,
-    # Add all tasks
     tasks={
+        'frequency' : TASK_FREQUENCY,
         'exercise_selection': TASK_EXERCISE_SELECTION,
         'rep_ranges': TASK_REP_RANGES,
         'rpe': TASK_RPE,
@@ -74,11 +81,12 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
 )
 
 # Update other settings to include all tasks
-for setting_key in ['exercise_selection', 'rep_ranges', 'rpe', 'progression']:
+for setting_key in ['frequency', 'exercise_selection', 'rep_ranges', 'rpe', 'progression']:
     if setting_key in CRITIC_PROMPT_SETTINGS:
         task_var_name = f"TASK_{setting_key.upper()}"
         task_template = locals().get(task_var_name, globals().get(task_var_name))
         CRITIC_PROMPT_SETTINGS[setting_key].tasks = {
+            'frequency': TASK_FREQUENCY, 
             'exercise_selection': TASK_EXERCISE_SELECTION,
             'rep_ranges': TASK_REP_RANGES,
             'rpe': TASK_RPE,

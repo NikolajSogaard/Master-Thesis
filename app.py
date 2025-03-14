@@ -25,9 +25,7 @@ from prompts import (
     CRITIC_PROMPT_SETTINGS,
 )
 
-# Removed MultiCritic import as it's no longer needed
-
-from rag_retrieval_old import retrieve_and_generate
+from rag_retrieval import retrieve_and_generate
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # For session management
@@ -82,12 +80,11 @@ def get_program_generator(config=None):
         task_revision=writer_prompt_settings.task_revision,
     )
     
-    # Pass both task and tasks to the Critic
+    # Pass only tasks to the Critic
     critic = Critic(
         model=llm_critic,
         role=critic_prompt_settings.role,
-        task=critic_prompt_settings.task,
-        tasks=getattr(critic_prompt_settings, 'tasks', None),  # Get tasks if available
+        tasks=critic_prompt_settings.tasks,
         retrieval_fn=retrieve_and_generate
     )
     

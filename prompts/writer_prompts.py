@@ -23,7 +23,7 @@ Create the best strength training program based on the user input below:
 
 IMPORTANT: Your output MUST be valid JSON and nothing else. Do not include any explanatory text, markdown formatting, or code block markers.
 Create the program strictly in the following JSON format, as it will be directly inserted into an HTML template:
-{}
+{} 
 '''
 
 TASK_REVISION = '''
@@ -64,7 +64,8 @@ PROGRAM_STRUCTURE = '''
         "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
         "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5lb to 225lb for 4x6 at RPE 7-8')"
       }
-    ]
+    ],
+    "Day X": etc.
   }
 }
 '''
