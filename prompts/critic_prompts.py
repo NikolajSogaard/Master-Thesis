@@ -37,7 +37,12 @@ Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-Focus specifically on the EXERCISE SELECTION, and look into the user to see perfered exercise IF any. Does the exercises make sence for this individual's goals and level?
+Focus specifically on the EXERCISE SELECTION, and look into the user to see perfered exercise IF any. 
+Does the exercises make sence for this individual's goals and level?
+Consider these factors:
+- For a beginner choose easy to learn exercises that are safe and effective.
+- For a bodybuilding program, include a mix of compound and isolation exercises.
+- For a powerlifting program, make sure to have a high frequency of the squat, bench press, and deadlift.
 Provide feedback if any... otherwise only return "None"
 '''
 
