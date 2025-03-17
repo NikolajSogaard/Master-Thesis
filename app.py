@@ -82,12 +82,10 @@ def get_program_generator(config=None):
         task_revision=writer_prompt_settings.task_revision,
     )
     
-    # Pass both task and tasks to the Critic
     critic = Critic(
         model=llm_critic,
         role=critic_prompt_settings.role,
-        task=critic_prompt_settings.task,
-        tasks=getattr(critic_prompt_settings, 'tasks', None),  # Get tasks if available
+        tasks=getattr(critic_prompt_settings, 'tasks', None),  # Only tasks are provided now
         retrieval_fn=retrieve_and_generate
     )
     
@@ -341,4 +339,4 @@ def next_week():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

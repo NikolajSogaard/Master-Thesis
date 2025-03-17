@@ -4,15 +4,14 @@ from typing import Dict, Optional
 @dataclasses.dataclass
 class CriticPromptSettings:
     role: dict[str, str]
-    task: Optional[str] = None  # Single task for backward compatibility
     tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
+
 
 TASK_FREQUENCY_and_SPLIT = '''
 Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-
 Focus specifically on the TRAINING FREQUENCY and SPLIT SELECTION.
 
 Answer the following questions:
@@ -42,11 +41,27 @@ If the training frequency or split needs improvement, provide specific recommend
 Provide feedback if any... otherwise only return "None"
 '''
 
+
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
 {}
-For an individual who provided the following input:
+
+The individual has provided these details:
 {}
+
+Focusing **only** on EXERCISE SELECTION.
+Check if the chosen exercises align with the person’s stated goals and experience level and look for exercises preferences That the user might prefer.
+
+
+For hypertrophy-focused goals, have this in mind:
+- For bodybuilding/hypertrophy goals, confirm a balanced mix of compound and isolation exercises. Go somewhere between 50 to 70 percent compound exercises and 30 to 50 percent isolation exercises. 
+- The programs should be bodybuilding focused, with a variety of exercises to target each muscle group from different angles.
+- 50-50 procent mix of free-weight and machine exercises. 
+
+For strength/powerlifting-focused goals, consider:
+- For powerlifting/strength goals, ensure frequent emphasis on squat, bench press, and deadlift.
+Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".
+=======
 Focus specifically on the EXERCISE SELECTION, and look into the user to see perfered exercise IF any. 
 Does the exercises make sence for this individual's goals and level?
 Consider these factors:
@@ -56,45 +71,55 @@ Consider these factors:
 Provide feedback if any... otherwise only return "None"
 '''
 
+
 TASK_REP_RANGES = '''
 Your colleague has written the following training program:
 {}
-For an individual who provided the following input:
+
+The individual has provided these details:
 {}
-Focus specifically on the REP RANGES. Are they optimal for the stated training goals?
-For compound exercises like squat and deadlift, use a lower REP RANGES from 1-8.
-For isolation exercises use a REP RANGES of 8-20.
-Dont use AMRAP (As Many Reps As Possible).
-In general, use REP RANGES in small intervals of 2-3 reps. For example, use 5-8, 8-10, 10-12, 12-15.
-Provide feedback if any... otherwise only return "None"
-'''
+
+Focus ONLY on the REP RANGES:
+- Check if they align with the individual’s goals.
+- For compound exercises (like squat or deadlift), use 5–8 reps.
+- For isolation exercises, use 5–20 reps.
+- Do not include AMRAP (As Many Reps As Possible).
+
+Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".'''
+
 
 TASK_RPE = '''
 Your colleague has written the following training program:
 {}
-For an individual who provided the following input:
+
+The individual has provided these details:
 {}
-Focus specifically on the RPE (Rating of Perceived Exertion) TARGETS. Are they appropriate for this individual's experience level?
 
-Consider these factors:
-1. Is the intensity appropriate for each specific exercise?
-2. Isolation exercises typically should have higher RPE targets (e.g.,9-10 or 10) compared to compound movements
-3. RPE can be expressed as either a single value (e.g., 8) or a range (e.g., 7-8) depending on the exercise and training goal
-4. More experienced lifters can generally train at higher RPE values
+Focus ONLY on the RPE (Rating of Perceived Exertion) Targets:
+- Check if the RPE values are appropriate for the individual’s experience level.
+- Isolation exercises should have a higher Target RPE (8–10).
+- Compound movements should have a slightly lower Target RPE.
 
-When providing feedback, be clear about whether RPE values should be absolute numbers or ranges.
+Provide constructive feedback on any needed changes. 
+If there are no issues, respond with "None".'''
 
-Provide feedback if any... otherwise only return "None"
-'''
 
 TASK_PROGRESSION = '''
 Your colleague has written the following training program:
 {}
-For an individual who provided the following input:
+
+The individual has provided these details:
 {}
-Focus specifically on PROGRESSION. Does the program incorporate appropriate progressive overload principles?
-Provide feedback if any... otherwise only return "None"
+
+Focus ONLY on the PROGRESSION aspect of the program:
+- Check if a clear method of progressive overload is incorporated (e.g., increasing weight, reps, or difficulty over time).
+- Verify that the progression strategy matches the individual’s experience level (e.g., straightforward linear progression for beginners; more nuanced approaches for intermediate/advanced).
+- Consider the frequency of progression and whether it’s realistic and safe for the stated goals.
+
+Provide concise feedback if any improvements are needed. 
+If there are no issues, respond with "None".
 '''
+
 
 
 # Dictionary of specialized critic settings for different evaluation tasks
@@ -111,9 +136,6 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
             'If the program meets all criteria, simply return "None".'
         ),
     },
-    # Keep original task for backward compatibility
-    task=TASK_EXERCISE_SELECTION,
-    # Add all tasks
     tasks={
         'frequency_and_split': TASK_FREQUENCY_and_SPLIT,
         'exercise_selection': TASK_EXERCISE_SELECTION,
