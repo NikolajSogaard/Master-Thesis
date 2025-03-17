@@ -55,7 +55,7 @@ Focusing **only** on EXERCISE SELECTION:
 - If the individual is a beginner, ensure the exercises are safe, straightforward, and effective.
 - For bodybuilding goals, confirm a balanced mix of compound and isolation exercises.
 - For powerlifting/strength goals, ensure frequent emphasis on squat, bench press, and deadlift.
-
+- Think about the number of exercises for each training day. There should be between 4-8 exercises per day. 
 Provide **constructive feedback** on any changes or improvements needed. 
 If there is nothing to improve, respond only with `"None"`.
 '''
