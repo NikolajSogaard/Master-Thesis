@@ -45,10 +45,10 @@ Provide feedback if any... otherwise only return "None"
 
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
-{training_program}
+{}
 
 The individual has provided these details:
-{user_input}
+{}
 
 Focusing **only** on EXERCISE SELECTION:
 - Check if the chosen exercises align with the person’s stated goals and experience level.
@@ -64,10 +64,10 @@ If there is nothing to improve, respond only with `"None"`.
 
 TASK_REP_RANGES = '''
 Your colleague has written the following training program:
-{training_program}
+{}
 
 The individual has provided these details:
-{user_input}
+{}
 
 Focus ONLY on the REP RANGES:
 - Check if they align with the individual’s goals.
@@ -80,10 +80,10 @@ Provide constructive feedback if any changes are needed. If there is nothing to 
 
 TASK_RPE = '''
 Your colleague has written the following training program:
-{training_program}
+{}
 
 The individual has provided these details:
-{user_input}
+{}
 
 Focus ONLY on the RPE (Rating of Perceived Exertion) Targets:
 - Check if the RPE values are appropriate for the individual’s experience level.
@@ -96,10 +96,10 @@ If there are no issues, respond with "None".'''
 
 TASK_PROGRESSION = '''
 Your colleague has written the following training program:
-{training_program}
+{}
 
 The individual has provided these details:
-{user_input}
+{}
 
 Focus ONLY on the PROGRESSION aspect of the program:
 - Check if a clear method of progressive overload is incorporated (e.g., increasing weight, reps, or difficulty over time).
