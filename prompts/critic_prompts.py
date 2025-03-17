@@ -51,6 +51,7 @@ The individual has provided these details:
 
 Focusing **only** on EXERCISE SELECTION.
 Check if the chosen exercises align with the person’s stated goals and experience level and look for exercises preferences That the user might prefer.
+Each day have a max of 10 exercises. And make sure that the numbers of sets for each week is good for each muscle group.
 
 
 For hypertrophy-focused goals, have this in mind:
@@ -74,7 +75,7 @@ The individual has provided these details:
 Focus ONLY on the REP RANGES:
 - Check if they align with the individual’s goals.
 - For compound exercises (like squat or deadlift), use 5–8 reps.
-- For isolation exercises, use 5–20 reps.
+- For isolation exercises, use 8-15 reps.
 - Do not include AMRAP (As Many Reps As Possible).
 
 Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".'''

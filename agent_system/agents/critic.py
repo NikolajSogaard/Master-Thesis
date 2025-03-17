@@ -36,8 +36,8 @@ class Critic:
         
         queries = {
             "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
-            "exercise_selection": "What exercises are most effective and appropriate for different fitness goals (strength, hypertrophy, endurance) and experience levels? What exercise substitutions work well when equipment is limited?",
-            "rep_ranges": "What are optimal rep ranges for different strength training goals?",
+            "exercise_selection": "What exercises are most effective and appropriate for different fitness goals (strength, bodybuilding, hypertrophy) and experience levels??",
+            "rep_ranges": "What are optimal rep ranges for specific exercises and for different strength training goals?",
             "rpe": "How should RPE (Rating of Perceived Exertion) targets be assigned in strength training? When should RPE be expressed as a single value versus a range? How should RPE vary between compound exercises and isolation exercises?",
             "progression": "What are effective progression principles in strength training programs?"
         }
