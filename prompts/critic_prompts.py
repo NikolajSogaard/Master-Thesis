@@ -7,12 +7,12 @@ class CriticPromptSettings:
     task: Optional[str] = None  # Single task for backward compatibility
     tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
 
+
 TASK_FREQUENCY_and_SPLIT = '''
 Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-
 Focus specifically on the TRAINING FREQUENCY and SPLIT SELECTION.
 
 Answer the following questions:
@@ -27,10 +27,21 @@ For hypertrophy-focused goals, consider these common split options:
 - Hybrid splits (5 days): Such as Push, Pull, Legs, Upper, Lower
 - Push/Pull/Legs (6x/week): One day each for pushing movements, pulling movements, and leg exercises
 
+For strength/powerlifting-focused goals, consider:
+- Full body with main lift focus (3-4x/week): Each session focuses on one main lift (squat, bench, deadlift) with higher frequency
+- Upper/Lower (4x/week): With frequency for main lifts 2-3x per week
+- Push/Pull/Legs with main lift priority (4-6x/week): Main lifts can appear 2-4x per week with varied intensity
+- Specialized split like the Sheiko approach or Daily Undulating Periodization (DUP) where main lifts are trained 3-4x per week
+
+For powerlifting/strength goals, the frequency of specific main lifts (for example: squat, bench, deadlift) is often MORE important than the frequency of muscle groups. Main lifts can be trained 2-4 times per week with proper load management.
+IMPORTANT:
+- Main lift can also be alternative variations like front squat, incline bench press, or Romanian deadlift. I it dont nessesary have to have only one of these main lifts or variations each training day.
+
 If the training frequency or split needs improvement, provide specific recommendations that better match the user's goals and available training days.
 
 Provide feedback if any... otherwise only return "None"
 '''
+
 
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
