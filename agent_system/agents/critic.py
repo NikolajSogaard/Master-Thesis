@@ -10,7 +10,6 @@ class Critic:
             model,
             role: dict[str, str],
             tasks: Dict[str, str] = None,  # Task templates by type
-            task_type: str = None,  # No longer used but kept for backward compatibility
             retrieval_fn: Optional[Callable] = None,
             ):
         self.model = model
