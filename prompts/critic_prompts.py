@@ -62,6 +62,14 @@ For hypertrophy-focused goals, have this in mind:
 For strength/powerlifting-focused goals, consider:
 - For powerlifting/strength goals, ensure frequent emphasis on squat, bench press, and deadlift.
 Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".
+=======
+Focus specifically on the EXERCISE SELECTION, and look into the user to see perfered exercise IF any. 
+Does the exercises make sence for this individual's goals and level?
+Consider these factors:
+- For a beginner choose easy to learn exercises that are safe and effective.
+- For a bodybuilding program, include a mix of compound and isolation exercises.
+- For a powerlifting program, make sure to have a high frequency of the squat, bench press, and deadlift.
+Provide feedback if any... otherwise only return "None"
 '''
 
 
