@@ -4,7 +4,6 @@ from typing import Dict, Optional
 @dataclasses.dataclass
 class CriticPromptSettings:
     role: dict[str, str]
-    task: Optional[str] = None  # Single task for backward compatibility
     tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
 
 
@@ -45,29 +44,32 @@ Provide feedback if any... otherwise only return "None"
 
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
-{training_program}
+{}
 
 The individual has provided these details:
-{user_input}
+{}
 
-Focusing **only** on EXERCISE SELECTION:
-- Check if the chosen exercises align with the person’s stated goals and experience level.
-- Look for any explicit exercise preferences the individual might have mentioned.
-- If the individual is a beginner, ensure the exercises are safe, straightforward, and effective.
-- For bodybuilding goals, confirm a balanced mix of compound and isolation exercises.
+Focusing **only** on EXERCISE SELECTION.
+Check if the chosen exercises align with the person’s stated goals and experience level and look for exercises preferences That the user might prefer.
+
+
+For hypertrophy-focused goals, have this in mind:
+- For bodybuilding/hypertrophy goals, confirm a balanced mix of compound and isolation exercises. Go somewhere between 50 to 70 percent compound exercises and 30 to 50 percent isolation exercises. 
+- The programs should be bodybuilding focused, with a variety of exercises to target each muscle group from different angles.
+- 50-50 procent mix of free-weight and machine exercises. 
+
+For strength/powerlifting-focused goals, consider:
 - For powerlifting/strength goals, ensure frequent emphasis on squat, bench press, and deadlift.
-
-Provide **constructive feedback** on any changes or improvements needed. 
-If there is nothing to improve, respond only with `"None"`.
+Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".
 '''
 
 
 TASK_REP_RANGES = '''
 Your colleague has written the following training program:
-{training_program}
+{}
 
 The individual has provided these details:
-{user_input}
+{}
 
 Focus ONLY on the REP RANGES:
 - Check if they align with the individual’s goals.
@@ -80,10 +82,10 @@ Provide constructive feedback if any changes are needed. If there is nothing to 
 
 TASK_RPE = '''
 Your colleague has written the following training program:
-{training_program}
+{}
 
 The individual has provided these details:
-{user_input}
+{}
 
 Focus ONLY on the RPE (Rating of Perceived Exertion) Targets:
 - Check if the RPE values are appropriate for the individual’s experience level.
@@ -96,10 +98,10 @@ If there are no issues, respond with "None".'''
 
 TASK_PROGRESSION = '''
 Your colleague has written the following training program:
-{training_program}
+{}
 
 The individual has provided these details:
-{user_input}
+{}
 
 Focus ONLY on the PROGRESSION aspect of the program:
 - Check if a clear method of progressive overload is incorporated (e.g., increasing weight, reps, or difficulty over time).
@@ -126,9 +128,6 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
             'If the program meets all criteria, simply return "None".'
         ),
     },
-    # Keep original task for backward compatibility
-    task=TASK_EXERCISE_SELECTION,
-    # Add all tasks
     tasks={
         'frequency_and_split': TASK_FREQUENCY_and_SPLIT,
         'exercise_selection': TASK_EXERCISE_SELECTION,

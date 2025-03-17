@@ -39,22 +39,20 @@ def setup_llm(
         response_text = response.text.strip()
         
         if respond_as_json:
-            # Handle potential JSON formatting issues
+            # Attempt to parse JSON if expected, with fallback on failure
             try:
-                # Try to clean up the response if it has markdown code blocks
                 if response_text.startswith("```json"):
                     response_text = response_text.split("```json", 1)[1]
                 if response_text.endswith("```"):
                     response_text = response_text.rsplit("```", 1)[0]
-                    
                 response_text = response_text.strip()
                 return json.loads(response_text)
             except json.JSONDecodeError as e:
                 print(f"Failed to decode JSON: {e}")
                 print(f"Raw text: {response_text}")
-                # Return a structured error that can be handled
-                return {"error": "JSON parsing error", "raw_text": response_text}
-        return response_text  # Return text by default
+                # Fallback: return raw text instead
+                return response_text
+        return response_text
 
     return generate_response
 

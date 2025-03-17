@@ -18,11 +18,13 @@ class WriterPromptSettings:
 # Ultimately, you'll likely want to extract the text fields outside of Python, but maybe easy to start this way
 # You could also implement .save and .load methods as indicated above and use those 
 TASK = '''
-Create the best strength training program with a fitting frequency, training split, and numbers of training days, based on the user input below:
+Create the best strength training program with a fitting frequency, training split, and numbers of training days, based on this input:
 {}
 
 Follow this JSON structure as a guide for your response. The Editor will handle any formatting issues:
 {}
+
+Important: Make sure your program matches the persona's experience level, goals, available training time, and any specific information they've provided. Create a personalized program that directly addresses their needs.
 '''
 
 TASK_REVISION = '''
@@ -77,9 +79,9 @@ WRITER_PROMPT_SETTINGS['v1'] = WriterPromptSettings(
         'role': 'system',
         'content':'You are an AI system specialized in creating personalized strength training programs.' 
                   'You have expertise in exercise science, biomechanics, and training periodization. '
-                  'Your task is to create effective, and evidence-based strength training programs tailored to the user\'s needs, goals, experience level'
+                  'Your task is to create effective, and evidence-based strength training programs tailored to the user\'s needs, goals, and experience level. '
                   'Always prioritize proper progression, and training variety. '
-                  'Provide clear CONSISE, actionable instructions that are appropriate for the specified experience level.'
+                  'Provide clear CONCISE, actionable instructions that are appropriate for the specified experience level.'
     },
     task=TASK,
     task_revision=TASK_REVISION,
