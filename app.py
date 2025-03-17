@@ -1,7 +1,3 @@
-"""
-This file should be the new main file insteed of main.py.
-This is to get the output as a web application. 
-"""
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_session import Session
 import json
