@@ -4,7 +4,6 @@ from typing import Dict, Optional
 @dataclasses.dataclass
 class CriticPromptSettings:
     role: dict[str, str]
-    task: Optional[str] = None  # Single task for backward compatibility
     tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
 
 
@@ -126,14 +125,13 @@ CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
             'If the program meets all criteria, simply return "None".'
         ),
     },
-    # Keep original task for backward compatibility
-    task=TASK_EXERCISE_SELECTION,
     # Add all tasks
     tasks={
         'frequency_and_split': TASK_FREQUENCY_and_SPLIT,
         'exercise_selection': TASK_EXERCISE_SELECTION,
         'rep_ranges': TASK_REP_RANGES,
         'rpe': TASK_RPE,
+        'progression': TASK_PROGRESSION,
     },
 )
 

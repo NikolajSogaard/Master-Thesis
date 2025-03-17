@@ -3,7 +3,7 @@ This file should be the new main file insteed of main.py.
 This is to get the output as a web application. 
 """
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_session import Session  # Import Flask-Session extension
+from flask_session import Session
 import json
 import os
 import argparse
@@ -24,8 +24,6 @@ from prompts import (
     WRITER_PROMPT_SETTINGS,
     CRITIC_PROMPT_SETTINGS,
 )
-
-# Removed MultiCritic import as it's no longer needed
 
 from rag_retrieval import retrieve_and_generate
 
@@ -82,12 +80,11 @@ def get_program_generator(config=None):
         task_revision=writer_prompt_settings.task_revision,
     )
     
-    # Pass both task and tasks to the Critic
+    # Updated to use only the tasks parameter, removed task parameter
     critic = Critic(
         model=llm_critic,
         role=critic_prompt_settings.role,
-        task=critic_prompt_settings.task,
-        tasks=getattr(critic_prompt_settings, 'tasks', None),  # Get tasks if available
+        tasks=critic_prompt_settings.tasks,
         retrieval_fn=retrieve_and_generate
     )
     
