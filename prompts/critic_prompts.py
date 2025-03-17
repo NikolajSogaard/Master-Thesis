@@ -4,7 +4,7 @@ from typing import Dict, Optional
 @dataclasses.dataclass
 class CriticPromptSettings:
     role: dict[str, str]
-    tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
+    tasks: Optional[Dict[str, str]] = None
 
 
 TASK_FREQUENCY_and_SPLIT = '''
