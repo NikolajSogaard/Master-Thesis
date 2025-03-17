@@ -35,15 +35,9 @@ class Critic:
         """Generate an appropriate query based on task type without including user input."""
         
         queries = {
-<<<<<<< HEAD
             "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
             "exercise_selection": "What exercises are most effective and appropriate for different fitness goals (strength, bodybuilding, hypertrophy) and experience levels??",
             "rep_ranges": "What are optimal rep ranges for specific exercises and for different strength training goals?",
-=======
-            "frequency_and_split": "What is the optimal training frequency and split design for strength and hypertrophy? How does training frequency differ between powerlifting and bodybuilding programs? How often should main lifts be trained for optimal strength development?",
-            "exercise_selection": "What exercises are most effective and appropriate for different fitness goals (strength, hypertrophy, endurance) and experience levels? What exercise substitutions work well when equipment is limited?",
-            "rep_ranges": "What are optimal rep ranges for different strength training goals?",
->>>>>>> e419933b011967e819a49e84c56828ec36fd44b2
             "rpe": "How should RPE (Rating of Perceived Exertion) targets be assigned in strength training? When should RPE be expressed as a single value versus a range? How should RPE vary between compound exercises and isolation exercises?",
             "progression": "What are effective progression principles in strength training programs?"
         }
