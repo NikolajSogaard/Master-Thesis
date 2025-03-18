@@ -47,7 +47,7 @@ DEFAULT_CONFIG = {
     'writer_temperature': 0.6,
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
-    'critic_prompt_settings': 'v1',
+    'critic_prompt_settings': 'week1',
     'max_iterations': 4
 }
 
@@ -58,7 +58,11 @@ def get_program_generator(config=None):
     
     # Setup prompt settings
     writer_prompt_settings = WRITER_PROMPT_SETTINGS[config['writer_prompt_settings']]
-    critic_prompt_settings = CRITIC_PROMPT_SETTINGS[config['critic_prompt_settings']]
+    
+    # Use week-specific critic settings
+    week_number = config.get('week_number', 1)
+    critic_setting_key = 'week2plus' if week_number > 1 else 'week1'
+    critic_prompt_settings = CRITIC_PROMPT_SETTINGS[critic_setting_key]
     
     # Underlying LLMs
     llm_writer = setup_llm(
@@ -314,8 +318,14 @@ def next_week():
         except Exception as e:
             flash(f"Error loading persona: {e}")
     
+    # Update config for next week's program with week number
+    new_week = current_week + 1
+    config = DEFAULT_CONFIG.copy()
+    config['critic_prompt_settings'] = 'week2plus'  # Use week2plus for any week after week 1
+    config['week_number'] = new_week  # Add week number to config
+    
     # Generate next week's program
-    program_generator = get_program_generator()
+    program_generator = get_program_generator(config)
     program_result = program_generator.create_program(user_input=next_week_input)
     
     # Update session with new program
