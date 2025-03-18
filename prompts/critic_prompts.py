@@ -49,19 +49,19 @@ Your colleague has written the following training program:
 The individual has provided these details:
 {}
 
-Focusing **only** on EXERCISE SELECTION.
-Check if the chosen exercises align with the person’s stated goals and experience level and look for exercises preferences That the user might prefer.
-Each day have a max of 10 exercises. And make sure that the numbers of sets for each week is good for each muscle group.
+Focus ONLY on EXERCISE SELECTION:
+- Check if the chosen exercises align with the individual’s goals and experience level.
+- Ensure exercises match the user's preferences.
+- Limit each day to a maximum of 10 exercises.
+- Ensure the weekly set volume is appropriate for each muscle group.
 
+For hypertrophy-focused goals:
+- Maintain a balanced mix of compound (50-70%) and isolation (30-50%) exercises.
+- Include a variety of exercises to target each muscle group from different angles.
+- Aim for a 50-50 mix of free-weight and machine exercises.
 
-For hypertrophy-focused goals, have this in mind:
-- For bodybuilding/hypertrophy goals, confirm a balanced mix of compound and isolation exercises. Go somewhere between 50 to 70 percent compound exercises and 30 to 50 percent isolation exercises. 
-- The programs should be bodybuilding focused, with a variety of exercises to target each muscle group from different angles. There might be exercises that target better for hypertrophy/bodybuilding.
-- 50-50 procent mix of free-weight and machine exercises(exercises that require lower stability)
-
-For strength/powerlifting-focused goals, consider:
-- For powerlifting/strength goals, ensure frequent emphasis on squat, bench press, and deadlift.
-
+For strength/powerlifting-focused goals:
+- Emphasize frequent training of squat, bench press, and deadlift or vairations of these main lifts. These main lift can vary depending on the individual's focus lifts.
 Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".
 '''
 

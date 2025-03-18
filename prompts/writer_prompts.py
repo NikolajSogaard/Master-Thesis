@@ -70,7 +70,7 @@ PROGRAM_STRUCTURE = '''
         "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5lb to 225lb for 4x6 at RPE 7-8')"
       }
     ],
-    "Day X": etc. up the number of training days
+    "Day X": etc. continue generating each training day of the week.
   }
 }
 '''
