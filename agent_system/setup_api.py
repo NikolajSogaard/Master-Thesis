@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import google.generativeai as genai
 import json
+import time
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 def setup_llm(

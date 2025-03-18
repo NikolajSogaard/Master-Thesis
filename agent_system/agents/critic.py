@@ -9,9 +9,7 @@ class Critic:
             self,
             model,
             role: dict[str, str],
-            task: str = None,
-            tasks: Dict[str, str] = None,  # New parameter for task templates by type
-            task_type: str = None,  # No longer used but kept for backward compatibility
+            tasks: Dict[str, str] = None,  # Dictionary of task templates by type
             retrieval_fn: Optional[Callable] = None,
             ):
         self.model = model
@@ -25,15 +23,28 @@ class Critic:
             "exercise_selection": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about exercise selection principles based on specific user goals, experience level, and any physical limitations.",
             "rep_ranges": "Provide consise guidance, and do not answer outside the scope of the query.",
             "rpe": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about appropriate RPE (Rating of Perceived Exertion) targets for different exercise types and experience levels. Include guidance on when to use absolute RPE values (like 8) versus RPE ranges (like 7-8), and how RPE should differ between compound and isolation exercises.",
-            "progression": "Provide consise guidance, and do not answer outside the scope of the query."
+            "progression": "Provide consise guidance, and do not answer outside the scope of the query.",
+            "week2plus_progression": "Focus on progressive overload strategies. Provide specific guidance on weight/intensity progression based on previous week's performance data. Include advice on autoregulation, RPE-based progression, and exercise-specific progression rates that balance optimal progress with recovery and injury prevention."
         }
         
-        # Define all task types to always run
-        self.task_types = ["frequency_and_split", "exercise_selection", "rep_ranges", "rpe"]
+        # Define task types based on available tasks
+        if tasks and "progression" in tasks and len(tasks) == 1:
+            # If only progression task is available, we're in Week 2+ mode
+            self.task_types = ["progression"]
+            self.is_week2plus = True
+        else:
+            # Default Week 1 tasks
+            self.task_types = ["frequency_and_split", "exercise_selection", "rep_ranges", "rpe"]
+            self.is_week2plus = False
 
     def get_task_query(self, program: dict[str, str | None], task_type: str) -> str:
-        """Generate an appropriate query based on task type without including user input."""
+        """Generate an appropriate query based on task type and week."""
         
+        # Week 2+ specific queries
+        if self.is_week2plus and task_type == "progression":
+            return "What are the best practices for progressive overload in strength training? How should weight/intensity be progressed based on previous performance data? How can autoregulation be implemented effectively in progressive overload models?"
+        
+        # Week 1 queries
         queries = {
             "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
             "exercise_selection": "What exercises are most effective and appropriate for different fitness goals (strength, bodybuilding, hypertrophy) and experience levels??",
@@ -80,17 +91,35 @@ class Critic:
             Focus specifically on the {task_type.upper()}. Provide feedback if any... otherwise only return "None"
             '''
         
-        # Create the prompt content using the task template
-        prompt_content = task_template.format(
-            program_content,
-            program.get('user-input', ''),
-        ) + context
+        # For Week 2+ progression task, format with week number and feedback data
+        if self.is_week2plus and task_type == "progression":
+            # Get week number from program data or default to 2
+            week_number = program.get('week_number', 2)
+            
+            # Format the progression task with week number
+            user_input = program.get('user-input', '')
+            feedback_data = program.get('feedback', '{}')
+            
+            # Replace the format placeholder for week_number before using the template
+            task_template = task_template.replace("{week_number}", str(week_number))
+            
+            # Create the prompt content using the task template
+            prompt_content = task_template.format(
+                program_content,
+                user_input,
+                feedback_data
+            ) + context
+        else:
+            # Regular Week 1 formatting
+            prompt_content = task_template.format(
+                program_content,
+                program.get('user-input', ''),
+            ) + context
         
         # Format system instructions
         system_instructions = self.role.get('content', '')
         
         # Use a direct string approach instead of the chat format
-        # This format is compatible with both older and newer Gemini API versions
         full_prompt = f"{system_instructions}\n\n{prompt_content}"
         
         print(f"Generating critique...")
@@ -113,7 +142,7 @@ class Critic:
             
             if feedback and isinstance(feedback, str) and feedback.lower() != 'none' and len(feedback.strip()) > 10:
                 # Add the formatted feedback with task type header
-                formatted_feedback = f"[{task_type.upper()} FEEDBACK]:\n{feedback}\n"
+                formatted_feedback = f"[{task_type.upper()} FEEDBACK]:\n{feedback}\n" 
                 all_feedback.append(formatted_feedback)
                 
                 # Display the actual feedback in the terminal with clear formatting

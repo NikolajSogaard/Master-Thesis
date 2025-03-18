@@ -113,7 +113,38 @@ Provide concise feedback if any improvements are needed.
 If there are no issues, respond with "None".
 '''
 
+# New task for detailed progression analysis in Week 2+
+TASK_WEEK2PLUS_PROGRESSION = '''
+Your colleague has written the following Week {week_number} training program:
+{}
 
+The individual provided this input for their original program:
+{}
+
+Here is the performance data from the previous week:
+{}
+
+Focus ONLY on PROGRESSION & PROGRESSIVE OVERLOAD:
+
+1. Analyze the performance data from the previous week to determine if:
+   - The exercise weights/loads are appropriate based on actual performance
+   - The suggested progression rates are realistic and evidence-based
+   - The RPE targets match the individual's demonstrated performance capacity
+
+2. Check for specific progression elements:
+   - Appropriate weight increases based on previous week's performance
+   - Suitable adjustments to reps, sets, or intensity where needed
+   - Progressive overload application that matches the individual's training experience
+   - Specific, actionable suggestions in the "suggestion" field for each exercise
+
+3. Verify that the program effectively:
+   - Builds on strengths demonstrated in previous performance data
+   - Addresses weaknesses or sticking points from previous week
+   - Applies proper autoregulation principles based on RPE feedback
+
+Provide detailed, specific feedback with concrete recommendations on weights, reps, and RPE targets where appropriate.
+Only return "None" if the progression strategy is already optimal.
+'''
 
 # Dictionary of specialized critic settings for different evaluation tasks
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}
@@ -134,6 +165,23 @@ CRITIC_PROMPT_SETTINGS['week1'] = CriticPromptSettings(
         'exercise_selection': TASK_EXERCISE_SELECTION,
         'rep_ranges': TASK_REP_RANGES,
         'rpe': TASK_RPE,
+    },
+)
+
+# New setting for Week 2+ with progression focus
+CRITIC_PROMPT_SETTINGS['week2plus'] = CriticPromptSettings(
+    role={
+        'role': 'system',
+        'content': (
+            'You are an experienced strength and conditioning coach with deep expertise in exercise science, program design, and progressive overload principles. '
+            'Your task is to analyze the training program and previous week\'s performance data to ensure effective progression and proper autoregulation. '
+            'Provide specific, actionable feedback on weight selection, rep ranges, RPE targets, and progression rates. '
+            'Make precise recommendations for adjustments to optimize the program for continued progress. '
+            'If the program meets all criteria for optimal progression, simply return "None".'
+        ),
+    },
+    tasks={
+        'progression': TASK_WEEK2PLUS_PROGRESSION,
     },
 )
 
