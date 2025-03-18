@@ -16,7 +16,7 @@ Focus specifically on the TRAINING FREQUENCY and SPLIT SELECTION.
 
 Answer the following questions:
 1. Does the program provide sufficient frequency for each major muscle group? (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)
-2. DoDoes the program provide sufficient frequency for each major muscle group? (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)es the training split effectively utilize the user's available training days?
+2. Does the training split effectively utilize the user's available training days?
 3. Is the split appropriate for the user's goals (strength, hypertrophy, etc.)?
 
 For hypertrophy-focused goals, consider these common split options:
