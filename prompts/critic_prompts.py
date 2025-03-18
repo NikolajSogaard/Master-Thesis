@@ -16,7 +16,7 @@ Focus specifically on the TRAINING FREQUENCY and SPLIT SELECTION.
 
 Answer the following questions:
 1. Does the program provide sufficient frequency for each major muscle group? (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)
-2. Does the training split effectively utilize the user's available training days?
+2. DoDoes the program provide sufficient frequency for each major muscle group? (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)es the training split effectively utilize the user's available training days?
 3. Is the split appropriate for the user's goals (strength, hypertrophy, etc.)?
 
 For hypertrophy-focused goals, consider these common split options:
@@ -56,20 +56,13 @@ Each day have a max of 10 exercises. And make sure that the numbers of sets for 
 
 For hypertrophy-focused goals, have this in mind:
 - For bodybuilding/hypertrophy goals, confirm a balanced mix of compound and isolation exercises. Go somewhere between 50 to 70 percent compound exercises and 30 to 50 percent isolation exercises. 
-- The programs should be bodybuilding focused, with a variety of exercises to target each muscle group from different angles.
-- 50-50 procent mix of free-weight and machine exercises. 
+- The programs should be bodybuilding focused, with a variety of exercises to target each muscle group from different angles. There might be exercises that target better for hypertrophy/bodybuilding.
+- 50-50 procent mix of free-weight and machine exercises(exercises that require lower stability)
 
 For strength/powerlifting-focused goals, consider:
 - For powerlifting/strength goals, ensure frequent emphasis on squat, bench press, and deadlift.
+
 Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".
-=======
-Focus specifically on the EXERCISE SELECTION, and look into the user to see perfered exercise IF any. 
-Does the exercises make sence for this individual's goals and level?
-Consider these factors:
-- For a beginner choose easy to learn exercises that are safe and effective.
-- For a bodybuilding program, include a mix of compound and isolation exercises.
-- For a powerlifting program, make sure to have a high frequency of the squat, bench press, and deadlift.
-Provide feedback if any... otherwise only return "None"
 '''
 
 
@@ -82,8 +75,8 @@ The individual has provided these details:
 
 Focus ONLY on the REP RANGES:
 - Check if they align with the individual’s goals.
-- For compound exercises (like squat or deadlift), use 5–8 reps.
-- For isolation exercises, use 8-15 reps.
+- For compound exercises (like squat or deadlift), could use lower rep-ranges like 5–8 reps.
+- For isolation exercises, could use higher rep-ranges like 8-15 reps.
 - Do not include AMRAP (As Many Reps As Possible).
 
 Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".'''
@@ -100,10 +93,9 @@ Focus ONLY on the RPE (Rating of Perceived Exertion) Targets:
 - Check if the RPE values are appropriate for the individual’s experience level.
 - Isolation exercises should have a higher Target RPE (8–10).
 - Compound movements should have a slightly lower Target RPE.
+- Exercises that require lower stability (like machine exercises, or something like cable flies) could use a high RPE (8-10).
 
-Provide constructive feedback on any needed changes. 
-If there are no issues, respond with "None".'''
-
+Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".'''
 
 TASK_PROGRESSION = '''
 Your colleague has written the following training program:
@@ -127,7 +119,7 @@ If there are no issues, respond with "None".
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}
 
 # Update the CRITIC_PROMPT_SETTINGS to include all task templates
-CRITIC_PROMPT_SETTINGS['v1'] = CriticPromptSettings(
+CRITIC_PROMPT_SETTINGS['week1'] = CriticPromptSettings(
     role={
         'role': 'system',
         'content': (

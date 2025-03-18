@@ -7,6 +7,8 @@ class Editor:
     def format_program(self, program: dict[str, str | None]) -> dict:
         """Ensure the program is in the correct format for the web application."""
         draft = program['draft']
+        # Debug logging added to inspect draft content and type
+        print("DEBUG: Editor received draft (type {}): {}".format(type(draft), draft))
         
         # Case 1: If draft is already a dict with 'weekly_program' key
         if isinstance(draft, dict) and 'weekly_program' in draft:
@@ -34,5 +36,9 @@ class Editor:
         return {"weekly_program": {}}
 
     def __call__(self, program: dict[str, str | None]) -> dict[str, str | None]:
-        program['formatted'] = self.format_program(program)
+        formatted = self.format_program(program)
+        # Preserve Critic feedback if available
+        if 'feedback' in program:
+            formatted['critic_feedback'] = program['feedback']
+        program['formatted'] = formatted
         return program

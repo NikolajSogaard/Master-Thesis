@@ -47,7 +47,7 @@ DEFAULT_CONFIG = {
     'writer_temperature': 0.6,
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
-    'critic_prompt_settings': 'v1',
+    'critic_prompt_settings': 'week1',
     'max_iterations': 4
 }
 

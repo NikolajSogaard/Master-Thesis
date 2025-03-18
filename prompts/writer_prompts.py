@@ -18,13 +18,15 @@ class WriterPromptSettings:
 # Ultimately, you'll likely want to extract the text fields outside of Python, but maybe easy to start this way
 # You could also implement .save and .load methods as indicated above and use those 
 TASK = '''
-Create the best strength training program with a fitting frequency, training split, and numbers of training days, based on this input:
+Create the best strength training program with a fitting frequency, training split, and numbers of training days, based on this input and some exercises from the user:
 {}
 
 Follow this JSON structure as a guide for your response. The Editor will handle any formatting issues:
 {}
 
-Important: Make sure your program matches the persona's experience level, goals, available training time, and any specific information they've provided. Create a personalized program that directly addresses their needs.
+Important: 
+- Make sure your program matches the persona's experience level, goals, available training time, and any specific information they've provided. Create a personalized program that directly addresses their needs.
+- Make sure your program provide sufficient frequency for each major muscle group? (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)
 '''
 
 TASK_REVISION = '''

@@ -41,17 +41,28 @@ def setup_llm(
         if respond_as_json:
             # Attempt to parse JSON if expected, with fallback on failure
             try:
-                if response_text.startswith("```json"):
-                    response_text = response_text.split("```json", 1)[1]
-                if response_text.endswith("```"):
-                    response_text = response_text.rsplit("```", 1)[0]
-                response_text = response_text.strip()
+                # Try to extract JSON from code blocks
+                if "```json" in response_text:
+                    json_content = response_text.split("```json", 1)[1]
+                    if "```" in json_content:
+                        json_content = json_content.split("```", 1)[0]
+                    response_text = json_content.strip()
+                # If it's raw JSON starting with {
+                elif response_text.strip().startswith("{") and response_text.strip().endswith("}"):
+                    # Already in JSON format, keep as is
+                    pass
+                # If it's plain text, convert it to a valid JSON structure
+                else:
+                    print("Converting plain text response to JSON")
+                    # Create a minimal valid structure with the text as a message
+                    return {"weekly_program": {"Day 1": []}, "message": response_text}
+                    
                 return json.loads(response_text)
             except json.JSONDecodeError as e:
                 print(f"Failed to decode JSON: {e}")
                 print(f"Raw text: {response_text}")
-                # Fallback: return raw text instead
-                return response_text
+                # Return a valid structure with the text preserved
+                return {"weekly_program": {"Day 1": []}, "message": response_text}
         return response_text
 
     return generate_response
