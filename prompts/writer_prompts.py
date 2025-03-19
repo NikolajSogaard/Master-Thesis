@@ -67,7 +67,7 @@ Follow this JSON structure as a guide for your response:
 {}
 '''
 
-PROGRAM_STRUCTURE_week1 = '''
+PROGRAM_STRUCTURE_WEEK1 = '''
 {
   "weekly_program": {
     "Day 1": [
@@ -95,7 +95,7 @@ PROGRAM_STRUCTURE_week1 = '''
 }
 '''
 
-PROGRAM_STRUCTURE_week2plus = '''
+PROGRAM_STRUCTURE_WEEK2PLUS = '''
 {
   "weekly_program": {
     "Day 1": [
@@ -154,7 +154,7 @@ WRITER_PROMPT_SETTINGS['initial'] = WriterPromptSettings(
     role=WRITER_ROLE,
     task=TASK_INITIAL,
     task_revision=TASK_REVISION,  # Not typically used for initial
-    structure=PROGRAM_STRUCTURE_week1,
+    structure=PROGRAM_STRUCTURE_WEEK1,
 )
 
 # Revision based on critic feedback
@@ -162,7 +162,7 @@ WRITER_PROMPT_SETTINGS['revision'] = WriterPromptSettings(
     role=WRITER_ROLE,
     task=TASK_INITIAL,  # Included as fallback
     task_revision=TASK_REVISION,
-    structure=PROGRAM_STRUCTURE_week1,
+    structure=PROGRAM_STRUCTURE_WEEK1,
 )
 
 # Week 2+ progression
@@ -170,7 +170,7 @@ WRITER_PROMPT_SETTINGS['progression'] = WriterPromptSettings(
     role=PROGRESSION_ROLE,
     task=TASK_INITIAL,  # Included as fallback
     task_revision=TASK_PROGRESSION,
-    structure=PROGRAM_STRUCTURE_week2plus,
+    structure=PROGRAM_STRUCTURE_WEEK2PLUS,
 )
 
 # Add the original v1 as an alias to initial for backward compatibility
