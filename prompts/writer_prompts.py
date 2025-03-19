@@ -58,7 +58,7 @@ Create the next week's training program based on:
 IMPORTANT:
 - Use the same overall program structure (days, split) as the previous week.
 - Apply appropriate progressive overload based on the performance data.
-- Include personalized 'suggestion' fields for EACH exercise with SPECIFIC numbers for weights, reps and RPE targets.
+- Include personalized 'suggestion' fields for EACH exercise with SPECIFIC numbers for weights (in kg), reps and RPE targets.
 - For exercises where the user achieved their target RPE and completed all prescribed reps, increase the load appropriately.
 - For exercises where the user struggled (higher than target RPE or failed to complete reps), adjust accordingly.
 - If the user provided specific feedback for an exercise, address it directly in your updated programming.
@@ -67,7 +67,7 @@ Follow this JSON structure as a guide for your response:
 {}
 '''
 
-PROGRAM_STRUCTURE = '''
+PROGRAM_STRUCTURE_week1 = '''
 {
   "weekly_program": {
     "Day 1": [
@@ -78,7 +78,6 @@ PROGRAM_STRUCTURE = '''
         "target_rpe": 7-8,
         "rest": "60-90 seconds",
         "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
-        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135lb for 3x8 at RPE 8')"
       }
     ],
     "Day 2": [
@@ -89,7 +88,36 @@ PROGRAM_STRUCTURE = '''
         "target_rpe": 8-10,
         "rest": "2-3 minutes",
         "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
-        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5lb to 225lb for 4x6 at RPE 7-8')"
+      }
+    ],
+    "Day X": etc. continue generating each training day of the week.
+  }
+}
+'''
+
+PROGRAM_STRUCTURE_week2plus = '''
+{
+  "weekly_program": {
+    "Day 1": [
+      {
+        "name": "Exercise name",
+        "sets": 3,
+        "reps": "8-12",
+        "target_rpe": 7-8,
+        "rest": "60-90 seconds",
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
+        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135kg for 3x8 at RPE 8')"
+      }
+    ],
+    "Day 2": [
+      {
+        "name": "Exercise name",
+        "sets": 4,
+        "reps": "5-8",
+        "target_rpe": 8-10,
+        "rest": "2-3 minutes",
+        "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
+        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5lkg to 222kg for 4x6 at RPE 7-8')"
       }
     ],
     "Day X": etc. continue generating each training day of the week.
@@ -126,7 +154,7 @@ WRITER_PROMPT_SETTINGS['initial'] = WriterPromptSettings(
     role=WRITER_ROLE,
     task=TASK_INITIAL,
     task_revision=TASK_REVISION,  # Not typically used for initial
-    structure=PROGRAM_STRUCTURE,
+    structure=PROGRAM_STRUCTURE_week1,
 )
 
 # Revision based on critic feedback
@@ -134,7 +162,7 @@ WRITER_PROMPT_SETTINGS['revision'] = WriterPromptSettings(
     role=WRITER_ROLE,
     task=TASK_INITIAL,  # Included as fallback
     task_revision=TASK_REVISION,
-    structure=PROGRAM_STRUCTURE,
+    structure=PROGRAM_STRUCTURE_week1,
 )
 
 # Week 2+ progression
@@ -142,7 +170,7 @@ WRITER_PROMPT_SETTINGS['progression'] = WriterPromptSettings(
     role=PROGRESSION_ROLE,
     task=TASK_INITIAL,  # Included as fallback
     task_revision=TASK_PROGRESSION,
-    structure=PROGRAM_STRUCTURE,
+    structure=PROGRAM_STRUCTURE_week2plus,
 )
 
 # Add the original v1 as an alias to initial for backward compatibility

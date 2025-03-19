@@ -41,6 +41,89 @@
     button:hover {
       background-color: #45a049;
     }
+    
+    /* New styles for load program section */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      margin: 30px 0;
+    }
+    
+    .divider-line {
+      flex-grow: 1;
+      height: 1px;
+      background-color: #ddd;
+    }
+    
+    .divider-text {
+      margin: 0 15px;
+      font-weight: bold;
+      color: #777;
+    }
+    
+    .saved-programs {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+      background-color: #f9f9f9;
+    }
+    
+    .program-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      background-color: #fff;
+    }
+    
+    .program-item {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .program-item:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .program-item.selected {
+      background-color: #e7f3ff;
+    }
+    
+    .program-details {
+      font-size: 12px;
+      color: #777;
+      margin-top: 4px;
+    }
+    
+    .load-button {
+      background-color: #3498db;
+    }
+    
+    .load-button:hover {
+      background-color: #2980b9;
+    }
+    
+    #load-message {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 4px;
+      text-align: center;
+      display: none;
+    }
+    
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
   </style>
 </head>
 <body>
@@ -61,9 +144,141 @@
       </select>
     </div>
     
-    <!-- Removed critique type selector -->
-    
     <button type="submit">Generate Program</button>
   </form>
+  
+  <!-- Divider between new program and load program sections -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">OR</div>
+    <div class="divider-line"></div>
+  </div>
+  
+  <!-- Load Saved Program Section -->
+  <div class="saved-programs">
+    <h2>Load Saved Program</h2>
+    <div id="program-list" class="program-list">
+      <div class="program-item" style="text-align: center; color: #777;">
+        Loading saved programs...
+      </div>
+    </div>
+    <button type="button" id="load-program-btn" class="load-button" disabled>Load Selected Program</button>
+    <div id="load-message"></div>
+  </div>
+  
+  <script>
+    // Load the list of saved programs when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchSavedPrograms();
+      
+      // Set up event listener for the load button
+      document.getElementById('load-program-btn').addEventListener('click', loadSelectedProgram);
+    });
+    
+    // Fetch saved programs
+    function fetchSavedPrograms() {
+      fetch('{{ url_for("list_saved_programs") }}')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            displaySavedPrograms(data.programs);
+          } else {
+            showLoadMessage(data.message, false);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showLoadMessage('Error fetching saved programs', false);
+        });
+    }
+    
+    // Display saved programs in the list
+    function displaySavedPrograms(programs) {
+      const listElement = document.getElementById('program-list');
+      
+      if (programs.length === 0) {
+        listElement.innerHTML = '<div class="program-item" style="text-align: center; color: #777;">No saved programs found</div>';
+        return;
+      }
+      
+      let html = '';
+      programs.forEach(program => {
+        html += `
+          <div class="program-item" data-filename="${program.filename}">
+            <div><strong>${program.name}</strong></div>
+            <div class="program-details">
+              Saved: ${program.date} | Weeks: ${program.weeks} | Current: Week ${program.current_week}
+            </div>
+          </div>
+        `;
+      });
+      
+      listElement.innerHTML = html;
+      
+      // Add click event to select program
+      document.querySelectorAll('.program-item').forEach(item => {
+        item.addEventListener('click', function() {
+          // Remove selected class from all items
+          document.querySelectorAll('.program-item').forEach(i => {
+            i.classList.remove('selected');
+          });
+          
+          // Add selected class to clicked item
+          this.classList.add('selected');
+          
+          // Enable the load button
+          document.getElementById('load-program-btn').disabled = false;
+        });
+      });
+    }
+    
+    // Load the selected program
+    function loadSelectedProgram() {
+      const selectedItem = document.querySelector('.program-item.selected');
+      if (!selectedItem) {
+        showLoadMessage('Please select a program to load', false);
+        return;
+      }
+      
+      const filename = selectedItem.getAttribute('data-filename');
+      const formData = new FormData();
+      formData.append('filename', filename);
+      
+      fetch('{{ url_for("load_program") }}', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showLoadMessage('Program loaded successfully, redirecting...', true);
+          setTimeout(() => {
+            window.location.href = data.redirect;
+          }, 1000);
+        } else {
+          showLoadMessage(data.message, false);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showLoadMessage('Error loading program', false);
+      });
+    }
+    
+    // Show load message
+    function showLoadMessage(message, isSuccess) {
+      const messageElement = document.getElementById('load-message');
+      messageElement.textContent = message;
+      messageElement.className = isSuccess ? 'success-message' : 'error-message';
+      messageElement.style.display = 'block';
+      
+      // Hide message after 5 seconds if it's an error
+      if (!isSuccess) {
+        setTimeout(() => {
+          messageElement.style.display = 'none';
+        }, 5000);
+      }
+    }
+  </script>
 </body>
 </html>

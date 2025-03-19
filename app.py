@@ -2,13 +2,14 @@
 This file should be the new main file insteed of main.py.
 This is to get the output as a web application. 
 """
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_session import Session  # Import Flask-Session extension
 import json
 import os
 import argparse
 import tempfile
 from datetime import datetime, timedelta
+import uuid
 
 from agent_system import (
     setup_llm,
@@ -358,6 +359,109 @@ def next_week():
     
     flash(f"Week {new_week} program generated successfully!")
     return redirect(url_for('index'))
+
+# Ensure the SavedPrograms directory exists
+SAVED_PROGRAMS_DIR = os.path.join('Data', 'SavedPrograms')
+os.makedirs(SAVED_PROGRAMS_DIR, exist_ok=True)
+
+@app.route('/save_program', methods=['POST'])
+def save_program():
+    """Save the current program to a file"""
+    if 'program' not in session:
+        return jsonify({'success': False, 'message': 'No active program to save'})
+    
+    try:
+        # Get program name from form
+        program_name = request.form.get('program_name', '')
+        
+        # If no name provided, generate one based on date
+        if not program_name:
+            program_name = f"Program_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        # Make program name safe for filenames
+        safe_name = "".join(c for c in program_name if c.isalnum() or c in [' ', '_', '-']).strip()
+        safe_name = safe_name.replace(' ', '_')
+        
+        # Generate unique filename
+        filename = f"{safe_name}_{uuid.uuid4().hex[:8]}.json"
+        filepath = os.path.join(SAVED_PROGRAMS_DIR, filename)
+        
+        # Prepare data to save
+        save_data = {
+            'program_name': program_name,
+            'date_saved': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'user_input': session.get('user_input', ''),
+            'persona': session.get('persona', ''),
+            'current_week': session.get('current_week', 1),
+            'raw_program': session.get('raw_program', {}),
+            'all_programs': session.get('all_programs', []),
+        }
+        
+        # Save to file
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(save_data, f, indent=2, ensure_ascii=False)
+        
+        return jsonify({'success': True, 'message': f'Program saved as {program_name}'})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error saving program: {str(e)}'})
+
+@app.route('/list_saved_programs', methods=['GET'])
+def list_saved_programs():
+    """List all saved programs"""
+    try:
+        programs = []
+        for filename in os.listdir(SAVED_PROGRAMS_DIR):
+            if filename.endswith('.json'):
+                filepath = os.path.join(SAVED_PROGRAMS_DIR, filename)
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        programs.append({
+                            'filename': filename,
+                            'name': data.get('program_name', filename),
+                            'date': data.get('date_saved', ''),
+                            'weeks': len(data.get('all_programs', [])),
+                            'current_week': data.get('current_week', 1)
+                        })
+                except Exception as e:
+                    print(f"Error reading program file {filename}: {e}")
+        
+        # Sort by date (most recent first)
+        programs.sort(key=lambda x: x.get('date', ''), reverse=True)
+        return jsonify({'success': True, 'programs': programs})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error listing programs: {str(e)}'})
+
+@app.route('/load_program', methods=['POST'])
+def load_program():
+    """Load a saved program"""
+    try:
+        filename = request.form.get('filename')
+        if not filename:
+            return jsonify({'success': False, 'message': 'No program selected'})
+        
+        filepath = os.path.join(SAVED_PROGRAMS_DIR, filename)
+        if not os.path.exists(filepath):
+            return jsonify({'success': False, 'message': 'Program file not found'})
+        
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Restore session data
+        session['program'] = data.get('all_programs', [])[-1].get('program', {}) if data.get('all_programs') else {}
+        session['raw_program'] = data.get('raw_program', {})
+        session['user_input'] = data.get('user_input', '')
+        session['persona'] = data.get('persona', '')
+        session['current_week'] = data.get('current_week', 1)
+        session['all_programs'] = data.get('all_programs', [])
+        session['feedback'] = {}
+        
+        return jsonify({'success': True, 'redirect': url_for('index')})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error loading program: {str(e)}'})
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
