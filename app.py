@@ -56,11 +56,20 @@ def get_program_generator(config=None):
     if config is None:
         config = DEFAULT_CONFIG
     
-    # Setup prompt settings
-    writer_prompt_settings = WRITER_PROMPT_SETTINGS[config['writer_prompt_settings']]
+    # Setup prompt settings based on week/task
+    week_number = config.get('week_number', 1)
+    
+    # Select writer prompt settings based on week/task
+    writer_type = "initial"  # Default for initial program
+    
+    if week_number > 1:
+        writer_type = "progression"  # Use progression for week 2+
+    elif config.get('is_revision', False):
+        writer_type = "revision"  # Use revision for critique-based revisions
+        
+    writer_prompt_settings = WRITER_PROMPT_SETTINGS[writer_type]
     
     # Use week-specific critic settings
-    week_number = config.get('week_number', 1)
     critic_setting_key = 'week2plus' if week_number > 1 else 'week1'
     critic_prompt_settings = CRITIC_PROMPT_SETTINGS[critic_setting_key]
     
@@ -84,6 +93,8 @@ def get_program_generator(config=None):
         structure=writer_prompt_settings.structure,
         task=writer_prompt_settings.task,
         task_revision=writer_prompt_settings.task_revision,
+        writer_type=writer_type,  # Pass the writer type
+        retrieval_fn=retrieve_and_generate  # Add retrieval function
     )
     
     critic = Critic(

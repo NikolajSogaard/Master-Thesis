@@ -48,7 +48,7 @@ Your colleague has written the following training program:
 
 The individual has provided these details:
 {}
-
+Your task is to find the most optimal exercises for the individual. Such as the best exercises for bodybuilder, powerlifter, beginner or other goals the individual might have.
 Focus ONLY on EXERCISE SELECTION:
 - Check if the chosen exercises align with the individual’s goals and experience level.
 - Ensure exercises match the user's preferences.
