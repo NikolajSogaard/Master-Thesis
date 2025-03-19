@@ -7,7 +7,7 @@ class CriticPromptSettings:
     tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
 
 
-TASK_FREQUENCY_and_SPLIT = '''
+TASK_FREQUENCY_AND_SPLIT = '''
 Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
@@ -48,7 +48,7 @@ Your colleague has written the following training program:
 
 The individual has provided these details:
 {}
-
+Your task is to find the most optimal exercises for the individual. Such as the best exercises for bodybuilder, powerlifter, beginner or other goals the individual might have.
 Focus ONLY on EXERCISE SELECTION:
 - Check if the chosen exercises align with the individual’s goals and experience level.
 - Ensure exercises match the user's preferences.
@@ -161,7 +161,7 @@ CRITIC_PROMPT_SETTINGS['week1'] = CriticPromptSettings(
         ),
     },
     tasks={
-        'frequency_and_split': TASK_FREQUENCY_and_SPLIT,
+        'frequency_and_split': TASK_FREQUENCY_AND_SPLIT,
         'exercise_selection': TASK_EXERCISE_SELECTION,
         'rep_ranges': TASK_REP_RANGES,
         'rpe': TASK_RPE,
@@ -191,7 +191,7 @@ for setting_key in ['frequency_and_split', 'exercise_selection', 'rep_ranges', '
         task_var_name = f"TASK_{setting_key.upper()}"
         task_template = locals().get(task_var_name, globals().get(task_var_name))
         CRITIC_PROMPT_SETTINGS[setting_key].tasks = {
-            'frequency_and_split': TASK_FREQUENCY_and_SPLIT,
+            'frequency_and_split': TASK_FREQUENCY_AND_SPLIT,
             'exercise_selection': TASK_EXERCISE_SELECTION,
             'rep_ranges': TASK_REP_RANGES,
             'rpe': TASK_RPE,
