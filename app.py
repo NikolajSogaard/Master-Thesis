@@ -59,16 +59,22 @@ def get_program_generator(config=None):
     
     # Setup prompt settings based on week/task
     week_number = config.get('week_number', 1)
+    is_revision = config.get('is_revision', False)
     
     # Select writer prompt settings based on week/task
     writer_type = "initial"  # Default for initial program
     
     if week_number > 1:
         writer_type = "progression"  # Use progression for week 2+
-    elif config.get('is_revision', False):
+    elif is_revision:
         writer_type = "revision"  # Use revision for critique-based revisions
         
     writer_prompt_settings = WRITER_PROMPT_SETTINGS[writer_type]
+    
+    # Add debugging to understand what's loaded
+    print(f"DEBUG: Writer type selected: {writer_type}")
+    print(f"DEBUG: Has task: {writer_prompt_settings.task is not None}")
+    print(f"DEBUG: Has task_revision: {writer_prompt_settings.task_revision is not None}")
     
     # Use week-specific critic settings
     critic_setting_key = 'week2plus' if week_number > 1 else 'week1'
@@ -87,13 +93,26 @@ def get_program_generator(config=None):
         respond_as_json=False,
     )
     
+    # Ensure we have both revision tasks for all writer types to handle both initial creation and feedback revision
+    all_revision_tasks = {}
+    for type_key, settings in WRITER_PROMPT_SETTINGS.items():
+        if settings.task_revision:
+            all_revision_tasks[type_key] = settings.task_revision
+    
+    # Always include the revision task for the current writer type
+    task_revision = writer_prompt_settings.task_revision
+    if not task_revision and 'revision' in WRITER_PROMPT_SETTINGS:
+        # Fallback to revision writer's task_revision if current writer has none
+        task_revision = WRITER_PROMPT_SETTINGS['revision'].task_revision
+    
     # Agents
     writer = Writer(
         model=llm_writer,
         role=writer_prompt_settings.role,
         structure=writer_prompt_settings.structure,
         task=writer_prompt_settings.task,
-        task_revision=writer_prompt_settings.task_revision,
+        task_revision=task_revision,  # Ensure we have a task_revision
+        task_progression=getattr(writer_prompt_settings, 'task_progression', None),  # Pass task_progression
         writer_type=writer_type,  # Pass the writer type
         retrieval_fn=retrieve_and_generate  # Add retrieval function
     )

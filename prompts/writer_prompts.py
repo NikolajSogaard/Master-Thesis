@@ -1,12 +1,14 @@
 import dataclasses
+from typing import Optional
 
 
 @dataclasses.dataclass
 class WriterPromptSettings:
     role: dict[str, str]
-    task: str
-    task_revision: str
     structure: str
+    task: Optional[str] = None
+    task_revision: Optional[str] = None
+    task_progression: Optional[str] = None
 
     def save(self, fname: str):
         raise NotImplementedError
@@ -72,7 +74,15 @@ PROGRAM_STRUCTURE_WEEK1 = '''
   "weekly_program": {
     "Day 1": [
       {
-        "name": "Exercise name",
+        "name": "A1: Exercise name",
+        "sets": 3,
+        "reps": "8-12",
+        "target_rpe": 7-8,
+        "rest": "60-90 seconds",
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
+      },
+      {
+        "name": "B1: Exercise name",
         "sets": 3,
         "reps": "8-12",
         "target_rpe": 7-8,
@@ -82,7 +92,7 @@ PROGRAM_STRUCTURE_WEEK1 = '''
     ],
     "Day 2": [
       {
-        "name": "Exercise name",
+        "name": "A1: Exercise name",
         "sets": 4,
         "reps": "5-8",
         "target_rpe": 8-10,
@@ -100,7 +110,16 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
   "weekly_program": {
     "Day 1": [
       {
-        "name": "Exercise name",
+        "name": "A1: Exercise name",
+        "sets": 3,
+        "reps": "8-12",
+        "target_rpe": 7-8,
+        "rest": "60-90 seconds",
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
+        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135kg for 3x8 at RPE 8')"
+      },
+      {
+        "name": "B1: Exercise name",
         "sets": 3,
         "reps": "8-12",
         "target_rpe": 7-8,
@@ -111,7 +130,7 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
     ],
     "Day 2": [
       {
-        "name": "Exercise name",
+        "name": "A1: Exercise name",
         "sets": 4,
         "reps": "5-8",
         "target_rpe": 8-10,
@@ -125,14 +144,26 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
 }
 '''
 
-# Base role for writers
-WRITER_ROLE = {
+# Specific role for initial program creation
+INITIAL_WRITER_ROLE = {
     'role': 'system',
-    'content': 'You are an AI system specialized in creating personalized strength training programs.' 
+    'content': 'You are an AI system specialized in creating initial strength training programs.' 
                 'You have expertise in exercise science, biomechanics, and training periodization. '
-                'Your task is to create effective, and evidence-based strength training programs tailored to the user\'s needs, goals, and experience level. '
-                'Always prioritize proper progression, and training variety. '
+                'Your task is to create effective and evidence-based strength training programs tailored to the user\'s needs, goals, and experience level. '
+                'Focus on establishing the right training frequency, volume, and exercise selection for beginners or those starting a new program. '
+                'Always prioritize proper form, foundational movements, and sustainable training structures. '
                 'Provide clear CONCISE, actionable instructions that are appropriate for the specified experience level.'
+}
+
+# Specific role for program revision
+REVISION_WRITER_ROLE = {
+    'role': 'system',
+    'content': 'You are an AI system specialized in revising strength training programs based on feedback.' 
+                'You have expertise in exercise science, biomechanics, and training periodization. '
+                'Your task is to implement specific feedback and improvements to existing training programs. '
+                'Focus on addressing weaknesses identified by critics while maintaining program coherence. '
+                'Always ensure changes are evidence-based and maintain the program\'s overall structure unless explicitly required to change it. '
+                'Provide clear CONCISE adjustments that directly address the feedback given.'
 }
 
 # Enhanced role for progression writer
@@ -149,27 +180,24 @@ PROGRESSION_ROLE = {
 # Dictionary to store all prompt settings
 WRITER_PROMPT_SETTINGS: dict[str, WriterPromptSettings] = {}
 
-# Initial program creation settings
+# Initial program creation settings - only has TASK_INITIAL with its own role
 WRITER_PROMPT_SETTINGS['initial'] = WriterPromptSettings(
-    role=WRITER_ROLE,
+    role=INITIAL_WRITER_ROLE,
     task=TASK_INITIAL,
-    task_revision=TASK_REVISION,  # Not typically used for initial
     structure=PROGRAM_STRUCTURE_WEEK1,
 )
 
-# Revision based on critic feedback
+# Revision based on critic feedback - only has TASK_REVISION with its own role
 WRITER_PROMPT_SETTINGS['revision'] = WriterPromptSettings(
-    role=WRITER_ROLE,
-    task=TASK_INITIAL,  # Included as fallback
+    role=REVISION_WRITER_ROLE,
     task_revision=TASK_REVISION,
     structure=PROGRAM_STRUCTURE_WEEK1,
 )
 
-# Week 2+ progression
+# Week 2+ progression - needs to use task_revision, not task_progression
 WRITER_PROMPT_SETTINGS['progression'] = WriterPromptSettings(
     role=PROGRESSION_ROLE,
-    task=TASK_INITIAL,  # Included as fallback
-    task_revision=TASK_PROGRESSION,
+    task_revision=TASK_PROGRESSION,  # Changed from task_progression to task_revision
     structure=PROGRAM_STRUCTURE_WEEK2PLUS,
 )
 
