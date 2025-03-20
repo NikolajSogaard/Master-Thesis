@@ -25,17 +25,16 @@ class Writer:
         
         # Define specialized instructions for different writing tasks
         self.specialized_instructions = {
-            "initial": "Focus on creating an optimal program structure based on the user's training experience, goals, and available time. Consider appropriate exercise selection, volume, intensity, and frequency.",
+            "initial": "Focus on creating the best strength training program based on the {user_input}. Consider appropriate training splits and frequency, rep-ranges, exercises that fits the user and the order of these exercises, set volume for each week and intensity.",
             "revision": "Focus on implementing feedback from the critic while maintaining program coherence. Ensure each change makes the program more effective and better suited to the user's goals.",
             "progression": "Focus on appropriate progressive overload strategies. Analyze previous performance data to guide weight selections, rep ranges, and RPE targets. Consider adaptation rate based on training history."
         }
     
     def get_retrieval_query(self, program: dict[str, str | None]) -> str:
         """Generate appropriate retrieval query based on writer type and user input"""
-        user_input = program.get('user-input', '')
-        
+        # Keep queries general and focused on the task type
         if self.writer_type == "initial":
-            return f"Best practices for designing a strength training program for {user_input}"
+            return "Best practices for designing a strength training program"
         elif self.writer_type == "revision":
             return "How to effectively implement feedback into a training program design?"
         elif self.writer_type == "progression":
@@ -50,7 +49,12 @@ class Writer:
             ) -> tuple[str, dict[str, str]]:
         # Get retrieval context first
         query = self.get_retrieval_query(program)
+        user_input = program.get('user-input', '')
+        
+        # Format the retrieval instructions with user input
         retrieval_instructions = self.specialized_instructions.get(self.writer_type, "")
+        if '{user_input}' in retrieval_instructions:
+            retrieval_instructions = retrieval_instructions.format(user_input=user_input)
         
         # Check if we have a task for writing (for initial type)
         if not self.task:
