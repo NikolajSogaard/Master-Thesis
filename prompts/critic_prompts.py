@@ -13,8 +13,8 @@ Your colleague has written the following training program:
 For an individual who provided the following input:
 {}
 Focus specifically on the TRAINING FREQUENCY and SPLIT SELECTION.
-Consider if:
-1. The program provide sufficient frequency for each major muscle group (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)
+Make sure that:
+1. The program provide sufficient frequency for each major muscle group
 2. The training split effectively utilize the user's available training days.
 3. The split appropriate for the user's goals (strength, powerlifting, hypertrophy, beginners etc.)
 
@@ -25,14 +25,19 @@ For hypertrophy-focused goals, consider these common split options:
 - Hybrid splits (5 days): Such as Push, Pull, Legs, Upper, Lower
 - Push/Pull/Legs (6x/week): One day each for pushing movements, pulling movements, and leg exercises
 
+Each major muscle group should typically be trained at least twice per week for optimal hypertrophy
+
 For strength and powerlifting goals, consider the following recommendations:
 - Prioritize Main Lifts: Focus on main exercises—such as squat, bench press, and deadlift—as well as their variations (e.g., front squat, incline bench press, Romanian deadlift). Depending on the user's training persona, these main exercises may also be alternative movements like hack squats, chin-ups, or dips. 
 - Higher Frequency for Main Lifts: Main lifts and their variations can be trained more than two times per week with proper load management. Their frequency is often more critical than targeting individual muscle groups.
 - Accessory Work: Although main lifts receive higher frequency, accessory exercises should be performed less frequently.
 - Tailored Adjustments: If the current training frequency or split doesn't align with the user's available training days or specific goals, adjust the plan to better match those needs.
 
+
+
 Provide feedback if any... otherwise only return "None"
 '''
+# ^^^^^^^^^^^^^ Powerlifting/powerbuilding split
 
 
 
