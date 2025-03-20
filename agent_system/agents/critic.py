@@ -23,8 +23,7 @@ class Critic:
             "exercise_selection": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about exercise selection principles based on specific user goals, experience level, and any physical limitations.",
             "rep_ranges": "Provide consise guidance, and do not answer outside the scope of the query.",
             "rpe": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about appropriate RPE (Rating of Perceived Exertion) targets for different exercise types and experience levels. Include guidance on when to use absolute RPE values (like 8) versus RPE ranges (like 7-8), and how RPE should differ between compound and isolation exercises.",
-            "progression": "Provide consise guidance, and do not answer outside the scope of the query.",
-            "week2plus_progression": "Focus on progressive overload strategies. Provide specific guidance on weight/intensity progression based on previous week's performance data. Include advice on autoregulation, RPE-based progression, and exercise-specific progression rates that balance optimal progress with recovery and injury prevention."
+            "progression": "Focus on progressive overload strategies. Provide specific guidance on weight/intensity progression based on previous week's performance data. Include advice on autoregulation, RPE-based progression, and exercise-specific progression rates that balance optimal progress with recovery and injury prevention."
         }
         
         # Define task types based on available tasks
@@ -33,7 +32,7 @@ class Critic:
             self.task_types = ["progression"]
             self.is_week2plus = True
         else:
-            # Default Week 1 tasks
+            # Default Week 1 tasks - remove progression from this list
             self.task_types = ["frequency_and_split", "exercise_selection", "rep_ranges", "rpe"]
             self.is_week2plus = False
 
@@ -44,13 +43,12 @@ class Critic:
         if self.is_week2plus and task_type == "progression":
             return "What are the best practices for progressive overload in strength training? How should weight/intensity be progressed based on previous performance data? How can autoregulation be implemented effectively in progressive overload models?"
         
-        # Week 1 queries
+        # Week 1 queries - remove progression since it should only be for Week 2+
         queries = {
             "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
             "exercise_selection": "What exercises are most effective and appropriate for different fitness goals (strength, bodybuilding, hypertrophy) and experience levels??",
             "rep_ranges": "What are optimal rep ranges for specific exercises and for different strength training goals?",
             "rpe": "How should RPE (Rating of Perceived Exertion) targets be assigned in strength training? When should RPE be expressed as a single value versus a range? How should RPE vary between compound exercises and isolation exercises?",
-            "progression": "What are effective progression principles in strength training programs?"
         }
         
         return queries.get(task_type, f"Best practices for {task_type} in strength training programs")

@@ -62,8 +62,9 @@ def retrieve_and_generate(query, specialized_instructions=""):
     prompt = f"""You are a specialized strength training expert.
 {specialized_instructions}
 
-Using the following excerpts from strength training books, programs, provide concise guidance.
+Using the following excerpts from strength training books, programs.
 Include practical advice recommendations, and clear explanations.
+Do not answer outside the scope of the query.
 
 Summary of Retrieved Information:
 {summary}

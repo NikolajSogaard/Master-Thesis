@@ -98,23 +98,6 @@ Focus ONLY on the RPE (Rating of Perceived Exertion) Targets:
 Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".'''
 
 TASK_PROGRESSION = '''
-Your colleague has written the following training program:
-{}
-
-The individual has provided these details:
-{}
-
-Focus ONLY on the PROGRESSION aspect of the program:
-- Check if a clear method of progressive overload is incorporated (e.g., increasing weight, reps, or difficulty over time).
-- Verify that the progression strategy matches the individual’s experience level (e.g., straightforward linear progression for beginners; more nuanced approaches for intermediate/advanced).
-- Consider the frequency of progression and whether it’s realistic and safe for the stated goals.
-
-Provide concise feedback if any improvements are needed. 
-If there are no issues, respond with "None".
-'''
-
-# New task for detailed progression analysis in Week 2+
-TASK_WEEK2PLUS_PROGRESSION = '''
 Your colleague has written the following Week {week_number} training program:
 {}
 
@@ -149,7 +132,7 @@ Only return "None" if the progression strategy is already optimal.
 # Dictionary of specialized critic settings for different evaluation tasks
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}
 
-# Update the CRITIC_PROMPT_SETTINGS to include all task templates
+# Update the CRITIC_PROMPT_SETTINGS to include Week 1 tasks (without progression)
 CRITIC_PROMPT_SETTINGS['week1'] = CriticPromptSettings(
     role={
         'role': 'system',
@@ -168,8 +151,8 @@ CRITIC_PROMPT_SETTINGS['week1'] = CriticPromptSettings(
     },
 )
 
-# New setting for Week 2+ with progression focus
-CRITIC_PROMPT_SETTINGS['week2plus'] = CriticPromptSettings(
+# Setting for Week 2+ with progression focus only
+CRITIC_PROMPT_SETTINGS['progression'] = CriticPromptSettings(
     role={
         'role': 'system',
         'content': (
@@ -181,12 +164,12 @@ CRITIC_PROMPT_SETTINGS['week2plus'] = CriticPromptSettings(
         ),
     },
     tasks={
-        'progression': TASK_WEEK2PLUS_PROGRESSION,
+        'progression': TASK_PROGRESSION,  # Use the single progression task
     },
 )
 
-# Update other settings to include all tasks
-for setting_key in ['frequency_and_split', 'exercise_selection', 'rep_ranges', 'rpe', 'progression']:
+# Update other individual task settings - remove progression from non-progression settings
+for setting_key in ['frequency_and_split', 'exercise_selection', 'rep_ranges', 'rpe']:
     if setting_key in CRITIC_PROMPT_SETTINGS:
         task_var_name = f"TASK_{setting_key.upper()}"
         task_template = locals().get(task_var_name, globals().get(task_var_name))
