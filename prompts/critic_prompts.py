@@ -13,11 +13,10 @@ Your colleague has written the following training program:
 For an individual who provided the following input:
 {}
 Focus specifically on the TRAINING FREQUENCY and SPLIT SELECTION.
-
-Answer the following questions:
-1. Does the program provide sufficient frequency for each major muscle group? (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)
-2. Does the training split effectively utilize the user's available training days?
-3. Is the split appropriate for the user's goals (strength, hypertrophy, etc.)?
+Consider if:
+1. The program provide sufficient frequency for each major muscle group (Each major muscle group should typically be trained at least twice per week for optimal hypertrophy)
+2. The training split effectively utilize the user's available training days.
+3. The split appropriate for the user's goals (strength, powerlifting, hypertrophy, beginners etc.)
 
 For hypertrophy-focused goals, consider these common split options:
 - Full body (2x/week): Trains all muscle groups each session
@@ -26,20 +25,15 @@ For hypertrophy-focused goals, consider these common split options:
 - Hybrid splits (5 days): Such as Push, Pull, Legs, Upper, Lower
 - Push/Pull/Legs (6x/week): One day each for pushing movements, pulling movements, and leg exercises
 
-For strength/powerlifting-focused goals, consider:
-- Full body with main lift focus (3-4x/week): Each session focuses on one main lift (squat, bench, deadlift) with higher frequency
-- Upper/Lower (4x/week): With frequency for main lifts 2-3x per week
-- Push/Pull/Legs with main lift priority (4-6x/week): Main lifts can appear 2-4x per week with varied intensity
-- Specialized split like the Sheiko approach or Daily Undulating Periodization (DUP) where main lifts are trained 3-4x per week
-
-For powerlifting/strength goals, the frequency of specific main lifts (for example: squat, bench, deadlift) is often MORE important than the frequency of muscle groups. Main lifts can be trained 2-4 times per week with proper load management.
-IMPORTANT:
-- Main lift can also be alternative variations like front squat, incline bench press, or Romanian deadlift. I it dont nessesary have to have only one of these main lifts or variations each training day.
-
-If the training frequency or split needs improvement, provide specific recommendations that better match the user's goals and available training days.
+For strength and powerlifting goals, consider the following recommendations:
+- Prioritize Main Lifts: Focus on main exercises—such as squat, bench press, and deadlift—as well as their variations (e.g., front squat, incline bench press, Romanian deadlift). Depending on the user's training persona, these main exercises may also be alternative movements like hack squats, chin-ups, or dips. 
+- Higher Frequency for Main Lifts: Main lifts and their variations can be trained more than two times per week with proper load management. Their frequency is often more critical than targeting individual muscle groups.
+- Accessory Work: Although main lifts receive higher frequency, accessory exercises should be performed less frequently.
+- Tailored Adjustments: If the current training frequency or split doesn't align with the user's available training days or specific goals, adjust the plan to better match those needs.
 
 Provide feedback if any... otherwise only return "None"
 '''
+
 
 
 TASK_EXERCISE_SELECTION = '''
@@ -48,12 +42,11 @@ Your colleague has written the following training program:
 
 The individual has provided these details:
 {}
-Your task is to find the most optimal exercises for the individual. Such as the best exercises for bodybuilder, powerlifter, beginner or other goals the individual might have.
+
+Your task is to find the best fitting exercises for the user.
+
 Focus ONLY on EXERCISE SELECTION:
-- Check if the chosen exercises align with the individual’s goals and experience level.
-- Ensure exercises match the user's preferences.
-- Limit each day to a maximum of 10 exercises.
-- Ensure the weekly set volume is appropriate for each muscle group.
+- Check that the chosen exercises not only align with the individual's goals and experience level but also match their personal preferences.
 
 For hypertrophy-focused goals:
 - Maintain a balanced mix of compound (50-70%) and isolation (30-50%) exercises.
@@ -61,9 +54,13 @@ For hypertrophy-focused goals:
 - Aim for a 50-50 mix of free-weight and machine exercises.
 
 For strength/powerlifting-focused goals:
-- Emphasize frequent training of squat, bench press, and deadlift or vairations of these main lifts. These main lift can vary depending on the individual's focus lifts.
-Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".
+- Choose exercises that directly complement the user's main lifts (e.g., squat, pull-ups, dips) or their well-suited variations (like front squat/hack squat, lat pulldown narrow grip, or bench press). The selected exercises should be consistent with the user's preferred movement patterns.
+- Identify accessory movements that target the supporting muscle groups impacting the main lifts.
+
+Provide constructive feedback if any changes are needed.
+If there is nothing to improve, return "None".
 '''
+
 
 
 TASK_REP_RANGES = '''
@@ -137,9 +134,9 @@ CRITIC_PROMPT_SETTINGS['week1'] = CriticPromptSettings(
     role={
         'role': 'system',
         'content': (
-            'You are an experienced strength and conditioning coach with deep expertise in exercise science and program design.'
-            'Your task is to critically evaluate the training program provided above, considering factors such as, effectiveness, exercise selection, and overall balance.' 
-            'Provide clear, actionable, and evidence-based feedback to help improve the program.'
+            'You are an experienced strength training coach with deep expertise in exercise science and program design.'
+            'Your job is to critically evaluate the training program provided above, for the task provided' 
+            'Provide clear, actionable, feedback to help improve the program.'
             'If the program meets all criteria, simply return "None".'
         ),
     },

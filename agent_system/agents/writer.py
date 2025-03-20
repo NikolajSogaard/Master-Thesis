@@ -23,25 +23,19 @@ class Writer:
         self.writer_type = writer_type
         self.retrieval_fn = retrieval_fn or retrieve_and_generate
         
-        # Define specialized instructions for different writing tasks
+        # Define specialized instructions only for initial writing task
         self.specialized_instructions = {
-            "initial": "Focus on creating the best strength training program based on the {user_input}. Consider appropriate training splits and frequency, rep-ranges, exercises that fits the user and the order of these exercises, set volume for each week and intensity.",
-            "revision": "Focus on implementing feedback from the critic while maintaining program coherence. Ensure each change makes the program more effective and better suited to the user's goals.",
-            "progression": "Focus on appropriate progressive overload strategies. Analyze previous performance data to guide weight selections, rep ranges, and RPE targets. Consider adaptation rate based on training history."
+            "initial": "Focus on creating the best strength training program based on the {user_input}. Consider appropriate training splits and frequency, rep-ranges, exercises that fits the user and the order of these exercises, set volume for each week and intensity."
         }
     
     def get_retrieval_query(self, program: dict[str, str | None]) -> str:
         """Generate appropriate retrieval query based on writer type and user input"""
-        # Keep queries general and focused on the task type
+        # Only perform retrieval for initial type
         if self.writer_type == "initial":
             return "Best practices for designing a strength training program"
-        elif self.writer_type == "revision":
-            return "How to effectively implement feedback into a training program design?"
-        elif self.writer_type == "progression":
-            return "Evidence-based principles for progressive overload and week-to-week program progression in strength training"
         
-        # Default fallback query
-        return "Best practices for strength training program design"
+        # Return empty string for other types to skip retrieval
+        return ""
 
     def write(
             self,
@@ -60,12 +54,14 @@ class Writer:
         if not self.task:
             raise ValueError(f"Writer of type '{self.writer_type}' does not support initial program creation")
         
-        print(f"\n--- Writer ({self.writer_type}) retrieving context ---")
-        retrieval_result, _ = self.retrieval_fn(query, retrieval_instructions)
-        context = f"\nRelevant context from training literature:\n{retrieval_result}\n"
-        
-        # Add context to the task content
-        enhanced_task = self.task + context
+        # Only perform retrieval for initial writer type
+        enhanced_task = self.task
+        if self.writer_type == "initial" and query:
+            print(f"\n--- Writer (initial) retrieving context ---")
+            retrieval_result, _ = self.retrieval_fn(query, retrieval_instructions)
+            context = f"\nRelevant context from training literature:\n{retrieval_result}\n"
+            # Add context to the task content
+            enhanced_task = self.task + context
         
         prompt = [
             self.role,
@@ -122,19 +118,8 @@ class Writer:
         if not revision_task:
             raise ValueError(f"Writer of type '{current_type}' does not support program revision - no suitable task found")
         
-        # Get retrieval context
-        query = "How to effectively implement critic feedback in strength training program design"
-        if current_type == "progression":
-            query = "How to apply progressive overload based on previous performance data in strength training"
-        
-        retrieval_instructions = self.specialized_instructions.get(current_type, "")
-        
-        print(f"\n--- Writer ({current_type}) retrieving revision context ---")
-        retrieval_result, _ = self.retrieval_fn(query, retrieval_instructions)
-        context = f"\nRelevant context from training literature:\n{retrieval_result}\n"
-        
-        # Add context to the task content
-        enhanced_task_revision = revision_task + context
+        # No retrieval for revision or progression
+        enhanced_task_revision = revision_task
         
         prompt = [
             self.role,
