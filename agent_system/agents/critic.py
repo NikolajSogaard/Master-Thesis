@@ -22,6 +22,7 @@ class Critic:
             "frequency_and_split": "Provide concise guidance tailored to the user's training goals. Focus on structuring workout frequency and splits to ensure balanced coverage of muscle groups and key movement patterns. Adapt recommendations based on the user's training experience (beginner or advanced), specialization (e.g., bodybuilding or powerlifting), and overall objectives",
             "exercise_selection": "Provide concise guidance. Retrieve information about exercise selection principles based on specific user goals, experience level, and any physical limitations. Provide the answer as a list of exercises for each goal and muscle group ",            
             "rpe": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about appropriate RPE (Rating of Perceived Exertion) targets for different exercise types and experience levels. Include guidance on when to use absolute RPE values (like 8) versus RPE ranges (like 7-8), and how RPE should differ between compound and isolation exercises.",
+            "rep_ranges": "Provide concise guidance on rep ranges for different exercises, experience levels and goals. Include information on optimal rep ranges for compound and isolation exercises, as well as how rep ranges can vary based on strength, hypertrophy, or endurance goals.",
             "progression": "Focus on progressive overload strategies. Provide specific guidance on weight/intensity progression based on previous week's performance data. Include advice on autoregulation, RPE-based progression, and exercise-specific progression rates that balance optimal progress with recovery and injury prevention."
         }
         
@@ -45,7 +46,8 @@ class Critic:
         # Week 1 queries - remove progression since it should only be for Week 2+
         queries = {
             "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
-            "exercise_selection": "What exercises are most effective and appropriate for different muscle groups and fitness goals (strength, bodybuilding, hypertrophy) and experience levels?",            "rep_ranges": "What are optimal rep ranges for specific exercises and for different strength training goals?",
+            "exercise_selection": "What exercises are most effective and appropriate for different muscle groups and fitness goals (strength, bodybuilding, hypertrophy) and experience levels?",            
+            "rep_ranges": "What are optimal rep ranges for specific exercises and for different strength training goals?",
             "rpe": "How should RPE (Rating of Perceived Exertion) targets be assigned in strength training? When should RPE be expressed as a single value versus a range? How should RPE vary between compound exercises and isolation exercises?",
         }
         
