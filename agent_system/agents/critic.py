@@ -1,5 +1,6 @@
 from typing import Dict, Optional, Callable, List
 from rag_retrieval import retrieve_and_generate, retrieve_context
+from .critique_task import CritiqueTask
 
 class Critic:
     """
@@ -37,6 +38,63 @@ class Critic:
             self.task_types = ["frequency_and_split", "exercise_selection", "set_volume", "rep_ranges", "rpe"]
             self.is_week2plus = False
 
+        # Define task configurations
+        self.task_configs = {
+            "frequency_and_split": CritiqueTask(
+                name="frequency_and_split",
+                template=self.tasks.get("frequency_and_split", ""),
+                needs_retrieval=True,
+                retrieval_query="What is a good training frequency and training splits for strength training programs?",
+                specialized_instructions=self.specialized_instructions.get("frequency_and_split", ""),
+                dependencies=[],
+            ),
+            "exercise_selection": CritiqueTask(
+                name="exercise_selection",
+                template=self.tasks.get("exercise_selection", ""),
+                needs_retrieval=True,
+                retrieval_query="What exercises are most effective and appropriate for different muscle groups and fitness goals?",
+                specialized_instructions=self.specialized_instructions.get("exercise_selection", ""),
+                dependencies=["frequency_and_split"],
+            ),
+            "set_volume": CritiqueTask(
+                name="set_volume",
+                template=self.tasks.get("set_volume", ""),
+                needs_retrieval=False,
+                dependencies=["frequency_and_split", "exercise_selection"],
+                reference_data={
+                    "volume_guidelines": {
+                        "beginner": {"chest": 10, "back": 10, "legs": 10},
+                        "intermediate": {"chest": 14, "back": 14, "legs": 14},
+                        "advanced": {"chest": 16, "back": 16, "legs": 16}
+                    }
+                }
+            ),
+            "rep_ranges": CritiqueTask(
+                name="rep_ranges",
+                template=self.tasks.get("rep_ranges", ""),
+                needs_retrieval=True,
+                retrieval_query="What are optimal rep ranges for specific exercises and for different strength training goals?",
+                specialized_instructions=self.specialized_instructions.get("rep_ranges", ""),
+                dependencies=["frequency_and_split", "exercise_selection", "set_volume"],
+            ),
+            "rpe": CritiqueTask(
+                name="rpe",
+                template=self.tasks.get("rpe", ""),
+                needs_retrieval=True,
+                retrieval_query="How should RPE targets be assigned in strength training for different exercises and experience levels?",
+                specialized_instructions=self.specialized_instructions.get("rpe", ""),
+                dependencies=["frequency_and_split", "exercise_selection", "set_volume", "rep_ranges"],
+            ),
+            "progression": CritiqueTask(
+                name="progression",
+                template=self.tasks.get("progression", ""),
+                needs_retrieval=True,
+                retrieval_query="What are the best practices for progressive overload based on previous performance data?",
+                specialized_instructions=self.specialized_instructions.get("progression", ""),
+                dependencies=[],
+            )
+        }
+
     def get_task_query(self, program: dict[str, str | None], task_type: str) -> str:
         """Generate an appropriate query based on task type and week."""
         
@@ -58,24 +116,46 @@ class Critic:
     def run_single_critique(
             self,
             program: dict[str, str | None],
-            task_type: str
+            task_type: str,
+            previous_results: Dict[str, str] = None
             ) -> str:
         """Run a single critique with specialized RAG retrieval."""
+        previous_results = previous_results or {}
         print(f"\n--- Running {task_type.upper()} critique ---")
         
-        # Skip retrieval for set_volume task
-        if task_type == "set_volume":
-            print(f"Skipping retrieval for {task_type} critique - using only task template guidance...")
-            context = ""
-        else:
-            # Get query and instructions for other task types
-            query = self.get_task_query(program, task_type)
-            specialized_instructions = self.specialized_instructions.get(task_type, "")
-            
-            # Retrieve relevant context with specialized instructions
+        # Get task configuration
+        task_config = self.task_configs.get(task_type)
+        if not task_config:
+            print(f"No configuration for {task_type}, using default...")
+            # Create default configuration
+            task_config = CritiqueTask(
+                name=task_type,
+                template=self.tasks.get(task_type, ""),
+                needs_retrieval=True,
+                retrieval_query=f"Best practices for {task_type} in strength training programs",
+                specialized_instructions="",
+                dependencies=[],
+            )
+        
+        # Get context from dependencies
+        dependency_context = task_config.get_context_from_dependencies(previous_results)
+        
+        # Retrieve context if needed
+        if task_config.needs_retrieval:
             print(f"Retrieving context...")
-            retrieval_result, _ = self.retrieval_fn(query, specialized_instructions)
+            retrieval_result, _ = self.retrieval_fn(
+                task_config.retrieval_query, 
+                task_config.specialized_instructions
+            )
             context = f"\nRelevant context from training literature:\n{retrieval_result}\n"
+        else:
+            print(f"Skipping retrieval for {task_type} - using only task template guidance...")
+            context = ""
+        
+        # Add dependency context to prompt if available
+        if dependency_context:
+            print(f"Including feedback from {len(task_config.dependencies)} previous critiques...")
+            context = f"\nConsiderations from previous critiques:\n{dependency_context}\n{context}"
         
         # Make sure 'draft' contains the actual program content
         program_content = program.get('draft')
@@ -140,32 +220,49 @@ class Critic:
         """Run each critique type sequentially with its own RAG retrieval."""
         print("\n========== CRITIQUE PROCESS STARTED ==========")
         all_feedback = []
+        previous_results = {}
         
         # Run each task type with its own specialized retrieval
         for task_type in self.task_types:
-            feedback = self.run_single_critique(program, task_type)
+            feedback = self.run_single_critique(program, task_type, previous_results)
             
-            if feedback and isinstance(feedback, str) and feedback.lower() != 'none' and len(feedback.strip()) > 10:
-                # Add the formatted feedback with task type header
-                formatted_feedback = f"[{task_type.upper()} FEEDBACK]:\n{feedback}\n" 
-                all_feedback.append(formatted_feedback)
+            # First store the feedback for dependency tracking regardless of the content
+            if feedback and isinstance(feedback, str) and len(feedback.strip()) > 10:
+                processed_feedback = feedback
                 
-                # Display the actual feedback in the terminal with clear formatting
-                print(f"\n{'='*50}")
-                print(f"{task_type.upper()} CRITIQUE:")
-                print(f"{'='*50}")
-                # Print the feedback with a max width for readability
-                words = feedback.split()
-                line = ""
-                for word in words:
-                    if len(line) + len(word) > 80:
+                # If feedback ends with None on its own line or at the end, it means no changes needed
+                # But we might still want to keep the analysis part
+                if feedback.strip().endswith("None"):
+                    processed_feedback = feedback.strip()[:-4].strip()  # Remove "None" from the end
+                    
+                # Save feedback for dependencies if there's any meaningful content
+                if processed_feedback and len(processed_feedback.strip()) > 10:
+                    previous_results[task_type] = processed_feedback
+                
+                # Only add to displayed feedback if there's actual recommendations
+                if processed_feedback and 'no changes' not in processed_feedback.lower() and 'therefore, no changes' not in processed_feedback.lower():
+                    # Add the formatted feedback with task type header
+                    formatted_feedback = f"[{task_type.upper()} FEEDBACK]:\n{processed_feedback}\n" 
+                    all_feedback.append(formatted_feedback)
+                    
+                    # Display the actual feedback in the terminal with clear formatting
+                    print(f"\n{'='*50}")
+                    print(f"{task_type.upper()} CRITIQUE:")
+                    print(f"{'='*50}")
+                    # Print the feedback with a max width for readability
+                    words = processed_feedback.split()
+                    line = ""
+                    for word in words:
+                        if len(line) + len(word) > 80:
+                            print(line)
+                            line = word + " "
+                        else:
+                            line += word + " "
+                    if line:
                         print(line)
-                        line = word + " "
-                    else:
-                        line += word + " "
-                if line:
-                    print(line)
-                print(f"{'='*50}\n")
+                    print(f"{'='*50}\n")
+                else:
+                    print(f"\n{task_type.upper()} - Analysis performed but no changes needed")
             else:
                 print(f"\n{task_type.upper()} - No significant feedback provided")
         

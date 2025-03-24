@@ -1,11 +1,41 @@
 import dataclasses
-from typing import Dict, Optional
+from typing import Dict, Optional, List
+
+# Define reusable prompt components
+COMMON_RESPONSE_FORMAT = '''
+IMPORTANT: 
+1. Provide SPECIFIC, CONCRETE suggestions - don't just identify problems
+2. For each change, specify exactly what to modify and how
+3. If nothing needs improvement, return "None"
+'''
+
+@dataclasses.dataclass
+class PromptComponent:
+    """Reusable components for building prompts"""
+    intro: str
+    evaluation_criteria: List[str]
+    guidelines: Dict[str, List[str]]
+    action_instructions: List[str]
+    response_format: str = COMMON_RESPONSE_FORMAT
+
+    def format_for_task(self, task_type: str) -> str:
+        """Format the component for a specific task type"""
+        criteria = "\n".join([f"{i+1}. {c}" for i, c in enumerate(self.evaluation_criteria)])
+        
+        # Only include guidelines relevant to this task
+        guidelines_text = ""
+        if task_type in self.guidelines:
+            guidelines = self.guidelines[task_type]
+            guidelines_text = "\nGuidelines:\n" + "\n".join([f"- {g}" for g in guidelines])
+        
+        actions = "\n".join([f"- {a}" for a in self.action_instructions])
+        
+        return f"{self.intro}\n\nEvaluate whether:\n{criteria}\n{guidelines_text}\n\nIMPORTANT ACTIONS:\n{actions}\n{self.response_format}"
 
 @dataclasses.dataclass
 class CriticPromptSettings:
     role: dict[str, str]
-    tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by task type
-
+    tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by type
 
 TASK_FREQUENCY_AND_SPLIT = '''
 Your colleague has written the following training program:
@@ -26,13 +56,18 @@ For hypertrophy-focused goals, consider these common split options:
 - Hybrid splits (5 days): Such as Push, Pull, Legs, Upper, Lower
 - Push/Pull/Legs (6x/week): One day each for pushing movements, pulling movements, and leg exercises
 
-Each major muscle group should typically be trained at least twice per week for optimal hypertrophy
+For powerlifting and strength-focused goals, consider these specialized split options:
+- Movement-based splits: Organize training around the individual's main lifts, not necessarily traditional powerlifts
+- Conjugate/Westside approach: Max effort days and dynamic effort days for upper and lower body
+- Upper/Lower with specialized days: Focus days built around the individual's primary movements
+- Main lift + supplemental work: Each day features one main compound lift followed by related assistance work
 
 For strength and powerlifting goals, consider the following recommendations:
-- Prioritize Main Lifts: Focus on main exercises—such as squat, bench press, and deadlift—as well as their variations (e.g., front squat, incline bench press, Romanian deadlift). Depending on the user's training persona, these main exercises may also be alternative movements like hack squats, chin-ups, or dips. 
-- Higher Frequency for Main Lifts: Main lifts and their variations can be trained more than two times per week with proper load management. Their frequency is often more critical than targeting individual muscle groups.
+- Prioritize Main Lifts: Focus on the individual's preferred main exercises—these might be traditional lifts like squat, bench press, and deadlift, or could be alternatives like hack squats, pull-ups, dips, or overhead press, depending on the individual's preferences and training history.
+- Higher Frequency for Main Lifts: The individual's main lifts and their variations can be trained more than two times per week with proper load management.
 - Accessory Work: Although main lifts receive higher frequency, accessory exercises should be performed less frequently.
 - Tailored Adjustments: If the current training frequency or split doesn't align with the user's available training days or specific goals, adjust the plan to better match those needs.
+- Specialized Training Days: It's appropriate to have specialized days (like "posterior chain focus") as long as overall weekly volume remains balanced across muscle groups/movement patterns.
 
 IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - specify exactly what split structure you recommend with a clear layout of training days.
 If nothing needs improvement, return "None".
@@ -57,8 +92,20 @@ For hypertrophy-focused goals:
 - Aim for a 50-50 mix of free-weight and machine exercises
 
 For strength/powerlifting-focused goals:
-- Choose exercises that directly complement the user's main lifts (e.g., squat, pull-ups, dips) or their well-suited variations (like front squat/hack squat, lat pulldown narrow grip, or bench press). The selected exercises should be consistent with the user's preferred movement patterns.
-- Identify accessory movements that target the supporting muscle groups impacting the main lifts.
+- Choose exercises that directly complement the individual's main lifts or their well-suited variations
+- Main lifts should be based on the individual's preferences and goals, not necessarily traditional powerlifts
+- For powerlifting programs, structure each day around 1-2 main compound movements followed by relevant accessories
+- It's acceptable to place certain "main" lifts on seemingly unrelated days (e.g., pull-ups on leg day) if:
+  1. It serves a specific purpose (e.g., back development for improved bracing on squats)
+  2. It doesn't interfere with recovery for the primary focus of that day
+  3. The overall weekly volume and frequency for that movement pattern is appropriate
+- Identify accessory movements that target the supporting muscle groups impacting the main lifts
+- For specialized days (like posterior chain focus), ensure that across the week, all muscle groups and movement patterns receive balanced attention
+
+Balance considerations for specialized training days:
+- When creating a specialized day (e.g., posterior chain focus), compensate with complementary work on other days
+- Ensure appropriate opposing muscle group work within the week (e.g., if emphasizing hamstrings heavily, ensure adequate quad work elsewhere)
+- Main lifts should be placed where recovery will be optimal for performance
 
 IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - list exactly which exercises to replace and what to replace them with.
 If nothing needs improvement, return "None".
@@ -104,7 +151,6 @@ NOTE: Consider any changes suggested by previous critiques (frequency_and_split,
    - Shoulders:
      • Intermediate: 10–20 sets
 
-     
 
 
 3) IMPORTANT: Make CONCRETE ADJUSTMENTS to the program while ensuring proper volume distribution throughout the week:
@@ -135,6 +181,7 @@ Focus ONLY on the REP RANGES. Do NOT comment on frequency, split structure, exer
 Evaluate whether:
 - The rep ranges align with the individual's goals
 - NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection, set_volume) when evaluating rep ranges
+- Make sure your rep range recommendations work with the training split exercise selection, and volume recommendations
 
 Guidelines:
 - For compound exercises (like squat or deadlift), use lower rep-ranges like 5–8 reps
@@ -156,7 +203,8 @@ Focus ONLY on the RPE (Rating of Perceived Exertion) Targets. Do NOT comment on 
 
 Evaluate whether:
 - The RPE values are appropriate for the individual's experience level
-- NOTE: Consider any changes suggested by previous critiques when evaluating RPE targets
+- NOTE: Consider any changes suggested by ALL previous critiques (frequency_and_split, exercise_selection, set_volume, rep_ranges) when evaluating RPE targets
+- Your RPE recommendations should be compatible with the training frequency, exercise selection, set volume, and rep ranges previously recommended
 
 Guidelines:
 - Isolation exercises should have a higher Target RPE 8–10
@@ -200,7 +248,6 @@ Evaluate whether:
 IMPORTANT: Provide SPECIFIC, CONCRETE suggestions with exact numbers - specify precise weight adjustments (in kg), rep changes, and RPE targets for exercises needing modification.
 Only return "None" if the progression strategy is already optimal.
 '''
-
 
 # Dictionary of specialized critic settings for different evaluation tasks
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}
