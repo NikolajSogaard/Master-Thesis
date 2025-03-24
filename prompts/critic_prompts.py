@@ -12,11 +12,12 @@ Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-Focus specifically on the TRAINING FREQUENCY and SPLIT SELECTION.
-Make sure that:
-1. The program provide sufficient frequency for each major muscle group
-2. The training split effectively utilize the user's available training days.
-3. The split appropriate for the user's goals (strength, powerlifting, hypertrophy, beginners etc.)
+Focus ONLY on the TRAINING FREQUENCY and SPLIT SELECTION. Do NOT comment on exercise selection, rep ranges, or RPE.
+
+Specifically, evaluate whether:
+1. The program provides sufficient frequency for each major muscle group
+2. The training split effectively utilizes the user's available training days
+3. The split is appropriate for the user's goals (strength, powerlifting, hypertrophy, beginners etc.)
 
 For hypertrophy-focused goals, consider these common split options:
 - Full body (2x/week): Trains all muscle groups each session
@@ -33,13 +34,9 @@ For strength and powerlifting goals, consider the following recommendations:
 - Accessory Work: Although main lifts receive higher frequency, accessory exercises should be performed less frequently.
 - Tailored Adjustments: If the current training frequency or split doesn't align with the user's available training days or specific goals, adjust the plan to better match those needs.
 
-
-
-Provide feedback if any... otherwise only return "None"
+IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - specify exactly what split structure you recommend with a clear layout of training days.
+If nothing needs improvement, return "None".
 '''
-# ^^^^^^^^^^^^^ Powerlifting/powerbuilding split
-
-
 
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
@@ -48,25 +45,24 @@ Your colleague has written the following training program:
 The individual has provided these details:
 {}
 
-Your task is to find the best fitting exercises for the user.
+Focus ONLY on EXERCISE SELECTION. Do NOT comment on frequency, split structure, rep ranges, or RPE.
 
-Focus ONLY on EXERCISE SELECTION:
-- Check that the chosen exercises not only align with the individual's goals and experience level but also match their personal preferences.
+Evaluate whether:
+- The chosen exercises align with the individual's goals, experience level, and personal preferences
+- NOTE: If the frequency_and_split critique suggested different training splits or structure, consider how exercises would fit into that revised structure rather than the original
 
 For hypertrophy-focused goals:
-- Maintain a balanced mix of compound (50-70%) and isolation (30-50%) exercises.
-- Include a variety of exercises to target each muscle group from different angles.
-- Aim for a 50-50 mix of free-weight and machine exercises.
+- Maintain a balanced mix of compound (50-70%) and isolation (30-50%) exercises
+- Include a variety of exercises to target each muscle group from different angles
+- Aim for a 50-50 mix of free-weight and machine exercises
 
 For strength/powerlifting-focused goals:
 - Choose exercises that directly complement the user's main lifts (e.g., squat, pull-ups, dips) or their well-suited variations (like front squat/hack squat, lat pulldown narrow grip, or bench press). The selected exercises should be consistent with the user's preferred movement patterns.
 - Identify accessory movements that target the supporting muscle groups impacting the main lifts.
 
-Provide constructive feedback if any changes are needed.
-If there is nothing to improve, return "None".
+IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - list exactly which exercises to replace and what to replace them with.
+If nothing needs improvement, return "None".
 '''
-
-
 
 TASK_REP_RANGES = '''
 Your colleague has written the following training program:
@@ -75,14 +71,20 @@ Your colleague has written the following training program:
 The individual has provided these details:
 {}
 
-Focus ONLY on the REP RANGES:
-- Check if they align with the individual’s goals.
-- For compound exercises (like squat or deadlift), could use lower rep-ranges like 5–8 reps.
-- For isolation exercises, could use higher rep-ranges like 8-15 reps.
-- Do not include AMRAP (As Many Reps As Possible).
+Focus ONLY on the REP RANGES. Do NOT comment on frequency, split structure, exercise selection, or RPE.
 
-Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".'''
+Evaluate whether:
+- The rep ranges align with the individual's goals
+- NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection) when evaluating rep ranges
 
+Guidelines:
+- For compound exercises (like squat or deadlift), use lower rep-ranges like 5–8 reps
+- For isolation exercises, use higher rep-ranges like 8-15 reps
+- Do not include AMRAP (As Many Reps As Possible)
+
+IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - specify exact rep ranges for each exercise that needs adjustment.
+If nothing needs improvement, return "None".
+'''
 
 TASK_RPE = '''
 Your colleague has written the following training program:
@@ -91,13 +93,20 @@ Your colleague has written the following training program:
 The individual has provided these details:
 {}
 
-Focus ONLY on the RPE (Rating of Perceived Exertion) Targets:
-- Check if the RPE values are appropriate for the individual’s experience level.
-- Isolation exercises should have a higher Target RPE (8–10).
-- Compound movements should have a slightly lower Target RPE.
-- Exercises that require lower stability (like machine exercises, or something like cable flies) could use a high RPE (8-10).
+Focus ONLY on the RPE (Rating of Perceived Exertion) Targets. Do NOT comment on frequency, split structure, exercise selection, or rep ranges.
 
-Provide constructive feedback if any changes are needed. If there is nothing to improve, return "None".'''
+Evaluate whether:
+- The RPE values are appropriate for the individual's experience level
+- NOTE: Consider any changes suggested by previous critiques when evaluating RPE targets
+
+Guidelines:
+- Isolation exercises should have a higher Target RPE (8–10)
+- Compound movements should have a slightly lower Target RPE
+- Exercises that require lower stability (like machine exercises, or something like cable flies) could use a high RPE (8-10)
+
+IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - specify exact RPE targets for each exercise that needs adjustment.
+If nothing needs improvement, return "None".
+'''
 
 TASK_PROGRESSION = '''
 Your colleague has written the following Week {week_number} training program:
@@ -109,25 +118,26 @@ The individual provided this input for their original program:
 Here is the performance data from the previous week:
 {}
 
-Focus ONLY on PROGRESSION & PROGRESSIVE OVERLOAD:
+Focus ONLY on PROGRESSION & PROGRESSIVE OVERLOAD.
 
-1. Analyze the performance data from the previous week to determine if:
+Evaluate whether:
+1. The program effectively applies progressive overload based on previous week's performance:
    - The exercise weights/loads are appropriate based on actual performance
    - The suggested progression rates are realistic and evidence-based
    - The RPE targets match the individual's demonstrated performance capacity
 
-2. Check for specific progression elements:
+2. The program includes:
    - Appropriate weight increases based on previous week's performance
    - Suitable adjustments to reps, sets, or intensity where needed
    - Progressive overload application that matches the individual's training experience
    - Specific, actionable suggestions in the "suggestion" field for each exercise
 
-3. Verify that the program effectively:
+3. The program effectively:
    - Builds on strengths demonstrated in previous performance data
    - Addresses weaknesses or sticking points from previous week
    - Applies proper autoregulation principles based on RPE feedback
 
-Provide detailed, specific feedback with concrete recommendations on weights, reps, and RPE targets where appropriate.
+IMPORTANT: Provide SPECIFIC, CONCRETE suggestions with exact numbers - specify precise weight adjustments (in kg), rep changes, and RPE targets for exercises needing modification.
 Only return "None" if the progression strategy is already optimal.
 '''
 

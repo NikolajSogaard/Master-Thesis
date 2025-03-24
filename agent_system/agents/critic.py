@@ -43,7 +43,7 @@ class Critic:
         if self.is_week2plus and task_type == "progression":
             return "What are the best practices for progressive overload in strength training? How should weight/intensity be progressed based on previous performance data? How can autoregulation be implemented effectively in progressive overload models?"
         
-        # Week 1 queries - remove progression since it should only be for Week 2+
+        # Week 1 queries - remove progression since it should only be for Week 2+ 
         queries = {
             "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
             "exercise_selection": "What exercises are most effective and appropriate for different muscle groups and fitness goals (strength, bodybuilding, hypertrophy) and experience levels?",            
