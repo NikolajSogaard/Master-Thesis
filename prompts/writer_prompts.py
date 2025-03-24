@@ -76,7 +76,7 @@ PROGRAM_STRUCTURE_WEEK1 = '''
   "weekly_program": {
     "Day 1": [
       {
-        "name": "A1: Exercise name",
+        "name": "Exercise name",
         "sets": 3,
         "reps": "8-12",
         "target_rpe": 7-8,
@@ -84,15 +84,15 @@ PROGRAM_STRUCTURE_WEEK1 = '''
         "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
       },
       {
-        "name": "B1: Exercise name",
+        "name": "Exercise name",
         "sets": 3,
         "reps": "8-12",
         "target_rpe": 7-8,
-        "rest": "0 seconds - superset with B2",
+        "rest": "2 minutes",
         "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
       },
       {
-        "name": "B2: Exercise name",
+        "name": "Exercise name",
         "sets": 3,
         "reps": "8-12",
         "target_rpe": 7-8,
@@ -102,7 +102,7 @@ PROGRAM_STRUCTURE_WEEK1 = '''
     ],
     "Day 2": [
       {
-        "name": "A1: Exercise name",
+        "name": "Exercise name",
         "sets": 4,
         "reps": "5-8",
         "target_rpe": 8-10,
@@ -120,7 +120,7 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
   "weekly_program": {
     "Day 1": [
       {
-        "name": "A1: Exercise name",
+        "name": "Exercise name",
         "sets": 3,
         "reps": "8-12",
         "target_rpe": 7-8,
@@ -129,7 +129,7 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
         "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135kg for 3x8 at RPE 8')"
       },
       {
-        "name": "B1: Exercise name",
+        "name": "Exercise name",
         "sets": 3,
         "reps": "8-12",
         "target_rpe": 7-8,
@@ -140,7 +140,7 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
     ],
     "Day 2": [
       {
-        "name": "A1: Exercise name",
+        "name": "Exercise name",
         "sets": 4,
         "reps": "5-8",
         "target_rpe": 8-10,

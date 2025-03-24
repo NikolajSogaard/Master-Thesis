@@ -82,13 +82,14 @@ NOTE: Consider any changes suggested by previous critiques (frequency_and_split,
 
 2) Then, evaluate if the volume needs to be changed based on the evidence from the retrieved literature. Consider the individual's experience level, goals, and recovery capacity.
   
-3) IMPORTANT: Make CONCRETE ADJUSTMENTS to the program:
+3) IMPORTANT: Make CONCRETE ADJUSTMENTS to the program while ensuring proper volume distribution throughout the week:
    - If volume is too high: Either reduce the number of sets for specific exercises OR completely remove certain exercises. Specify exactly which exercises to modify and from which days
    - If volume is too low: Either increase the number of sets for existing exercises OR add new exercises. Specify exactly which exercises to modify or add, with specific set/rep recommendations
-   - If muscle group balance is off: Suggest specific exercises to add/remove to create balance
-   - Prioritize muscle groups according to the individual's goals
+   - If muscle group balance is off: Identify which muscle groups are overemphasized or underemphasized, then suggest specific exercises to add, remove, or modify numbers of sets to create proper balance. Specify exactly which adjustments to make on which training days
+   - Ensure volume for each muscle group is distributed appropriately across multiple training days rather than concentrated on a single day
+   - IMPORTANT: When the literature suggests a range of sets (e.g., 10-12 sets per week), ALWAYS start at the lower end of the range
 
-Do not just analyze - actually modify the program to create optimal training volume.
+Do not just analyze - actually modify the program to create optimal training volume with proper distribution throughout the week.
 If the volume distribution is already optimal, return "None".
 '''
 
@@ -129,8 +130,9 @@ Evaluate whether:
 - NOTE: Consider any changes suggested by previous critiques when evaluating RPE targets
 
 Guidelines:
-- Isolation exercises should have a higher Target RPE (8–10)
+- Isolation exercises should have a higher Target RPE 8–10
 - Compound movements should have a slightly lower Target RPE
+- Always provide the RPE in a range (e.g., 8-9, 9-10)
 - Exercises that require lower stability (like machine exercises, or something like cable flies) could use a high RPE (8-10)
 
 IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - specify exact RPE targets for each exercise that needs adjustment.
