@@ -136,32 +136,95 @@ def get_program_generator(config=None):
 
 def parse_program(program_output):
     """Parse the program output into a structured format for the template"""
+    print(f"DEBUG: parse_program received: {type(program_output)}")
+    print(f"DEBUG: program_output content: {program_output}")
+    
     try:
         # Parse JSON if it's a string
         if isinstance(program_output, str):
-            program_output = json.loads(program_output)
+            try:
+                program_output = json.loads(program_output)
+                print(f"DEBUG: Parsed string to JSON: {type(program_output)}")
+            except json.JSONDecodeError:
+                print(f"DEBUG: Failed to parse string as JSON")
         
-        # Extract the weekly program structure
+        # Handle case where program_output is the formatted field
         if isinstance(program_output, dict):
+            # Check for weekly_program directly
             if 'weekly_program' in program_output:
+                print(f"DEBUG: Found weekly_program directly")
                 return program_output['weekly_program']
-            elif 'formatted' in program_output:
+            
+            # Check for formatted field
+            if 'formatted' in program_output:
                 formatted = program_output['formatted']
+                print(f"DEBUG: Found formatted field (type {type(formatted)})")
+                
+                # If formatted is a string, try to parse it
                 if isinstance(formatted, str):
                     try:
-                        return json.loads(formatted)['weekly_program']
-                    except (json.JSONDecodeError, KeyError):
-                        pass
-                elif isinstance(formatted, dict) and 'weekly_program' in formatted:
-                    return formatted['weekly_program']
-                return formatted
+                        parsed = json.loads(formatted)
+                        if 'weekly_program' in parsed:
+                            print(f"DEBUG: Found weekly_program in parsed formatted string")
+                            return parsed['weekly_program']
+                        return parsed
+                    except json.JSONDecodeError:
+                        print(f"DEBUG: Failed to parse formatted string")
+                
+                # If formatted is a dict, extract weekly_program or return it directly
+                elif isinstance(formatted, dict):
+                    if 'weekly_program' in formatted:
+                        print(f"DEBUG: Found weekly_program in formatted dict")
+                        return formatted['weekly_program']
+                    print(f"DEBUG: Returning formatted dict directly")
+                    return formatted
+            
+            # If message field exists and contains JSON
+            if 'message' in program_output and isinstance(program_output['message'], str):
+                print(f"DEBUG: Checking message field for JSON")
+                try:
+                    message_content = program_output['message']
+                    
+                    # Try to extract JSON from code blocks if present
+                    if "```json" in message_content:
+                        json_content = message_content.split("```json", 1)[1]
+                        if "```" in json_content:
+                            json_content = json_content.split("```", 1)[0]
+                        message_content = json_content.strip()
+                    
+                    # Try to parse as JSON
+                    if message_content.strip().startswith("{") and message_content.strip().endswith("}"):
+                        parsed_message = json.loads(message_content)
+                        if isinstance(parsed_message, dict):
+                            if 'weekly_program' in parsed_message:
+                                print(f"DEBUG: Found weekly_program in message JSON")
+                                return parsed_message['weekly_program']
+                            print(f"DEBUG: Returning parsed message directly")
+                            return parsed_message
+                except (json.JSONDecodeError, IndexError) as e:
+                    print(f"DEBUG: Failed to extract JSON from message: {e}")
+            
+            # If draft field exists
+            if 'draft' in program_output:
+                print(f"DEBUG: Checking draft field")
+                draft = program_output['draft']
+                
+                # If draft is a dict
+                if isinstance(draft, dict):
+                    if 'weekly_program' in draft:
+                        print(f"DEBUG: Found weekly_program in draft dict")
+                        return draft['weekly_program']
+                    print(f"DEBUG: Returning draft dict directly")
+                    return draft
         
-        # If we get here, try to use the program as-is
-        return program_output
+        # If we got here, create a minimal valid structure
+        print(f"DEBUG: Creating fallback empty program structure")
+        return {"Day 1": [{"name": "No program data found", "sets": 0, "reps": "0", "target_rpe": 0, "rest": "N/A", "cues": "Please try generating a new program."}]}
+        
     except Exception as e:
-        print(f"Error parsing program: {e}")
+        print(f"ERROR parsing program: {e}")
         # Return a default empty program structure if parsing fails
-        return {}
+        return {"Day 1": [{"name": "Error parsing program", "sets": 0, "reps": "0", "target_rpe": 0, "rest": "N/A", "cues": f"Error: {str(e)}"}]}
 
 @app.route('/')
 def index():
