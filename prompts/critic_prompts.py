@@ -64,6 +64,35 @@ IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - list 
 If nothing needs improvement, return "None".
 '''
 
+TASK_SET_VOLUME = '''
+Your colleague has written the following training program:
+{}
+
+The individual has provided these details:
+{}
+
+Focus ONLY on evaluating the WEEKLY SET VOLUME for each major muscle group and suggesting concrete adjustments. Do NOT comment on frequency, split structure, exercise selection specifics, rep ranges, or RPE.
+
+NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection) when evaluating set volume.
+
+1) First, calculate the current weekly volume for:
+   - Chest
+   - Back
+   - Legs
+
+2) Then, evaluate if the volume needs to be changed based on the evidence from the retrieved literature. Consider the individual's experience level, goals, and recovery capacity.
+  
+3) IMPORTANT: Make CONCRETE ADJUSTMENTS to the program:
+   - If volume is too high: Either reduce the number of sets for specific exercises OR completely remove certain exercises. Specify exactly which exercises to modify and from which days
+   - If volume is too low: Either increase the number of sets for existing exercises OR add new exercises. Specify exactly which exercises to modify or add, with specific set/rep recommendations
+   - If muscle group balance is off: Suggest specific exercises to add/remove to create balance
+   - Prioritize muscle groups according to the individual's goals
+
+Do not just analyze - actually modify the program to create optimal training volume.
+If the volume distribution is already optimal, return "None".
+'''
+
+
 TASK_REP_RANGES = '''
 Your colleague has written the following training program:
 {}
@@ -75,7 +104,7 @@ Focus ONLY on the REP RANGES. Do NOT comment on frequency, split structure, exer
 
 Evaluate whether:
 - The rep ranges align with the individual's goals
-- NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection) when evaluating rep ranges
+- NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection, set_volume) when evaluating rep ranges
 
 Guidelines:
 - For compound exercises (like squat or deadlift), use lower rep-ranges like 5–8 reps
@@ -141,6 +170,7 @@ IMPORTANT: Provide SPECIFIC, CONCRETE suggestions with exact numbers - specify p
 Only return "None" if the progression strategy is already optimal.
 '''
 
+
 # Dictionary of specialized critic settings for different evaluation tasks
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}
 
@@ -158,6 +188,7 @@ CRITIC_PROMPT_SETTINGS['week1'] = CriticPromptSettings(
     tasks={
         'frequency_and_split': TASK_FREQUENCY_AND_SPLIT,
         'exercise_selection': TASK_EXERCISE_SELECTION,
+        'set_volume': TASK_SET_VOLUME,
         'rep_ranges': TASK_REP_RANGES,
         'rpe': TASK_RPE,
     },
@@ -181,13 +212,14 @@ CRITIC_PROMPT_SETTINGS['progression'] = CriticPromptSettings(
 )
 
 # Update other individual task settings - remove progression from non-progression settings
-for setting_key in ['frequency_and_split', 'exercise_selection', 'rep_ranges', 'rpe']:
+for setting_key in ['frequency_and_split', 'exercise_selection', 'set_volume', 'rep_ranges', 'rpe']:
     if setting_key in CRITIC_PROMPT_SETTINGS:
         task_var_name = f"TASK_{setting_key.upper()}"
         task_template = locals().get(task_var_name, globals().get(task_var_name))
         CRITIC_PROMPT_SETTINGS[setting_key].tasks = {
             'frequency_and_split': TASK_FREQUENCY_AND_SPLIT,
             'exercise_selection': TASK_EXERCISE_SELECTION,
+            'set_volume': TASK_SET_VOLUME,
             'rep_ranges': TASK_REP_RANGES,
             'rpe': TASK_RPE,
         }

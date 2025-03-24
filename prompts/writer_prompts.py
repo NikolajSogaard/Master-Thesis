@@ -41,7 +41,7 @@ Based on feedback from your colleague below:
 
 IMPORTANT: 
 - Address all the feedback provided in the critique and adjust the program based on those suggestions.
-- Make sure to adjust the program according to the critique from: frequency and split, exercise selection, rep ranges, and RPE (Rating of Perceived Exertion).
+- Make sure to adjust the program according to the critique from: frequency and split, exercise selection, set volume, rep ranges, and RPE (Rating of Perceived Exertion).
 - You MUST always directly implement all the suggested changes in the program itself from the critique, not just in the suggestion field.
 - Maintain the same number of training days unless the feedback explicitly suggests changing it.
 Follow this JSON structure as a guide for your response:
