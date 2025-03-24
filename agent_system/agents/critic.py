@@ -21,7 +21,7 @@ class Critic:
         self.specialized_instructions = {
             "frequency_and_split": "Provide concise guidance tailored to the user's training goals. Focus on structuring workout frequency and splits to ensure balanced coverage of muscle groups and key movement patterns. Adapt recommendations based on the user's training experience (beginner or advanced), specialization (e.g., bodybuilding or powerlifting), and overall objectives",
             "exercise_selection": "Provide concise guidance. Retrieve information about exercise selection principles based on specific user goals, experience level, and any physical limitations. Provide the answer as a list of exercises for each goal and muscle group ",            
-            "set_volume": "Retrieve information about optimal weekly set volume for different muscle groups based on training experience. Calculate the current weekly set volume in the program for each major muscle group (chest, back, legs) and analyze if it meets evidence-based recommendations. Consider factors such as training frequency, individual goals, and muscle group prioritization when evaluating volume.",
+            # Removed set_volume instructions - will use only the task template
             "rpe": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about appropriate RPE (Rating of Perceived Exertion) targets for different exercise types and experience levels. Include guidance on when to use absolute RPE values (like 8) versus RPE ranges (like 7-8), and how RPE should differ between compound and isolation exercises.",
             "rep_ranges": "Provide concise guidance on rep ranges for different exercises, experience levels and goals. Include information on optimal rep ranges for compound and isolation exercises, as well as how rep ranges can vary based on strength, hypertrophy, or endurance goals.",
             "progression": "Focus on progressive overload strategies. Provide specific guidance on weight/intensity progression based on previous week's performance data. Include advice on autoregulation, RPE-based progression, and exercise-specific progression rates that balance optimal progress with recovery and injury prevention."
@@ -44,11 +44,11 @@ class Critic:
         if self.is_week2plus and task_type == "progression":
             return "What are the best practices for progressive overload in strength training? How should weight/intensity be progressed based on previous performance data? How can autoregulation be implemented effectively in progressive overload models?"
         
-        # Week 1 queries - add set_volume query
+        # Week 1 queries - removed set_volume query
         queries = {
             "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
             "exercise_selection": "What exercises are most effective and appropriate for different muscle groups and fitness goals (strength, bodybuilding, hypertrophy) and experience levels?",            
-            "set_volume": "What is the optimal weekly training volume (number of sets) for different muscle groups based on training experience? How should weekly set volume be distributed across muscle groups for different training goals and experience levels?",
+            # Removed set_volume query
             "rep_ranges": "What are optimal rep ranges for specific exercises and for different strength training goals?",
             "rpe": "How should RPE (Rating of Perceived Exertion) targets be assigned in strength training? When should RPE be expressed as a single value versus a range? How should RPE vary between compound exercises and isolation exercises?",
         }
@@ -63,14 +63,19 @@ class Critic:
         """Run a single critique with specialized RAG retrieval."""
         print(f"\n--- Running {task_type.upper()} critique ---")
         
-        # Get query and instructions for this task type
-        query = self.get_task_query(program, task_type)
-        specialized_instructions = self.specialized_instructions.get(task_type, "")
-        
-        # Retrieve relevant context with specialized instructions
-        print(f"Retrieving context...")
-        retrieval_result, _ = self.retrieval_fn(query, specialized_instructions)
-        context = f"\nRelevant context from training literature:\n{retrieval_result}\n"
+        # Skip retrieval for set_volume task
+        if task_type == "set_volume":
+            print(f"Skipping retrieval for {task_type} critique - using only task template guidance...")
+            context = ""
+        else:
+            # Get query and instructions for other task types
+            query = self.get_task_query(program, task_type)
+            specialized_instructions = self.specialized_instructions.get(task_type, "")
+            
+            # Retrieve relevant context with specialized instructions
+            print(f"Retrieving context...")
+            retrieval_result, _ = self.retrieval_fn(query, specialized_instructions)
+            context = f"\nRelevant context from training literature:\n{retrieval_result}\n"
         
         # Make sure 'draft' contains the actual program content
         program_content = program.get('draft')
