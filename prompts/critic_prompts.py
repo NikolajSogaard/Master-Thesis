@@ -125,11 +125,9 @@ NOTE: Consider any changes suggested by previous critiques (frequency_and_split,
 
 1) First, calculate the current weekly set volume for these major muscle groups:
    - Chest
-   - Back
-   - Shoulders  
+   - Back 
    - Quads
    - Hamstrings
-   - Glutes
 
 2) Then, evaluate if the volume needs to be changed. Use the specific volume guidelines provided in the reference data section below.
 

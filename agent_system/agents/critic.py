@@ -74,8 +74,8 @@ class Critic:
                             "chest": {"min": 10, "max": 15},
                             "hamstrings": {"min": 8, "max": 12},
                             "quads": {"min": 10, "max": 15},
-                            "shoulders": {"min": 10, "max": 20},
-                            "glutes": {"min": 10, "max": 20},
+                            #"shoulders": {"min": 10, "max": 20},
+                            #"glutes": {"min": 10, "max": 20},
                         }
                     }
                 }
