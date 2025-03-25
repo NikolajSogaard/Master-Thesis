@@ -187,7 +187,7 @@
       margin: 20px 0;
     }
 
-    .ai-suggestion {
+    .ai-progression {
       font-weight: bold;
       color: #27ae60;
       font-size: 0.75rem;
@@ -282,7 +282,7 @@
               <th style="width:10%">Target RPE</th>
               <th style="width:8%">Rest</th>
               {% if week_program.week > 1 %}
-              <th style="width:15%">AI Suggestion</th>
+              <th style="width:15%">AI Progression</th>
               <th style="width:15%">AI Note</th>
               {% else %}
               <th style="width:30%">AI Note</th>
@@ -305,7 +305,7 @@
               <td>{{ exercise.rest }}</td>
               {% if week_program.week > 1 %}
               <td>
-                <div class="ai-suggestion">{{ exercise.suggestion|default('Based on last week: Try ' + exercise.sets|string + ' sets of ' + exercise.reps + ' at RPE ' + exercise.target_rpe|string) }}</div>
+                <div class="ai-progression">{{ exercise.suggestion|default('Based on last week: Try ' + exercise.sets|string + ' sets of ' + exercise.reps + ' at RPE ' + exercise.target_rpe|string) }}</div>
               </td>
               {% endif %}
               <td>

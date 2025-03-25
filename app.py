@@ -49,7 +49,7 @@ DEFAULT_CONFIG = {
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
     'critic_prompt_settings': 'week1',
-    'max_iterations': 6
+    'max_iterations': 2
 }
 
 def get_program_generator(config=None):

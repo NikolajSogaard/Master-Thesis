@@ -206,23 +206,25 @@ Here is the performance data from the previous week:
 Focus ONLY on PROGRESSION & PROGRESSIVE OVERLOAD.
 
 Evaluate whether:
-1. The program effectively applies progressive overload based on previous week's performance:
-   - The exercise weights/loads are appropriate based on actual performance
-   - The suggested progression rates are realistic and evidence-based
-   - The RPE targets match the individual's demonstrated performance capacity
+1. The suggested progression recommendations are appropriate based on the previous week's performance data:
+   - The weight recommendations are properly based on actual performance and RPE feedback
+   - Weight increases are conservative and safe (typically 2.5-5kg for upper body, 5-10kg for lower body)
+   - Weight recommendations account for any struggles or difficulties noted in user feedback
+   - Recommendations respond appropriately to sets that exceeded target RPE
 
-2. The program includes:
-   - Appropriate weight increases based on previous week's performance
-   - Suitable adjustments to reps, sets, or intensity where needed
-   - Progressive overload application that matches the individual's training experience
-   - Specific, actionable suggestions in the "suggestion" field for each exercise
+2. The recommendations adequately:
+   - Provide specific weights in kg rather than vague instructions
+   - Include appropriate RPE targets consistent with the exercise type
+   - Give clear, actionable advice that the user can implement
+   - Account for all available feedback from the previous week's performance
 
-3. The program effectively:
-   - Builds on strengths demonstrated in previous performance data
-   - Addresses weaknesses or sticking points from previous week
+3. The progression strategy effectively:
    - Applies proper autoregulation principles based on RPE feedback
+   - Recommends appropriate deloads or weight reductions when previous performance indicates struggle
+   - Uses a balanced approach that progresses at an appropriate rate for the individual's experience level
 
-IMPORTANT: Provide SPECIFIC, CONCRETE suggestions with exact numbers - specify precise weight adjustments (in kg), rep changes, and RPE targets for exercises needing modification.
+IMPORTANT: Evaluate ONLY the progression recommendations in the "suggestion" field - DO NOT critique the exercise selection, set/rep scheme, or program structure.
+Provide SPECIFIC, CONCRETE suggestions with exact numbers - specify precise weight adjustments (in kg) for any exercises needing modification.
 Only return "None" if the progression strategy is already optimal.
 '''
 

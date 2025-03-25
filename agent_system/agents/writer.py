@@ -118,6 +118,11 @@ class Writer:
         if not revision_task:
             raise ValueError(f"Writer of type '{current_type}' does not support program revision - no suitable task found")
         
+        # For progression type, ensure we preserve the original program structure
+        if current_type == "progression":
+            print(f"Progression mode: Will maintain exercise structure and only update suggestions")
+            # We might want to add additional instructions or handling here specific to progression
+        
         # No retrieval for revision or progression
         enhanced_task_revision = revision_task
         

@@ -111,7 +111,7 @@ class Critic:
         
         # Week 2+ specific queries
         if self.is_week2plus and task_type == "progression":
-            return "What are the best practices for progressive overload in strength training? How should weight/intensity be progressed based on previous performance data? How can autoregulation be implemented effectively in progressive overload models?"
+            return "How should progressive overload be implemented based on performance data? When should weight be increased versus reps? What are appropriate weight increments for different exercises? How should RPE feedback guide autoregulation?"
         
         # Week 1 queries - removed set_volume query
         queries = {
