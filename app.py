@@ -77,7 +77,7 @@ def get_program_generator(config=None):
     print(f"DEBUG: Has task_revision: {writer_prompt_settings.task_revision is not None}")
     
     # Use week-specific critic settings
-    critic_setting_key = 'week2plus' if week_number > 1 else 'week1'
+    critic_setting_key = 'progression' if week_number > 1 else 'week1'
     critic_prompt_settings = CRITIC_PROMPT_SETTINGS[critic_setting_key]
     
     # Underlying LLMs
