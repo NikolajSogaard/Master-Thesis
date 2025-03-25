@@ -85,6 +85,7 @@ Focus ONLY on EXERCISE SELECTION. Do NOT comment on frequency, split structure, 
 Evaluate whether:
 - The chosen exercises align with the individual's goals, experience level, and personal preferences
 - NOTE: If the frequency_and_split critique suggested different training splits or structure, consider how exercises would fit into that revised structure rather than the original
+- Each training day should contain NO MORE THAN 8 exercises to ensure workout want be too long.
 
 For hypertrophy-focused goals:
 - Maintain a balanced mix of compound (50-70%) and isolation (30-50%) exercises
@@ -132,16 +133,16 @@ NOTE: Consider any changes suggested by previous critiques (frequency_and_split,
 
 2) Then, evaluate if the volume needs to be changed. Use the specific volume guidelines provided in the reference data section below.
 
-3) IMPORTANT: Make CONCRETE ADJUSTMENTS to the program while ensuring proper volume distribution throughout the week:
+3) IMPORTANT: 
+   - Make CONCRETE ADJUSTMENTS to the program while ensuring proper volume distribution throughout the week:
    - If volume is too high: Either reduce the number of sets for specific exercises OR completely remove certain exercises. Specify exactly which exercises to modify and from which days
    - If volume is too low: Either increase the number of sets for existing exercises OR add new exercises. Specify exactly which exercises to modify or add, with specific set/rep recommendations
    - If muscle group balance is off: Identify which muscle groups are overemphasized or underemphasized, then suggest specific exercises to add, remove, or modify numbers of sets to create proper balance. Specify exactly which adjustments to make on which training days
    - Ensure volume for each muscle group is distributed appropriately across multiple training days rather than concentrated on a single day
-   - IMPORTANT: 
-        - When suggesting a range of sets (e.g., 10-12 sets per week), ALWAYS start at the lower end of the range
-        - The number of sets of an exercise should be between 2-5 sets
-        - Compound exercises can be a part of the volume of multiple muscle groups
-
+   - When suggesting a range of sets (e.g., 10-12 sets per week), ALWAYS start at the lower end of the range
+   - The number of sets of an exercise should be between 2-5 sets
+   - Compound exercises can be a part of the volume of multiple muscle groups
+   
 Do not just analyze - actually modify the program to create optimal training volume with proper distribution throughout the week.
 If the volume distribution is already optimal, return "None".
 '''
