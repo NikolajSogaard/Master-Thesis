@@ -122,36 +122,15 @@ Focus ONLY on evaluating the WEEKLY SET VOLUME for each major muscle group and s
 
 NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection) when evaluating set volume.
 
-1) First, calculate the current weekly volume for:
+1) First, calculate the current weekly set volume for these major muscle groups:
    - Chest
    - Back
-   - Legs
+   - Shoulders  
+   - Quads
+   - Hamstrings
+   - Glutes
 
-2) Then, evaluate if the volume needs to be changed based on these evidence-based guidelines:
-   - Beginners: 10-12 weekly sets per major muscle group
-   - Intermediates: 13-18 weekly sets per major muscle group
-   - Advanced: 16-20+ weekly sets per major muscle group
-   - Small muscle groups: 30-40% fewer sets than major muscle groups
-
-   From the reference table (major muscle groups only):
-   - Back:
-     • Beginner: 8–10 sets
-     • Intermediate: 10–20 sets
-   - Chest:
-     • Beginner: 8–10 sets
-     • Intermediate: 10-15 sets
-   - Glutes:
-     • Intermediate: 10–20 sets
-   - Hamstrings:
-     • Beginner: 6–10 sets
-     • Intermediate: 8–12 sets
-   - Quads:
-     • Beginner: 8–10 sets
-     • Intermediate: 10–15 sets
-   - Shoulders:
-     • Intermediate: 10–20 sets
-
-
+2) Then, evaluate if the volume needs to be changed. Use the specific volume guidelines provided in the reference data section below.
 
 3) IMPORTANT: Make CONCRETE ADJUSTMENTS to the program while ensuring proper volume distribution throughout the week:
    - If volume is too high: Either reduce the number of sets for specific exercises OR completely remove certain exercises. Specify exactly which exercises to modify and from which days
@@ -160,14 +139,12 @@ NOTE: Consider any changes suggested by previous critiques (frequency_and_split,
    - Ensure volume for each muscle group is distributed appropriately across multiple training days rather than concentrated on a single day
    - IMPORTANT: 
         - When suggesting a range of sets (e.g., 10-12 sets per week), ALWAYS start at the lower end of the range
-        - The number of sets of an exercise should be inbetween 2-5 sets.
-        - Compound exercise can be a part of the volume of multiple muscle groups.
+        - The number of sets of an exercise should be between 2-5 sets
+        - Compound exercises can be a part of the volume of multiple muscle groups
 
 Do not just analyze - actually modify the program to create optimal training volume with proper distribution throughout the week.
 If the volume distribution is already optimal, return "None".
 '''
-
-
 
 TASK_REP_RANGES = '''
 Your colleague has written the following training program:

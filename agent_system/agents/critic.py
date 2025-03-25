@@ -63,9 +63,20 @@ class Critic:
                 dependencies=["frequency_and_split", "exercise_selection"],
                 reference_data={
                     "volume_guidelines": {
-                        "beginner": {"chest": 10, "back": 10, "legs": 10},
-                        "intermediate": {"chest": 14, "back": 14, "legs": 14},
-                        "advanced": {"chest": 16, "back": 16, "legs": 16}
+                        "beginner": {
+                            "back": {"min": 8, "max": 10},
+                            "chest": {"min": 8, "max": 10},
+                            "hamstrings": {"min": 6, "max": 10},
+                            "quads": {"min": 8, "max": 10},
+                        },
+                        "intermediate": {
+                            "back": {"min": 10, "max": 20},
+                            "chest": {"min": 10, "max": 15},
+                            "hamstrings": {"min": 8, "max": 12},
+                            "quads": {"min": 10, "max": 15},
+                            "shoulders": {"min": 10, "max": 20},
+                            "glutes": {"min": 10, "max": 20},
+                        }
                     }
                 }
             ),
@@ -140,6 +151,21 @@ class Critic:
         # Get context from dependencies
         dependency_context = task_config.get_context_from_dependencies(previous_results)
         
+        # Include reference data if available for set_volume task
+        reference_data_context = ""
+        if task_type == "set_volume" and task_config.reference_data.get("volume_guidelines"):
+            print(f"Including volume guidelines from reference data...")
+            volume_data = task_config.reference_data["volume_guidelines"]
+            reference_data_context = "\nVolume guidelines from reference data:\n"
+            
+            for level in ["beginner", "intermediate", "advanced"]:
+                if level in volume_data:
+                    reference_data_context += f"\n{level.capitalize()} level:\n"
+                    for muscle, ranges in volume_data[level].items():
+                        min_val = ranges.get("min", "?") 
+                        max_val = ranges.get("max", "?")
+                        reference_data_context += f"- {muscle.capitalize()}: {min_val}-{max_val} sets per week\n"
+        
         # Retrieve context if needed
         if task_config.needs_retrieval:
             print(f"Retrieving context...")
@@ -151,6 +177,10 @@ class Critic:
         else:
             print(f"Skipping retrieval for {task_type} - using only task template guidance...")
             context = ""
+        
+        # Add reference data to context if available
+        if reference_data_context:
+            context = reference_data_context + "\n" + context
         
         # Add dependency context to prompt if available
         if dependency_context:
