@@ -76,21 +76,22 @@ If nothing needs improvement, return "None".
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
 {}
-
+ 
 The individual has provided these details:
 {}
-
+ 
 Focus ONLY on EXERCISE SELECTION. Do NOT comment on frequency, split structure, rep ranges, or RPE.
-
+ 
 Evaluate whether:
 - The chosen exercises align with the individual's goals, experience level, and personal preferences
 - NOTE: If the frequency_and_split critique suggested different training splits or structure, consider how exercises would fit into that revised structure rather than the original
-
+- Each training day should contain NO MORE THAN 8 exercises to ensure workout want be too long.
+ 
 For hypertrophy-focused goals:
 - Maintain a balanced mix of compound (50-70%) and isolation (30-50%) exercises
 - Include a variety of exercises to target each muscle group from different angles
 - Aim for a 50-50 mix of free-weight and machine exercises
-
+ 
 For strength/powerlifting-focused goals:
 - Choose exercises that directly complement the individual's main lifts or their well-suited variations
 - Main lifts should be based on the individual's preferences and goals, not necessarily traditional powerlifts
@@ -101,12 +102,12 @@ For strength/powerlifting-focused goals:
   3. The overall weekly volume and frequency for that movement pattern is appropriate
 - Identify accessory movements that target the supporting muscle groups impacting the main lifts
 - For specialized days (like posterior chain focus), ensure that across the week, all muscle groups and movement patterns receive balanced attention
-
+ 
 Balance considerations for specialized training days:
 - When creating a specialized day (e.g., posterior chain focus), compensate with complementary work on other days
 - Ensure appropriate opposing muscle group work within the week (e.g., if emphasizing hamstrings heavily, ensure adequate quad work elsewhere)
 - Main lifts should be placed where recovery will be optimal for performance
-
+ 
 IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - list exactly which exercises to replace and what to replace them with.
 If nothing needs improvement, return "None".
 '''
@@ -125,10 +126,8 @@ NOTE: Consider any changes suggested by previous critiques (frequency_and_split,
 1) First, calculate the current weekly set volume for these major muscle groups:
    - Chest
    - Back
-   - Shoulders  
    - Quads
    - Hamstrings
-   - Glutes
 
 2) Then, evaluate if the volume needs to be changed. Use the specific volume guidelines provided in the reference data section below.
 
