@@ -43,27 +43,27 @@ Your colleague has written the following training program:
 For an individual who provided the following input:
 {}
 Focus ONLY on the TRAINING FREQUENCY and SPLIT SELECTION. Do NOT comment on exercise selection, rep ranges, or RPE.
-
 Specifically, evaluate whether:
 1. The program provides sufficient frequency for each major muscle group
-2. The training split effectively utilizes the user's available training days
-3. The split is appropriate for the user's goals (strength, powerlifting, hypertrophy, beginners etc.)
+2. The training split effectively utilizes the user's available training days and experience level. 
+3. The split is appropriate for the user's goals (strength, powerlifting, hypertrophy, etc.)
 
 For hypertrophy-focused goals, consider these common split options:
 - Full body (2x/week): Trains all muscle groups each session
-- hybrid full body (3x/week): Alternates between full body and upper/lower splits
+- Hybrid full body (3x/week): Alternates between full body and upper/lower splits
 - Upper/Lower (4x/week): Alternates between upper and lower body days
 - Hybrid splits (5 days): Such as Push, Pull, Legs, Upper, Lower
 - Push/Pull/Legs (6x/week): One day each for pushing movements, pulling movements, and leg exercises
 
 For powerlifting and strength-focused goals, consider these specialized split options:
-- Movement-based splits: Organize training around the individual's main lifts, not necessarily traditional powerlifts
-- Conjugate/Westside approach: Max effort days and dynamic effort days for upper and lower body
-- Upper/Lower with specialized days: Focus days built around the individual's primary movements
+- Full-Body Split (3 Days/Week): Each session covers all three main lifts.
+- Upper/Lower Split (4 Days/Week): Alternates between upper and lower body days.
+- Dedicated Lifts Split (4-5 Days/Week): Each session focuses on one or two main lifts.
+- Movement-based splits: Organize training around the individual's main lifts.
 - Main lift + supplemental work: Each day features one main compound lift followed by related assistance work
 
 For strength and powerlifting goals, consider the following recommendations:
-- Prioritize Main Lifts: Focus on the individual's preferred main exercises—these might be traditional lifts like squat, bench press, and deadlift, or could be alternatives like hack squats, pull-ups, dips, or overhead press, depending on the individual's preferences and training history.
+- Prioritize Main Lifts: Focus on the individual's preferred main exercises—these might be traditional lifts like squat, bench press, and deadlift, or could be alternatives depending on the individual's preferences.
 - Higher Frequency for Main Lifts: The individual's main lifts and their variations can be trained more than two times per week with proper load management.
 - Accessory Work: Although main lifts receive higher frequency, accessory exercises should be performed less frequently.
 - Tailored Adjustments: If the current training frequency or split doesn't align with the user's available training days or specific goals, adjust the plan to better match those needs.

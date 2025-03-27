@@ -43,13 +43,13 @@ Session(app)  # Initialize Flask-Session
 
 # Default configuration
 DEFAULT_CONFIG = {
-    'model': 'gemini-2.0-flash',
-    'max_tokens': 2048,
+    'model': 'gemini-2.5-pro-exp-03-25',
+    'max_tokens': 8000,
     'writer_temperature': 0.5,
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
     'critic_prompt_settings': 'week1',
-    'max_iterations': 2
+    'max_iterations': 1
 }
 
 def get_program_generator(config=None):
@@ -124,8 +124,7 @@ def get_program_generator(config=None):
         retrieval_fn=retrieve_and_generate
     )
     
-    # Initialize editor with reference to writer
-    editor = Editor(writer=writer)
+    editor = Editor()
     
     # Coordinator
     return ProgramGenerator(

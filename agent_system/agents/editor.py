@@ -24,39 +24,41 @@ class Editor:
         # Debug logging added to inspect draft content and type
         print("DEBUG: Editor received draft (type {}): {}".format(type(draft), draft))
         
+        weekly_program = None
+        
         # Case 1: If draft is already a dict with 'weekly_program' key
         if isinstance(draft, dict) and 'weekly_program' in draft:
-            return draft
+            weekly_program = draft['weekly_program']
         
         # Case 2: If draft is a dict with a message field containing JSON
-        if isinstance(draft, dict) and 'message' in draft and isinstance(draft['message'], str):
+        elif isinstance(draft, dict) and 'message' in draft and isinstance(draft['message'], str):
             message = draft['message']
             try:
                 # Try to parse the message as JSON
                 parsed_message = json.loads(message)
                 if isinstance(parsed_message, dict) and 'weekly_program' in parsed_message:
                     print("DEBUG: Successfully extracted weekly_program from message field")
-                    return parsed_message
+                    weekly_program = parsed_message['weekly_program']
                 elif isinstance(parsed_message, dict):
                     print("DEBUG: Message field parsed as dict but missing weekly_program")
-                    return {"weekly_program": parsed_message}
+                    weekly_program = parsed_message
             except json.JSONDecodeError:
                 print("DEBUG: Message field is not valid JSON, continuing with other cases")
         
         # Case 3: If draft is a dict but missing 'weekly_program' key
-        if isinstance(draft, dict):
-            return {"weekly_program": draft}
+        elif isinstance(draft, dict):
+            weekly_program = draft
         
         # Case 4: If draft is a string, try to parse it as JSON
-        if isinstance(draft, str):
+        elif isinstance(draft, str):
             try:
                 parsed = json.loads(draft)
                 # If parsed JSON has 'weekly_program' key
                 if isinstance(parsed, dict) and 'weekly_program' in parsed:
-                    return parsed
+                    weekly_program = parsed['weekly_program']
                 # If parsed JSON is missing 'weekly_program' key
                 elif isinstance(parsed, dict):
-                    return {"weekly_program": parsed}
+                    weekly_program = parsed
             except json.JSONDecodeError:
                 # If string is not valid JSON, try to extract JSON from code blocks
                 if "```json" in draft:
@@ -66,16 +68,39 @@ class Editor:
                             json_content = json_content.split("```", 1)[0]
                         parsed = json.loads(json_content.strip())
                         if isinstance(parsed, dict) and 'weekly_program' in parsed:
-                            return parsed
+                            weekly_program = parsed['weekly_program']
                         elif isinstance(parsed, dict):
-                            return {"weekly_program": parsed}
+                            weekly_program = parsed
                     except (json.JSONDecodeError, IndexError):
                         print("DEBUG: Failed to extract JSON from code blocks")
-                # If we still couldn't parse, wrap it in a default structure
-                return {"weekly_program": {}}
         
-        # Default case: Return empty structure for any other type
-        return {"weekly_program": {}}
+        if weekly_program is None:
+            weekly_program = {}
+        
+        # Validate and ensure each exercise has the required fields
+        validated_program = {}
+        for day, exercises in weekly_program.items():
+            validated_program[day] = []
+            for exercise in exercises:
+                # Ensure all required fields exist
+                validated_exercise = {
+                    "name": exercise.get("name", "Unnamed Exercise"),
+                    "sets": exercise.get("sets", 3),
+                    "reps": exercise.get("reps", "8-12"),
+                    "target_rpe": exercise.get("target_rpe", "7-8"),
+                    "rest": exercise.get("rest", "60-90 seconds"),
+                    "cues": exercise.get("cues", "Focus on proper form")
+                }
+                
+                # Handle AI Progression field for week 2+
+                if "AI Progression" in exercise:
+                    validated_exercise["suggestion"] = exercise["AI Progression"]
+                elif "suggestion" in exercise:
+                    validated_exercise["suggestion"] = exercise["suggestion"]
+                
+                validated_program[day].append(validated_exercise)
+        
+        return {"weekly_program": validated_program}
 
     def __call__(self, program: dict[str, str | None]) -> dict[str, str | None]:
         # First implement any final feedback
