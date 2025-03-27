@@ -18,6 +18,11 @@ class ProgramGenerator:
         # Agents
         self.writer = writer
         self.critic = critic
+        
+        # Pass writer to editor to enable implementing final feedback
+        if not hasattr(editor, 'writer') or editor.writer is None:
+            editor.writer = writer
+            
         self.editor = editor
         self.max_iterations = max_iterations
 
@@ -60,6 +65,7 @@ class ProgramGenerator:
         # Check if we've reached the maximum number of iterations
         if program['iteration_count'] >= self.max_iterations:
             print(f"Reached maximum iterations ({self.max_iterations}), accepting program as is.")
+            # Note: The editor will now implement the final feedback
             return 'accept'
             
         # Check if there's feedback to consider

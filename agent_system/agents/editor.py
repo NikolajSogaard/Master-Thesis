@@ -1,8 +1,22 @@
 import json
 
 class Editor:
-    def __init__(self):
-        pass
+    def __init__(self, writer=None):
+        self.writer = writer  # Store reference to writer
+
+    def implement_final_feedback(self, program):
+        """Implement the final round of feedback if it exists"""
+        # Check if there's feedback to implement
+        if program.get('feedback') and self.writer:
+            print("\n=== EDITOR: Implementing final round of feedback ===")
+            # Call writer's revise method to implement feedback
+            try:
+                revised_draft = self.writer.revise(program, override_type="revision")
+                program['draft'] = revised_draft
+                print("Final feedback successfully implemented")
+            except Exception as e:
+                print(f"Error implementing final feedback: {e}")
+        return program
 
     def format_program(self, program: dict[str, str | None]) -> dict:
         """Ensure the program is in the correct format for the web application."""
@@ -64,6 +78,10 @@ class Editor:
         return {"weekly_program": {}}
 
     def __call__(self, program: dict[str, str | None]) -> dict[str, str | None]:
+        # First implement any final feedback
+        program = self.implement_final_feedback(program)
+        
+        # Then format the program as before
         formatted = self.format_program(program)
         # Preserve Critic feedback if available
         if 'feedback' in program:

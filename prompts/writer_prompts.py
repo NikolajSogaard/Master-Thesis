@@ -146,7 +146,7 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
         "target_rpe": 8-10,
         "rest": "2-3 minutes",
         "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
-        "AI Progression": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5lkg to 222kg for 4x6 at RPE 7-8')"
+        "AI Progression": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5kg to 222kg for 4x6 at RPE 7-8')"
       }
     ],
     "Day X": etc. continue generating each training day of the week.
@@ -201,10 +201,10 @@ WRITER_PROMPT_SETTINGS['revision'] = WriterPromptSettings(
     structure=PROGRAM_STRUCTURE_WEEK1,
 )
 
-# Week 2+ progression - needs to use task_revision, not task_progression
+# Week 2+ progression - should use task_progression, not task_revision
 WRITER_PROMPT_SETTINGS['progression'] = WriterPromptSettings(
     role=PROGRESSION_ROLE,
-    task_revision=TASK_PROGRESSION,  # Changed from task_progression to task_revision
+    task_progression=TASK_PROGRESSION,  # Changed from task_revision to task_progression
     structure=PROGRAM_STRUCTURE_WEEK2PLUS,
 )
 

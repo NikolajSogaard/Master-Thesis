@@ -124,7 +124,8 @@ def get_program_generator(config=None):
         retrieval_fn=retrieve_and_generate
     )
     
-    editor = Editor()
+    # Initialize editor with reference to writer
+    editor = Editor(writer=writer)
     
     # Coordinator
     return ProgramGenerator(
