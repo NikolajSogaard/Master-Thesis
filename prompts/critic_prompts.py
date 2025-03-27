@@ -119,27 +119,29 @@ Your colleague has written the following training program:
 The individual has provided these details:
 {}
 
-Focus ONLY on evaluating the WEEKLY SET VOLUME for each major muscle group and suggesting concrete adjustments. Do NOT comment on frequency, split structure, exercise selection specifics, rep ranges, or RPE.
+Focus ONLY on evaluating the WEEKLY SET VOLUME for each major movement pattern and suggesting concrete adjustments. Do NOT comment on frequency, split structure, exercise selection specifics, rep ranges, or RPE.
 
 NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection) when evaluating set volume.
 
-1) First, calculate the current weekly set volume for these major muscle groups:
-   - Chest
-   - Back
-   - Quads
-   - Hamstrings
+1) First, calculate the current weekly set volume for these major movement patterns:
+   - Horizontal Push (Chest/pressing)
+   - Horizontal Pull (Rows/rear back)
+   - Vertical Push (Overhead/shoulders) 
+   - Vertical Pull (Pull-ups/lats)
+   - Anterior Chain (Quads)
+   - Posterior Chain (Glutes/Hams)
 
 2) Then, evaluate if the volume needs to be changed. Use the specific volume guidelines provided in the reference data section below.
 
 3) IMPORTANT: Make CONCRETE ADJUSTMENTS to the program while ensuring proper volume distribution throughout the week:
    - If volume is too high: Either reduce the number of sets for specific exercises OR completely remove certain exercises. Specify exactly which exercises to modify and from which days
    - If volume is too low: Either increase the number of sets for existing exercises OR add new exercises. Specify exactly which exercises to modify or add, with specific set/rep recommendations
-   - If muscle group balance is off: Identify which muscle groups are overemphasized or underemphasized, then suggest specific exercises to add, remove, or modify numbers of sets to create proper balance. Specify exactly which adjustments to make on which training days
-   - Ensure volume for each muscle group is distributed appropriately across multiple training days rather than concentrated on a single day
+   - If movement pattern balance is off: Identify which patterns are overemphasized or underemphasized, then suggest specific exercises to add, remove, or modify numbers of sets to create proper balance. Specify exactly which adjustments to make on which training days
+   - Ensure volume for each movement pattern is distributed appropriately across multiple training days rather than concentrated on a single day
    - IMPORTANT: 
-        - When suggesting a range of sets (e.g., 10-12 sets per week), ALWAYS start at the lower end of the range
+        - When suggesting a range of sets (e.g., 10-12 sets per week), ALWAYS start at the lower end of the range, especially for a beginner.
         - The number of sets of an exercise should be between 2-5 sets
-        - Compound exercises can be a part of the volume of multiple muscle groups
+        - Compound exercises can be a part of the volume of multiple movement patterns
 
 Do not just analyze - actually modify the program to create optimal training volume with proper distribution throughout the week.
 If the volume distribution is already optimal, return "None".
