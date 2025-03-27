@@ -42,36 +42,38 @@ Your colleague has written the following training program:
 {}
 For an individual who provided the following input:
 {}
-Focus ONLY on the TRAINING FREQUENCY and SPLIT SELECTION. Do NOT comment on exercise selection, rep ranges, or RPE.
-
-Specifically, evaluate whether:
-1. The program provides sufficient frequency for each major muscle group
-2. The training split effectively utilizes the user's available training days
-3. The split is appropriate for the user's goals (strength, powerlifting, hypertrophy, beginners etc.)
-
-For hypertrophy-focused goals, consider these common split options:
-- Full body (2x/week): Trains all muscle groups each session
-- hybrid full body (3x/week): Alternates between full body and upper/lower splits
-- Upper/Lower (4x/week): Alternates between upper and lower body days
-- Hybrid splits (5 days): Such as Push, Pull, Legs, Upper, Lower
-- Push/Pull/Legs (6x/week): One day each for pushing movements, pulling movements, and leg exercises
-
-For powerlifting and strength-focused goals, consider these specialized split options:
-- Movement-based splits: Organize training around the individual's main lifts, not necessarily traditional powerlifts
-- Conjugate/Westside approach: Max effort days and dynamic effort days for upper and lower body
-- Upper/Lower with specialized days: Focus days built around the individual's primary movements
-- Main lift + supplemental work: Each day features one main compound lift followed by related assistance work
-
-For strength and powerlifting goals, consider the following recommendations:
-- Prioritize Main Lifts: Focus on the individual's preferred main exercises—these might be traditional lifts like squat, bench press, and deadlift, or could be alternatives like hack squats, pull-ups, dips, or overhead press, depending on the individual's preferences and training history.
-- Higher Frequency for Main Lifts: The individual's main lifts and their variations can be trained more than two times per week with proper load management.
-- Accessory Work: Although main lifts receive higher frequency, accessory exercises should be performed less frequently.
-- Tailored Adjustments: If the current training frequency or split doesn't align with the user's available training days or specific goals, adjust the plan to better match those needs.
-- Specialized Training Days: It's appropriate to have specialized days (like "posterior chain focus") as long as overall weekly volume remains balanced across muscle groups/movement patterns.
-
-IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - specify exactly what split structure you recommend with a clear layout of training days.
+Focus ONLY on EXERCISE SELECTION. Do NOT comment on frequency, split structure, rep ranges, or RPE.
+ 
+Evaluate whether:
+- The chosen exercises align with the individual's goals, experience level, and personal preferences
+- NOTE: If the frequency_and_split critique suggested different training splits or structure, consider how exercises would fit into that revised structure rather than the original
+- Each training day should contain NO MORE THAN 8 exercises to ensure workout want to be too long.
+ 
+For hypertrophy-focused goals:
+- Maintain a balanced mix of compound (50-70%) and isolation (30-50%) exercises
+- Include a variety of exercises to target each muscle group from different angles
+- Aim for a 50-50 mix of free-weight and machine exercises
+ 
+For strength/powerlifting-focused goals:
+- Choose exercises that directly complement the individual's main lifts or their well-suited variations
+- Main lifts should be based on the individual's preferences and goals, not necessarily traditional powerlifts
+- For powerlifting programs, structure each day around 1-2 main compound movements followed by relevant accessories
+- It's acceptable to place certain "main" lifts on seemingly unrelated days (e.g., pull-ups on leg day) if:
+  1. It serves a specific purpose (e.g., back development for improved bracing on squats)
+  2. It doesn't interfere with recovery for the primary focus of that day
+  3. The overall weekly volume and frequency for that movement pattern is appropriate
+- Identify accessory movements that target the supporting muscle groups impacting the main lifts
+- For specialized days (like posterior chain focus), ensure that across the week, all muscle groups and movement patterns receive balanced attention
+ 
+Balance considerations for specialized training days:
+- When creating a specialized day (e.g., posterior chain focus), compensate with complementary work on other days
+- Ensure appropriate opposing muscle group work within the week (e.g., if emphasizing hamstrings heavily, ensure adequate quad work elsewhere)
+- Main lifts should be placed where recovery will be optimal for performance
+ 
+IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - list exactly which exercises to replace and what to replace them with.
 If nothing needs improvement, return "None".
 '''
+
 
 TASK_EXERCISE_SELECTION = '''
 Your colleague has written the following training program:
