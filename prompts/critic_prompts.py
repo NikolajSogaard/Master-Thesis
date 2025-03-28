@@ -124,12 +124,12 @@ Focus ONLY on evaluating the WEEKLY SET VOLUME for each major movement pattern a
 NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection) when evaluating set volume.
 
 1) First, calculate the current weekly set volume for these major movement patterns:
-   - Horizontal Push (Chest/pressing)
-   - Horizontal Pull (Rows/rear back)
-   - Vertical Push (Overhead/shoulders) 
-   - Vertical Pull (Pull-ups/lats)
-   - Anterior Chain (Quads)
-   - Posterior Chain (Glutes/Hams)
+   - Horizontal Push upper (Chest/pressing)
+   - Horizontal Pull upper (Rows/rear back)
+   - Vertical Push upper (Overhead/shoulders) 
+   - Vertical Pull upper (Pull-ups/lats)
+   - Anterior Chain lower (Quads)
+   - Posterior Chain lower (Glutes/Hams)
 
 2) Then, evaluate if the volume needs to be changed. Use the specific volume guidelines provided in the reference data section below.
 
