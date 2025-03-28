@@ -111,5 +111,8 @@ class Editor:
         # Preserve Critic feedback if available
         if 'feedback' in program:
             formatted['critic_feedback'] = program['feedback']
+        # If week number is available, carry it over to the formatted output
+        if 'week_number' in program:
+            formatted['week_number'] = program['week_number']
         program['formatted'] = formatted
         return program

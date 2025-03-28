@@ -204,7 +204,7 @@ WRITER_PROMPT_SETTINGS['revision'] = WriterPromptSettings(
 # Week 2+ progression - should use task_progression, not task_revision
 WRITER_PROMPT_SETTINGS['progression'] = WriterPromptSettings(
     role=PROGRESSION_ROLE,
-    task_progression=TASK_PROGRESSION,  # Changed from task_revision to task_progression
+    task_progression=TASK_PROGRESSION,
     structure=PROGRAM_STRUCTURE_WEEK2PLUS,
 )
 
