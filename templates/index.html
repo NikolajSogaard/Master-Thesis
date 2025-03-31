@@ -343,6 +343,9 @@
                   <div class="ai-note">{{ exercise.cues }}</div>
                 </td>
                 <td>
+                  {% if week_program.week > 1 and exercise.suggestion is defined %}
+                  <div class="ai-progression">{{ exercise.suggestion|default('Based on last week: Try ' + exercise.sets|string + ' sets of ' + exercise.reps + ' at RPE ' + exercise.target_rpe|string) }}</div>
+                  {% endif %}
                   {% for i in range(exercise.sets|default(3, true)) %}
                     <div class="set-input">
                       <span class="set-number">Set {{ i+1 }}:</span>
@@ -360,27 +363,7 @@
             </tbody>
           </table>
           
-          <!-- Progression table - only shown for Week 2+ -->
-          {% if week_program.week > 1 %}
-          <table class="progression-table">
-            <thead>
-              <tr>
-                <th>Exercise</th>
-                <th>Week {{ week_program.week }} Progression</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for exercise in exercises %}
-              <tr>
-                <td><strong>{{ exercise.name }}</strong></td>
-                <td>
-                  <div class="ai-progression">{{ exercise.suggestion|default('Based on last week: Try ' + exercise.sets|string + ' sets of ' + exercise.reps + ' at RPE ' + exercise.target_rpe|string) }}</div>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          {% endif %}
+          <!-- Progression table has been removed - progression is now shown in the Set Feedback column -->
         </div>
       {% endfor %}
     </div>
