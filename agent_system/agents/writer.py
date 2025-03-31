@@ -121,7 +121,11 @@ class Writer:
         # For progression type, ensure we preserve the original program structure
         if current_type == "progression":
             print(f"Progression mode: Will maintain exercise structure and only update suggestions")
-            # We might want to add additional instructions or handling here specific to progression
+            
+            # For progression, use task_progression if available
+            if self.task_progression is not None:
+                print(f"Using specialized task_progression template")
+                revision_task = self.task_progression
         
         # No retrieval for revision or progression
         enhanced_task_revision = revision_task
@@ -140,10 +144,53 @@ class Writer:
         # Convert prompt to a single string as expected by the Gemini API
         combined_prompt = "\n".join(item.get("content", "") if isinstance(item, dict) else str(item) for item in prompt)
         
+        # For progression mode, we'll process the response differently
+        is_progression_mode = (current_type == "progression")
+        if is_progression_mode:
+            print(f"Using progression mode: Will only update AI Progression field")
+            
         print(f"Revising program based on feedback...")
         # Real LLM call for revision
         try:
             draft = self.model(combined_prompt)
+            
+            # For progression mode, merge the new AI Progression suggestions with the original program structure
+            if is_progression_mode and isinstance(draft, dict) and 'weekly_program' in draft:
+                original_program = None
+                
+                # Get the original program structure
+                if isinstance(program['draft'], dict) and 'weekly_program' in program['draft']:
+                    original_program = program['draft']['weekly_program']
+                    
+                # If we have both the original and new program, merge them
+                if original_program is not None:
+                    merged_weekly_program = {}
+                    new_program = draft['weekly_program']
+                    
+                    # Iterate through each day in the original program
+                    for day, original_exercises in original_program.items():
+                        merged_weekly_program[day] = []
+                        
+                        # For each exercise in the original day
+                        for i, original_exercise in enumerate(original_exercises):
+                            # Create a copy of the original exercise
+                            merged_exercise = original_exercise.copy()
+                            
+                            # Try to find the matching exercise in the new program
+                            if day in new_program and i < len(new_program[day]):
+                                new_exercise = new_program[day][i]
+                                # Only copy the AI Progression/suggestion field
+                                if "AI Progression" in new_exercise:
+                                    merged_exercise["AI Progression"] = new_exercise["AI Progression"]
+                                    merged_exercise["suggestion"] = new_exercise["AI Progression"]
+                                elif "suggestion" in new_exercise:
+                                    merged_exercise["suggestion"] = new_exercise["suggestion"]
+                                    merged_exercise["AI Progression"] = new_exercise["suggestion"]
+                            
+                            merged_weekly_program[day].append(merged_exercise)
+                    
+                    # Replace the weekly program with our merged version
+                    draft['weekly_program'] = merged_weekly_program
             
             # Handle case where draft is string (non-JSON response)
             if isinstance(draft, str):

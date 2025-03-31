@@ -93,10 +93,15 @@ class Editor:
                 }
                 
                 # Handle AI Progression field for week 2+
+                # First check for AI Progression (with proper capitalization)
                 if "AI Progression" in exercise:
                     validated_exercise["suggestion"] = exercise["AI Progression"]
+                # Then check for suggestion field
                 elif "suggestion" in exercise:
                     validated_exercise["suggestion"] = exercise["suggestion"]
+                # Also check for lowercase variant
+                elif "ai progression" in exercise:
+                    validated_exercise["suggestion"] = exercise["ai progression"]
                 
                 validated_program[day].append(validated_exercise)
         

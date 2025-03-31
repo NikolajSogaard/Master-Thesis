@@ -205,7 +205,7 @@ WRITER_PROMPT_SETTINGS['revision'] = WriterPromptSettings(
 WRITER_PROMPT_SETTINGS['progression'] = WriterPromptSettings(
     role=PROGRESSION_ROLE,
     task_progression=TASK_PROGRESSION,
-    structure=PROGRAM_STRUCTURE_WEEK2PLUS,
+    structure=None,  # Remove the structure so it doesn't generate a new program structure
 )
 
 # Add the original v1 as an alias to initial for backward compatibility

@@ -393,6 +393,13 @@ def next_week():
     # Prepare input for next week's program
     current_program = session['raw_program']
     
+    # IMPORTANT: Store the original week 1 program structure if moving to week 2
+    current_week = session.get('current_week', 1)
+    if current_week == 1:
+        # We're moving from week 1 to week 2, save the original program structure
+        session['original_program_structure'] = session['program']
+        print(f"Saved original Week 1 program structure for future weeks")
+    
     # Use the helper function to create the prompt
     next_week_input = create_next_week_prompt(
         user_input=session.get('user_input', ''),
@@ -422,8 +429,38 @@ def next_week():
     program_generator = get_program_generator(config)
     program_result = program_generator.create_program(user_input=next_week_input)
     
+    # Apply special handling for Week 2+
+    if new_week > 1 and 'original_program_structure' in session:
+        print(f"Week {new_week}: Preserving original program structure from Week 1")
+        # Get the original structure and formatted new program
+        original_structure = session['original_program_structure']
+        new_program = parse_program(program_result.get('formatted'))
+        
+        # Create merged program that preserves original structure but adds new suggestions
+        merged_program = {}
+        for day, exercises in original_structure.items():
+            merged_program[day] = []
+            for i, exercise in enumerate(exercises):
+                # Create a copy of the original exercise
+                preserved_exercise = exercise.copy()
+                
+                # Try to find a matching suggestion from the new program
+                if day in new_program and i < len(new_program[day]):
+                    new_exercise = new_program[day][i]
+                    if 'suggestion' in new_exercise:
+                        preserved_exercise['suggestion'] = new_exercise['suggestion']
+                    elif 'AI Progression' in new_exercise:
+                        preserved_exercise['suggestion'] = new_exercise['AI Progression']
+                
+                merged_program[day].append(preserved_exercise)
+        
+        # Update the parsed_program with our carefully merged result
+        parsed_program = merged_program
+    else:
+        # Original parsing for Week 1
+        parsed_program = parse_program(program_result.get('formatted'))
+    
     # Update session with new program
-    parsed_program = parse_program(program_result.get('formatted'))
     session['program'] = parsed_program
     session['raw_program'] = program_result
     session['feedback'] = {}
