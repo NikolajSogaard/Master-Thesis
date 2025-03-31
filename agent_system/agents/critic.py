@@ -71,12 +71,12 @@ class Critic:
                             #"quads": {"min": 8, "max": 10},
                             
                             # New movement pattern guidelines
-                            "horizontal_push_upper": {"min": 6, "max": 10, "description": "Chest/pressing"},
-                            "horizontal_pull_upper": {"min": 6, "max": 10, "description": "Rows/rear back"},
-                            "vertical_push_upper": {"min": 6, "max": 10, "description": "Overhead/shoulders"},
-                            "vertical_pull_upper": {"min": 6, "max": 10, "description": "Pull-ups/lats"},
-                            "anterior_chain_lower": {"min": 6, "max": 10, "description": "Quads"},
-                            "posterior_chain_lower": {"min": 6, "max": 10, "description": "Glutes/Hams"}
+                            "Upper_horizontal_push": {"min": 6, "max": 10, "description": "Chest/pressing"},
+                            "Upper_horizontal_pull": {"min": 6, "max": 10, "description": "Rows/rear back"},
+                            "Upper_vertical_push": {"min": 6, "max": 10, "description": "Overhead/shoulders"},
+                            "Upper_vertical_pull": {"min": 6, "max": 10, "description": "Pull-ups/lats"},
+                            "Lower_anterior_chain": {"min": 6, "max": 10, "description": "Quads"},
+                            "Lower_posterior_chain": {"min": 6, "max": 10, "description": "Glutes/Hams"}
                         },
                         "intermediate": {
                             # Old muscle group guidelines
@@ -88,21 +88,21 @@ class Critic:
                             #"glutes": {"min": 10, "max": 20},
                             
                             # New movement pattern guidelines
-                            "horizontal_push_upper": {"min": 10, "max": 16, "description": "Chest/pressing"},
-                            "horizontal_pull_upper": {"min": 10, "max": 16, "description": "Rows/rear back"},
-                            "vertical_push_upper": {"min": 8, "max": 14, "description": "Overhead/shoulders"},
-                            "vertical_pull_upper": {"min": 10, "max": 18, "description": "Pull-ups/lats"},
-                            "anterior_chain_lower": {"min": 8, "max": 14, "description": "Quads"},
-                            "posterior_chain_lower": {"min": 8, "max": 14, "description": "Glutes/Hams"}
+                            "Upper_horizontal_push": {"min": 10, "max": 16, "description": "Chest/pressing"},
+                            "Upper_horizontal_pull": {"min": 10, "max": 16, "description": "Rows/rear back"},
+                            "Upper_vertical_push": {"min": 8, "max": 14, "description": "Overhead/shoulders"},
+                            "Upper_vertical_pull": {"min": 10, "max": 18, "description": "Pull-ups/lats"},
+                            "Lower_anterior_chain": {"min": 8, "max": 14, "description": "Quads"},
+                            "Lower_posterior_chain": {"min": 8, "max": 14, "description": "Glutes/Hams"}
                         },
                         "advanced": {
                             # New movement pattern guidelines
-                            "horizontal_push_upper": {"min": 16, "max": 22, "description": "Chest/pressing"},
-                            "horizontal_pull_upper": {"min": 16, "max": 22, "description": "Rows/rear back"},
-                            "vertical_push_upper": {"min": 14, "max": 20, "description": "Overhead/shoulders"},
-                            "vertical_pull_upper": {"min": 16, "max": 24, "description": "Pull-ups/lats"},
-                            "anterior_chain_lower": {"min": 12, "max": 18, "description": "Quads"},
-                            "posterior_chain_lower": {"min": 12, "max": 18, "description": "Glutes/Hams"}
+                            "Upper_horizontal_push": {"min": 16, "max": 22, "description": "Chest/pressing"},
+                            "Upper_horizontal_pull": {"min": 16, "max": 22, "description": "Rows/rear back"},
+                            "Upper_vertical_push": {"min": 14, "max": 20, "description": "Overhead/shoulders"},
+                            "Upper_vertical_pull": {"min": 16, "max": 24, "description": "Pull-ups/lats"},
+                            "Lower_anterior_chain": {"min": 12, "max": 18, "description": "Quads"},
+                            "Lower_posterior_chain": {"min": 12, "max": 18, "description": "Glutes/Hams"}
                         }
                     }
                 }

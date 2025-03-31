@@ -55,20 +55,13 @@ For hypertrophy-focused goals, consider these common split options:
 - Hybrid splits (5 days): Such as Push, Pull, Legs, Upper, Lower
 - Push/Pull/Legs (6x/week): One day each for pushing movements, pulling movements, and leg exercises
 
-For powerlifting and strength-focused goals, consider these specialized split options:
-- Full-Body Split (3 Days/Week): Each session covers all three main lifts.
-- Upper/Lower Split (4 Days/Week): Alternates between upper and lower body days.
-- Dedicated Lifts Split (4-5 Days/Week): Each session focuses on one or two main lifts.
-- Movement-based splits: Organize training around the individual's main lifts.
-- Main lift + supplemental work: Each day features one main compound lift followed by related assistance work
+For powerlifting and strength-focused goals:
+-Prioritize Main Lifts: Include main lift (like squat, bench press, deadlift, chin-ups) or any alternative main lifts the individual prefers. Note that it’s acceptable for a main lift to appear on an ‘upper’ day (e.g. squat) or a ‘lower’ day (e.g. bench press) if it’s the primary exercise of that session.
+-Allow Higher Frequency for Main Lifts: The main lifts and their variations can be trained more than twice per week with proper load management. For example, if chin-ups are the preferred lift, you might schedule standard chin-ups on day 1, wide-grip chin-ups on day 2, and close-grip pull-ups on day 4.
+-Limit Accessory Work Frequency: Accessory exercises should be added sparingly to complement the main lifts without interfering with recovery.
+-Include Tailored Adjustments: Ensure the plan can be adjusted based on the lifter’s available training days or specific goals.
 
-For strength and powerlifting goals, consider the following recommendations:
-- Prioritize Main Lifts: Focus on the individual's preferred main exercises—these might be traditional lifts like squat, bench press, and deadlift, or could be alternatives depending on the individual's preferences.
-- Higher Frequency for Main Lifts: The individual's main lifts and their variations can be trained more than two times per week with proper load management.
-- Accessory Work: Although main lifts receive higher frequency, accessory exercises should be performed less frequently.
-- Tailored Adjustments: If the current training frequency or split doesn't align with the user's available training days or specific goals, adjust the plan to better match those needs.
-- Specialized Training Days: It's appropriate to have specialized days (like "posterior chain focus") as long as overall weekly volume remains balanced across muscle groups/movement patterns.
-
+Offer Specialized Training Days: It’s acceptable to designate one day for specialized focus (e.g., posterior chain, mobility) as long as overall weekly volume is balanced."
 IMPORTANT: If changes are needed, provide SPECIFIC, CONCRETE suggestions - specify exactly what split structure you recommend with a clear layout of training days.
 If nothing needs improvement, return "None".
 '''
@@ -95,7 +88,7 @@ For hypertrophy-focused goals:
 For strength/powerlifting-focused goals:
 - Choose exercises that directly complement the individual's main lifts or their well-suited variations
 - Main lifts should be based on the individual's preferences and goals, not necessarily traditional powerlifts
-- For powerlifting programs, structure each day around 1-2 main compound movements followed by relevant accessories
+- For powerlifting programs, structure each day around main compound movements followed by relevant accessories
 - It's acceptable to place certain "main" lifts on seemingly unrelated days (e.g., pull-ups on leg day) if:
   1. It serves a specific purpose (e.g., back development for improved bracing on squats)
   2. It doesn't interfere with recovery for the primary focus of that day
@@ -124,12 +117,12 @@ Focus ONLY on evaluating the WEEKLY SET VOLUME for each major movement pattern a
 NOTE: Consider any changes suggested by previous critiques (frequency_and_split, exercise_selection) when evaluating set volume.
 
 1) First, calculate the current weekly set volume for these major movement patterns:
-   - Horizontal Push upper (Chest/pressing)
-   - Horizontal Pull upper (Rows/rear back)
-   - Vertical Push upper (Overhead/shoulders) 
-   - Vertical Pull upper (Pull-ups/lats)
-   - Anterior Chain lower (Quads)
-   - Posterior Chain lower (Glutes/Hams)
+   - Upper: Horizontal Push (Chest/pressing)
+   - Upper: Horizontal Pull (Rows/rear back)
+   - Upper: Vertical Push (Overhead/shoulders) 
+   - Upper: Vertical Pull (Pull-ups/lats)
+   - Lower: Anterior Chain (Quads)
+   - Lower: Posterior Chain (Glutes/Hams)
 
 2) Then, evaluate if the volume needs to be changed. Use the specific volume guidelines provided in the reference data section below.
 
