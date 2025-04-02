@@ -168,6 +168,13 @@ class Writer:
                 # Format the previous week program specifically for progression task
                 previous_program_formatted = self.format_previous_week_program(program)
                 print(f"Formatted previous week program for progression task")
+                
+                # Add standardized instructions for progression format
+                revision_task += "\n\nFINAL FORMAT REMINDER:\n"
+                revision_task += "Your response for each exercise MUST contain ONLY:\n"
+                revision_task += "- One line per set with performance data: Set X:(Y reps @ Zkg, RPE W)\n"
+                revision_task += "- One line with just the adjustment: [number]kg ↑ or [number] reps ↓\n"
+                revision_task += "- NO additional text or explanations whatsoever\n"
         
         # No retrieval for revision or progression
         enhanced_task_revision = revision_task
@@ -249,6 +256,37 @@ class Writer:
                     # Replace the weekly program with our merged version
                     draft['weekly_program'] = merged_weekly_program
             
+            # Additional format cleanup for each exercise suggestion
+            for day, exercises in draft['weekly_program'].items():
+                for exercise in exercises:
+                    if "suggestion" in exercise:
+                        suggestion = exercise["suggestion"]
+                        # Check if the suggestion isn't in our format
+                        if suggestion and isinstance(suggestion, str):
+                            # Extract only set data and adjustment lines
+                            lines = suggestion.split('\n')
+                            formatted_lines = []
+                            adjustment_line = None
+                            
+                            # Find set data lines and one adjustment line
+                            for line in lines:
+                                line = line.strip()
+                                if line.startswith("Set ") and "(" in line:
+                                    formatted_lines.append(line)
+                                elif any(marker in line for marker in ["kg ↑", "kg ↓", "reps ↑", "reps ↓"]):
+                                    adjustment_line = line
+                                    break
+                            
+                            # If we found an adjustment, add it
+                            if adjustment_line:
+                                formatted_lines.append(adjustment_line)
+                                
+                            # If we've successfully formatted the content
+                            if formatted_lines:
+                                exercise["suggestion"] = "\n".join(formatted_lines)
+                                if "AI Progression" in exercise:
+                                    exercise["AI Progression"] = "\n".join(formatted_lines)
+            
             # Handle case where draft is string (non-JSON response)
             if isinstance(draft, str):
                 print(f"String response detected, attempting to fix and parse as JSON")
@@ -277,6 +315,104 @@ class Writer:
                 "message": f"Error generating program: {str(e)}"
             }
         
+        # Process the draft for progression mode to ensure exact format
+        if is_progression_mode and isinstance(draft, dict) and 'weekly_program' in draft:
+            # Additional format cleanup for each exercise suggestion in progression mode
+            for day, exercises in draft['weekly_program'].items():
+                for exercise in exercises:
+                    # Handle AI Progression field or suggestion field
+                    for field in ["AI Progression", "suggestion"]:
+                        if field in exercise and exercise[field]:
+                            suggestion = exercise[field]
+                            if isinstance(suggestion, str):
+                                # Check if we already have the proper format
+                                has_proper_format = (
+                                    suggestion.strip().startswith("Set 1:") and 
+                                    "(" in suggestion and ")" in suggestion
+                                )
+                                
+                                if has_proper_format:
+                                    # Already in correct format, preserve it
+                                    print(f"Preserving existing progression format")
+                                    
+                                    # Extract performance data lines and adjustment line
+                                    lines = suggestion.strip().split('\n')
+                                    performance_lines = []
+                                    adjustment_line = None
+                                    
+                                    for line in lines:
+                                        if line.strip().startswith("Set "):
+                                            performance_lines.append(line.strip())
+                                        elif line.strip() and not line.strip().startswith("Set "):
+                                            # First non-Set line is our adjustment
+                                            adjustment_line = line.strip()
+                                            break
+                                    
+                                    # Reconstruct with proper format
+                                    formatted_lines = performance_lines.copy()
+                                    if adjustment_line:
+                                        formatted_lines.append(adjustment_line)
+                                    
+                                    exercise[field] = "\n".join(formatted_lines)
+                                else:
+                                    # Try to extract the essential information and reformat
+                                    print(f"Reformatting progression suggestion to match required format")
+                                    # Look for set data patterns and adjustments
+                                    import re
+                                    
+                                    # Try to extract rep and weight information
+                                    rep_match = re.search(r'(\d+)\s*reps?', suggestion)
+                                    weight_match = re.search(r'(\d+(?:\.\d+)?)\s*kg', suggestion)
+                                    
+                                    if rep_match or weight_match:
+                                        # Extract previous performance if available in the original data
+                                        original_performance = None
+                                        if 'draft' in program and isinstance(program['draft'], dict):
+                                            if 'weekly_program' in program['draft']:
+                                                # Find this exercise in the original program
+                                                orig_prog = program['draft']['weekly_program']
+                                                if day in orig_prog:
+                                                    for i, orig_ex in enumerate(orig_prog[day]):
+                                                        # Match exercise by position
+                                                        idx = next((i for i, e in enumerate(exercises) if e == exercise), -1)
+                                                        if idx >= 0 and idx < len(orig_prog[day]):
+                                                            orig_ex = orig_prog[day][idx]
+                                                            if 'AI Progression' in orig_ex:
+                                                                original_performance = orig_ex['AI Progression']
+                                        
+                                        # Use original performance lines if available
+                                        performance_lines = []
+                                        if original_performance and original_performance.strip().startswith("Set 1:"):
+                                            for line in original_performance.strip().split('\n'):
+                                                if line.strip().startswith("Set "):
+                                                    performance_lines.append(line.strip())
+                                        else:
+                                            # Fallback to generic set data
+                                            performance_lines = ["Set 1:(Performance data unavailable)"]
+                                            
+                                        # Create the adjustment line
+                                        if rep_match and "reps" in suggestion.lower():
+                                            reps = rep_match.group(1)
+                                            adjustment = f"        {reps} reps ↑"
+                                        elif weight_match and "kg" in suggestion.lower():
+                                            weight = weight_match.group(1)
+                                            adjustment = f"        {weight}kg ↑"
+                                        else:
+                                            # Default adjustment if we can't extract specific values
+                                            adjustment = "        Maintain current weight and reps"
+                                            
+                                        # Combine performance data with adjustment
+                                        formatted = performance_lines + [adjustment]
+                                        exercise[field] = "\n".join(formatted)
+
+            # Ensure all changes are properly applied to both fields
+            for day, exercises in draft['weekly_program'].items():
+                for exercise in exercises:
+                    if "AI Progression" in exercise and exercise["AI Progression"]:
+                        exercise["suggestion"] = exercise["AI Progression"]
+                    elif "suggestion" in exercise and exercise["suggestion"]:
+                        exercise["AI Progression"] = exercise["suggestion"]
+
         return draft
 
     def __call__(self, program: dict[str, str | None]) -> dict[str, str | None]:

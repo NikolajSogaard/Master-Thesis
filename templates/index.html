@@ -192,6 +192,25 @@
       color: #27ae60;
       font-size: 0.75rem;
       padding: 3px 0;
+      white-space: pre-line; /* Preserve line breaks */
+    }
+ 
+    .performance-data {
+      color: #555;
+      margin-bottom: 5px;
+    }
+ 
+    .adjustment {
+      color: #e67e22;
+      font-weight: bold;
+    }
+ 
+    .arrow-up {
+      color: #27ae60;
+    }
+ 
+    .arrow-down {
+      color: #e74c3c;
     }
  
     /* Save program modal styles */
@@ -449,6 +468,96 @@
       saveMessage.className = 'error-message';
       saveMessage.style.display = 'block';
       console.error('Error:', error);
+    });
+  });
+ 
+  // Function to process AI progression feedback and format it with arrows
+  document.addEventListener('DOMContentLoaded', function() {
+    const progressionElements = document.querySelectorAll('.ai-progression');
+    
+    progressionElements.forEach(function(element) {
+      const content = element.textContent;
+      
+      // Check if content exists
+      if (!content || content.trim() === '') return;
+      
+      // Get the parent TD element
+      const tdElement = element.closest('td');
+      if (!tdElement) return;
+      
+      // Skip processing if content doesn't follow our format
+      if (!content.includes('Set 1:')) {
+        console.log("Progression feedback doesn't match expected format:", content);
+        return;
+      }
+      
+      // Parse the progression data
+      const lines = content.split('\n');
+      const performanceLines = [];
+      let adjustmentLine = '';
+      
+      // Split lines into performance data and adjustment
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('Set ')) {
+          performanceLines.push(trimmedLine);
+        } else if (trimmedLine && (
+          trimmedLine.includes('kg') || 
+          trimmedLine.includes('reps') ||
+          trimmedLine.includes('↑') || 
+          trimmedLine.includes('↓') ||
+          trimmedLine.includes('arrow up') || 
+          trimmedLine.includes('arrow down')
+        )) {
+          adjustmentLine = trimmedLine;
+        }
+      }
+      
+      // Only proceed if we have performance data
+      if (performanceLines.length === 0) return;
+      
+      // Clear the original content element
+      element.innerHTML = '';
+      
+      // Replace text arrows with proper arrow characters
+      if (adjustmentLine) {
+        adjustmentLine = adjustmentLine
+          .replace('(arrow up)', '↑')
+          .replace('(arrow down)', '↓')
+          .replace('arrow up', '↑')
+          .replace('arrow down', '↓');
+      }
+      
+      // Create a new element for performance data
+      const performanceData = document.createElement('div');
+      performanceData.className = 'performance-data';
+      performanceData.innerHTML = performanceLines.join('<br>');
+      element.appendChild(performanceData);
+      
+      // Add the adjustment line right after the performance data
+      if (adjustmentLine) {
+        const adjustmentDiv = document.createElement('div');
+        adjustmentDiv.className = 'adjustment';
+        
+        // Apply color to arrows
+        if (adjustmentLine.includes('↑')) {
+          adjustmentDiv.innerHTML = adjustmentLine.replace('↑', '<span class="arrow-up">↑</span>');
+        } else if (adjustmentLine.includes('↓')) {
+          adjustmentDiv.innerHTML = adjustmentLine.replace('↓', '<span class="arrow-down">↓</span>');
+        } else {
+          adjustmentDiv.textContent = adjustmentLine;
+        }
+        
+        // Add the adjustment line
+        element.appendChild(adjustmentDiv);
+      }
+      
+      // Move the element to position right above the first set-input
+      const firstSetInput = tdElement.querySelector('.set-input');
+      if (firstSetInput) {
+        // Position the element directly before the first set input
+        tdElement.insertBefore(element, firstSetInput);
+      }
     });
   });
 </script>

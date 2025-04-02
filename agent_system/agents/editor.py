@@ -11,7 +11,12 @@ class Editor:
             print("\n=== EDITOR: Implementing final round of feedback ===")
             # Call writer's revise method to implement feedback
             try:
-                revised_draft = self.writer.revise(program, override_type="revision")
+                # Determine correct writer type based on week number
+                week_number = program.get('week_number', 1)
+                override_type = "progression" if week_number > 1 else "revision"
+                print(f"Using {override_type} mode for implementing feedback (Week {week_number})")
+                
+                revised_draft = self.writer.revise(program, override_type=override_type)
                 program['draft'] = revised_draft
                 print("Final feedback successfully implemented")
             except Exception as e:
@@ -121,16 +126,23 @@ class Editor:
                     "cues": exercise.get("cues", "Focus on proper form")
                 }
                 
-                # Handle AI Progression field for week 2+
+                # Handle AI Progression field for week 2+ - preserve exact format
+                progression_suggestion = None
+                
                 # First check for AI Progression (with proper capitalization)
                 if "AI Progression" in exercise:
-                    validated_exercise["suggestion"] = exercise["AI Progression"]
+                    progression_suggestion = exercise["AI Progression"]
                 # Then check for suggestion field
                 elif "suggestion" in exercise:
-                    validated_exercise["suggestion"] = exercise["suggestion"]
+                    progression_suggestion = exercise["suggestion"]
                 # Also check for lowercase variant
                 elif "ai progression" in exercise:
-                    validated_exercise["suggestion"] = exercise["ai progression"]
+                    progression_suggestion = exercise["ai progression"]
+                
+                # If we found a progression suggestion, preserve its exact format
+                if progression_suggestion:
+                    # Pass the suggestion through unchanged to preserve the exact format
+                    validated_exercise["suggestion"] = progression_suggestion
                 
                 validated_program[day].append(validated_exercise)
         

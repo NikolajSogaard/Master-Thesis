@@ -61,12 +61,24 @@ Create the next week's training program based on:
 
 IMPORTANT:
 - ONLY modify the "AI Progression" field - keep all exercises, sets, rep ranges and rest periods identical
-- Analyze each exercise's performance data (weight, reps, RPE) to create specific recommendations
-- For sets completed at/below target RPE: suggest either small weight increases (2.5-5kg) or more reps within the range
-- For sets with higher than target RPE: suggest maintaining weight or small decreases
-- Include specific numbers in every recommendation (e.g., "Try 82.5kg for 3×8" or "Stay at 60kg but aim for 10-12 reps")
-- Address any specific feedback the user provided for individual exercises
-- Make sure each recommendation follows this format: "Based on [performance summary], try [specific weight] for [sets]×[reps] at RPE [target]"
+- YOUR RESPONSE MUST FOLLOW EXACTLY THIS FORMAT WITH NO VARIATION:
+  Set 1:(8 reps @ 80kg, RPE 7)
+  Set 2:(8 reps @ 80kg, RPE 8)
+  Set 3:(7 reps @ 80kg, RPE 9)
+        85kg ↑
+  
+- First line must be "Set 1:" followed by performance data in parentheses "(reps @ weight, RPE score)"
+- Include ONE line per set showing the actual performance data from last week
+- Then provide ONE line with ONLY the adjustment with arrow symbol - nothing else
+- Use "↑" for increases and "↓" for decreases
+- For weight changes: "85kg ↑" or "75kg ↓" 
+- For rep changes: "10 reps ↑" or "8 reps ↓"
+- DO NOT include any other explanatory text whatsoever
+- DO NOT include phrases like "Based on your performance" or "Aim for" or "Target RPE"
+- DO NOT include any recommendations about RPE targets
+- If no performance data is available, leave the suggestion field empty
+
+IMPORTANT: Your AI Progression field must contain ONLY the set data and adjustment line as shown above.
 
 Follow this JSON structure as a guide for your response:
 {}
