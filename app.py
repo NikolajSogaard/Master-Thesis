@@ -390,8 +390,18 @@ def next_week():
     # Store feedback in session
     session['feedback'] = feedback_data
     
-    # Prepare input for next week's program
+    # Store the raw_program and all feedback data for progression tasks
     current_program = session['raw_program']
+    
+    # Ensure we have the complete raw_program with the weekly_program field
+    if 'formatted' in current_program and isinstance(current_program['formatted'], dict):
+        # Make sure raw_program structure includes weekly_program
+        if 'weekly_program' in current_program['formatted']:
+            # Ensure our raw_program also has the weekly_program for easier access
+            if not isinstance(current_program, dict):
+                current_program = {}
+            if 'weekly_program' not in current_program:
+                current_program['weekly_program'] = current_program['formatted']['weekly_program']
     
     # IMPORTANT: Store the original week 1 program structure if moving to week 2
     current_week = session.get('current_week', 1)
@@ -400,10 +410,14 @@ def next_week():
         session['original_program_structure'] = session['program']
         print(f"Saved original Week 1 program structure for future weeks")
     
+    # Ensure we include the current week in the program data
+    current_program['week_number'] = current_week
+    current_program['feedback'] = feedback_data
+    
     # Use the helper function to create the prompt
     next_week_input = create_next_week_prompt(
         user_input=session.get('user_input', ''),
-        current_program=session['raw_program'],
+        current_program=current_program,  # Now has week_number and properly structured data
         feedback_data=feedback_data,
         current_week=current_week,
         persona=session.get('persona_data') if session.get('persona') else None

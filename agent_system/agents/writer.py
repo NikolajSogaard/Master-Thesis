@@ -37,6 +37,44 @@ class Writer:
         # Return empty string for other types to skip retrieval
         return ""
 
+    def format_previous_week_program(self, program: dict[str, str | None]) -> str:
+        """
+        Format the previous week's program data specifically for progression tasks.
+        This ensures the model has access to properly formatted program data.
+        """
+        # Get the Editor to extract the weekly program (avoid circular imports)
+        from .editor import Editor
+        editor = Editor()
+        
+        previous_program = None
+        
+        # First try to get weekly_program from the formatted field
+        if 'formatted' in program and isinstance(program['formatted'], dict):
+            if 'weekly_program' in program['formatted']:
+                previous_program = program['formatted']['weekly_program']
+        
+        # If not found in formatted, try to extract it from draft
+        if previous_program is None and 'draft' in program:
+            previous_program = editor.extract_weekly_program(program['draft'])
+        
+        # If still not found, try to extract from raw program data
+        if previous_program is None:
+            previous_program = editor.extract_weekly_program(program)
+        
+        # Convert to a clean, formatted JSON string for the prompt
+        if previous_program:
+            # Build a clear, structured representation
+            formatted_output = {
+                "weekly_program": previous_program
+            }
+            # Pretty-print as JSON for readability in the prompt
+            return json.dumps(formatted_output, indent=2)
+        
+        # Fallback: Just convert whatever we have to a string
+        if isinstance(program, dict):
+            return json.dumps(program, indent=2)
+        return str(program)
+
     def write(
             self,
             program: dict[str, str | None],
@@ -118,7 +156,7 @@ class Writer:
         if not revision_task:
             raise ValueError(f"Writer of type '{current_type}' does not support program revision - no suitable task found")
         
-        # For progression type, ensure we preserve the original program structure
+        # For progression mode, ensure we preserve the original program structure
         if current_type == "progression":
             print(f"Progression mode: Will maintain exercise structure and only update suggestions")
             
@@ -126,21 +164,40 @@ class Writer:
             if self.task_progression is not None:
                 print(f"Using specialized task_progression template")
                 revision_task = self.task_progression
+                
+                # Format the previous week program specifically for progression task
+                previous_program_formatted = self.format_previous_week_program(program)
+                print(f"Formatted previous week program for progression task")
         
         # No retrieval for revision or progression
         enhanced_task_revision = revision_task
         
-        prompt = [
-            self.role,
-            {
-                'role': 'user',
-                'content': enhanced_task_revision.format(
-                    program['draft'],
-                    program['feedback'],
-                    self.structure,
-                ),
-            },
-        ]
+        # Build prompt based on task type
+        if current_type == "progression":
+            prompt = [
+                self.role,
+                {
+                    'role': 'user',
+                    'content': enhanced_task_revision.format(
+                        previous_program_formatted,  # Use properly formatted previous week data
+                        program['feedback'],
+                        self.structure,
+                    ),
+                },
+            ]
+        else:
+            prompt = [
+                self.role,
+                {
+                    'role': 'user',
+                    'content': enhanced_task_revision.format(
+                        program['draft'],
+                        program['feedback'],
+                        self.structure,
+                    ),
+                },
+            ]
+        
         # Convert prompt to a single string as expected by the Gemini API
         combined_prompt = "\n".join(item.get("content", "") if isinstance(item, dict) else str(item) for item in prompt)
         

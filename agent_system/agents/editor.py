@@ -18,64 +18,93 @@ class Editor:
                 print(f"Error implementing final feedback: {e}")
         return program
 
+    def extract_weekly_program(self, program_data) -> dict:
+        """
+        Robustly extract weekly program data from various formats.
+        Can be used to standardize previous week program data for progression tasks.
+        """
+        # Debug logging
+        print(f"DEBUG: Extracting weekly program from data (type {type(program_data)})")
+        
+        weekly_program = None
+        
+        # Handle different program data formats
+        if isinstance(program_data, dict):
+            # Case 1: Dict with weekly_program key
+            if 'weekly_program' in program_data:
+                weekly_program = program_data['weekly_program']
+            
+            # Case 2: Dict with formatted field
+            elif 'formatted' in program_data and isinstance(program_data['formatted'], dict):
+                formatted = program_data['formatted']
+                if 'weekly_program' in formatted:
+                    weekly_program = formatted['weekly_program']
+                else:
+                    weekly_program = formatted
+            
+            # Case 3: Dict with draft field
+            elif 'draft' in program_data:
+                weekly_program = self.extract_weekly_program(program_data['draft'])
+            
+            # Case 4: Dict with message field containing JSON
+            elif 'message' in program_data and isinstance(program_data['message'], str):
+                message = program_data['message']
+                try:
+                    # Try to parse the message as JSON
+                    parsed_message = json.loads(message)
+                    if isinstance(parsed_message, dict):
+                        if 'weekly_program' in parsed_message:
+                            weekly_program = parsed_message['weekly_program']
+                        else:
+                            weekly_program = parsed_message
+                except json.JSONDecodeError:
+                    # Try to extract JSON from code blocks if present
+                    if "```json" in message:
+                        try:
+                            json_content = message.split("```json", 1)[1]
+                            if "```" in json_content:
+                                json_content = json_content.split("```", 1)[0]
+                            parsed = json.loads(json_content.strip())
+                            if isinstance(parsed, dict):
+                                if 'weekly_program' in parsed:
+                                    weekly_program = parsed['weekly_program']
+                                else:
+                                    weekly_program = parsed
+                        except (json.JSONDecodeError, IndexError):
+                            print("DEBUG: Failed to extract JSON from code blocks")
+        
+        # Case 5: String input (could be JSON)
+        elif isinstance(program_data, str):
+            try:
+                parsed = json.loads(program_data)
+                if isinstance(parsed, dict):
+                    weekly_program = self.extract_weekly_program(parsed)
+            except json.JSONDecodeError:
+                # Try to extract JSON from code blocks
+                if "```json" in program_data:
+                    try:
+                        json_content = program_data.split("```json", 1)[1]
+                        if "```" in json_content:
+                            json_content = json_content.split("```", 1)[0]
+                        parsed = json.loads(json_content.strip())
+                        weekly_program = self.extract_weekly_program(parsed)
+                    except (json.JSONDecodeError, IndexError):
+                        print("DEBUG: Failed to extract JSON from string code blocks")
+        
+        if weekly_program is None:
+            print("DEBUG: Could not extract weekly program, returning empty dict")
+            weekly_program = {}
+        
+        return weekly_program
+
     def format_program(self, program: dict[str, str | None]) -> dict:
         """Ensure the program is in the correct format for the web application."""
         draft = program['draft']
         # Debug logging added to inspect draft content and type
         print("DEBUG: Editor received draft (type {}): {}".format(type(draft), draft))
         
-        weekly_program = None
-        
-        # Case 1: If draft is already a dict with 'weekly_program' key
-        if isinstance(draft, dict) and 'weekly_program' in draft:
-            weekly_program = draft['weekly_program']
-        
-        # Case 2: If draft is a dict with a message field containing JSON
-        elif isinstance(draft, dict) and 'message' in draft and isinstance(draft['message'], str):
-            message = draft['message']
-            try:
-                # Try to parse the message as JSON
-                parsed_message = json.loads(message)
-                if isinstance(parsed_message, dict) and 'weekly_program' in parsed_message:
-                    print("DEBUG: Successfully extracted weekly_program from message field")
-                    weekly_program = parsed_message['weekly_program']
-                elif isinstance(parsed_message, dict):
-                    print("DEBUG: Message field parsed as dict but missing weekly_program")
-                    weekly_program = parsed_message
-            except json.JSONDecodeError:
-                print("DEBUG: Message field is not valid JSON, continuing with other cases")
-        
-        # Case 3: If draft is a dict but missing 'weekly_program' key
-        elif isinstance(draft, dict):
-            weekly_program = draft
-        
-        # Case 4: If draft is a string, try to parse it as JSON
-        elif isinstance(draft, str):
-            try:
-                parsed = json.loads(draft)
-                # If parsed JSON has 'weekly_program' key
-                if isinstance(parsed, dict) and 'weekly_program' in parsed:
-                    weekly_program = parsed['weekly_program']
-                # If parsed JSON is missing 'weekly_program' key
-                elif isinstance(parsed, dict):
-                    weekly_program = parsed
-            except json.JSONDecodeError:
-                # If string is not valid JSON, try to extract JSON from code blocks
-                if "```json" in draft:
-                    try:
-                        json_content = draft.split("```json", 1)[1]
-                        if "```" in json_content:
-                            json_content = json_content.split("```", 1)[0]
-                        parsed = json.loads(json_content.strip())
-                        if isinstance(parsed, dict) and 'weekly_program' in parsed:
-                            weekly_program = parsed['weekly_program']
-                        elif isinstance(parsed, dict):
-                            weekly_program = parsed
-                    except (json.JSONDecodeError, IndexError):
-                        print("DEBUG: Failed to extract JSON from code blocks")
-        
-        if weekly_program is None:
-            weekly_program = {}
+        # Use the extract_weekly_program method to get the weekly program
+        weekly_program = self.extract_weekly_program(draft)
         
         # Validate and ensure each exercise has the required fields
         validated_program = {}

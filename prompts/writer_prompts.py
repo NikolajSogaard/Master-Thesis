@@ -53,7 +53,7 @@ Follow this JSON structure as a guide for your response:
 TASK_PROGRESSION = '''
 Create the next week's training program based on:
 
-1) The previous weeks program programs:
+1) The previous week's program:
 {}
 
 2) The detailed feedback and performance data:
@@ -66,6 +66,7 @@ IMPORTANT:
 - For sets with higher than target RPE: suggest maintaining weight or small decreases
 - Include specific numbers in every recommendation (e.g., "Try 82.5kg for 3×8" or "Stay at 60kg but aim for 10-12 reps")
 - Address any specific feedback the user provided for individual exercises
+- Make sure each recommendation follows this format: "Based on [performance summary], try [specific weight] for [sets]×[reps] at RPE [target]"
 
 Follow this JSON structure as a guide for your response:
 {}
