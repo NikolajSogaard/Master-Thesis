@@ -61,11 +61,17 @@ Create the next week's training program based on:
 
 IMPORTANT:
 - ONLY modify the "AI Progression" field - keep all exercises, sets, rep ranges and rest periods identical
-- YOUR RESPONSE MUST FOLLOW EXACTLY THIS FORMAT WITH NO VARIATION:
+- YOUR RESPONSE MUST FOLLOW EXACTLY THIS FORMAT FOR LOAD ADJUSTMENTS WITH NO VARIATION:
   Set 1:(8 reps @ 80kg, RPE 7)
   Set 2:(8 reps @ 80kg, RPE 8)
   Set 3:(7 reps @ 80kg, RPE 9)
-        85kg ↑
+        75kg ↓
+
+- YOUR RESPONSE MUST FOLLOW EXACTLY THIS FORMAT FOR REP ADJUSTMENTS WITH NO VARIATION:
+  Set 1:(8 reps @ 80kg, RPE 7)
+  Set 2:(8 reps @ 80kg, RPE 8)
+  Set 3:(7 reps @ 80kg, RPE 9)
+        10 reps ↑
   
 - First line must be "Set 1:" followed by performance data in parentheses "(reps @ weight, RPE score)"
 - Include ONE line per set showing the actual performance data from last week

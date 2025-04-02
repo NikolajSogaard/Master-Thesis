@@ -198,35 +198,44 @@ TASK_PROGRESSION = '''
 Your colleague has written the following Week {week_number} training program:
 {}
 
-The individual provided this input for their original program:
+
+The individual's original program input was:
 {}
 
-Here is the performance data from the previous week:
+
+Performance data from the previous week:
 {}
 
-Focus ONLY on PROGRESSION & PROGRESSIVE OVERLOAD.
 
-Evaluate whether:
-1. The suggested progression recommendations are appropriate based on the previous week's performance data:
-   - The weight recommendations are properly based on actual performance and RPE feedback
-   - Weight increases are conservative and safe (typically 2.5-5kg for upper body, 5-10kg for lower body)
-   - Weight recommendations account for any struggles or difficulties noted in user feedback
-   - Recommendations respond appropriately to sets that exceeded target RPE
+Focus solely on the progression strategy in the "AI Progression" field.
 
-2. The recommendations adequately:
-   - Provide specific weights in kg rather than vague instructions
-   - Include appropriate RPE targets consistent with the exercise type
-   - Give clear, actionable advice that the user can implement
-   - Account for all available feedback from the previous week's performance
+Evaluate whether the progression recommendations appropriately adjust for progressive overload based on the performance data. Specifically, check that:
+- Adjustments are made conservatively (e.g., weight increases of 2.5-5kg for upper body or 5-10kg for lower body; or rep changes by whole numbers).
+- Each set is modified using either a load change OR a rep change—but never both.
+- The changes are clear and actionable, with exact numbers provided (e.g., "85kg ↑" or "10 reps ↑").
 
-3. The progression strategy effectively:
-   - Applies proper autoregulation principles based on RPE feedback
-   - Recommends appropriate deloads or weight reductions when previous performance indicates struggle
-   - Uses a balanced approach that progresses at an appropriate rate for the individual's experience level
+CRITERIA FOR REP VS WEIGHT ADJUSTMENTS:
+- RECOMMEND WEIGHT INCREASE WHEN:
+  * RPE is consistently below target range (e.g., RPE 5-6 when target is 7-8)
+  * User is in middle-to-upper end of the rep range AND RPE is below target
+  * Exercise is a compound movement focused on strength development
+  
+- RECOMMEND REP INCREASE WHEN:
+  * User is at the LOWER END of the rep range (e.g., 6 reps when range is 6-10)
+  * RPE is within target range but reps have room to increase within range
+  * Exercise is isolation or hypertrophy-focused
+  * Adding 1-2 reps would still keep user within the prescribed rep range
 
-IMPORTANT: Evaluate ONLY the progression recommendations in the "suggestion" field - DO NOT critique the exercise selection, set/rep scheme, or program structure.
-Provide SPECIFIC, CONCRETE suggestions with exact numbers - specify precise weight adjustments (in kg) for any exercises needing modification.
-Only return "None" if the progression strategy is already optimal.
+- RECOMMEND NO CHANGE WHEN:
+  * RPE is already at upper end of target range (8-9)
+  * User failed to complete all prescribed reps with good form
+  * Performance was inconsistent between sets
+
+Provide concise, concrete feedback with a single adjustment per set (either rep or load), using the following format:
+  - One line per set showing the performance data exactly as provided.
+  - A single subsequent line with ONLY the adjustment (e.g., "85kg ↑" or "10 reps ↑").
+
+If the progression strategy is already optimal, simply return "None" with no further text.
 '''
 
 # Dictionary of specialized critic settings for different evaluation tasks

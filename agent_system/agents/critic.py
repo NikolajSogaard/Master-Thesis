@@ -25,7 +25,7 @@ class Critic:
             # Removed set_volume instructions - will use only the task template
             "rpe": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about appropriate RPE (Rating of Perceived Exertion) targets for different exercise types and experience levels. Include guidance on when to use absolute RPE values (like 8) versus RPE ranges (like 7-8), and how RPE should differ between compound and isolation exercises.",
             "rep_ranges": "Provide concise guidance on rep ranges for different exercises, experience levels and goals. Include information on optimal rep ranges for compound and isolation exercises, as well as how rep ranges can vary based on strength, hypertrophy, or endurance goals.",
-            "progression": "Focus on progressive overload strategies. Provide specific guidance on weight/intensity progression based on previous week's performance data. Include advice on autoregulation, RPE-based progression, and exercise-specific progression rates that balance optimal progress with recovery and injury prevention."
+            "progression": "Focus on clear decision-making between weight or rep increases. Provide specific guidance on when to increase weight versus when to increase reps based on RPE, performance data, and position within the target rep range. For RPE below target range, consider weight increases if the user is in the middle/upper end of the rep range, but favor rep increases if the user is at the lower end of their rep range. Always consider the prescribed rep range when deciding between weight or rep increases."
         }
         
         # Define task types based on available tasks
@@ -127,7 +127,7 @@ class Critic:
                 name="progression",
                 template=self.tasks.get("progression", ""),
                 needs_retrieval=True,
-                retrieval_query="What are the best practices for progressive overload based on previous performance data?",
+                retrieval_query="What are the best practices for progressive overload based on previous performance data? And when should weight be increased versus reps?",
                 specialized_instructions=self.specialized_instructions.get("progression", ""),
                 dependencies=[],
             )
@@ -138,7 +138,7 @@ class Critic:
         
         # Week 2+ specific queries
         if self.is_week2plus and task_type == "progression":
-            return "How should progressive overload be implemented based on performance data? When should weight be increased versus reps? What are appropriate weight increments for different exercises? How should RPE feedback guide autoregulation?"
+            return "How should I choose between increasing weight versus increasing reps for progressive overload? When should I prioritize rep increases over weight increases if the user is at the lower end of their target rep range? How should the user's position within their prescribed rep range (e.g., 6 reps in a 6-10 range) affect progression decisions? How should RPE feedback influence whether to add weight or reps?"
         
         # Week 1 queries - removed set_volume query
         queries = {
