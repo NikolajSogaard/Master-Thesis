@@ -44,7 +44,7 @@ class Critic:
                 name="frequency_and_split",
                 template=self.tasks.get("frequency_and_split", ""),
                 needs_retrieval=True,
-                retrieval_query="What is a good training frequency and training splits for strength training programs?",
+                retrieval_query="How do I structure a training plan for {user_input}? What are good training frequency and training splits for strength training programs?",
                 specialized_instructions=self.specialized_instructions.get("frequency_and_split", ""),
                 dependencies=[],
             ),
@@ -52,7 +52,7 @@ class Critic:
                 name="exercise_selection",
                 template=self.tasks.get("exercise_selection", ""),
                 needs_retrieval=True,
-                retrieval_query="What exercises are most effective and appropriate for different muscle groups and fitness goals?",
+                retrieval_query="What exercises are most effective and appropriate for different muscle groups based on: {user_input}. Give 3 exampel exercises for each movement pattern: Upper: Horizontal Push (Chest/pressing), Upper: Horizontal Pull (Rows/rear back), Upper: Vertical Push (Overhead/shoulders), Upper: Vertical Pull (Pull-ups/lats), Lower: Anterior Chain (Quads), Lower: Posterior Chain (Glutes/Hams)",
                 specialized_instructions=self.specialized_instructions.get("exercise_selection", ""),
                 dependencies=["frequency_and_split"],
             ),
@@ -119,7 +119,7 @@ class Critic:
                 name="rpe",
                 template=self.tasks.get("rpe", ""),
                 needs_retrieval=True,
-                retrieval_query="How should RPE targets be assigned in strength training for different exercises and experience levels?",
+                retrieval_query="How should RPE targets be assigned in strength training for different types exercises and experience levels?",
                 specialized_instructions=self.specialized_instructions.get("rpe", ""),
                 dependencies=["frequency_and_split", "exercise_selection", "set_volume", "rep_ranges"],
             ),
@@ -127,7 +127,7 @@ class Critic:
                 name="progression",
                 template=self.tasks.get("progression", ""),
                 needs_retrieval=True,
-                retrieval_query="What are the best practices for progressive overload based on previous performance data? And when should weight be increased versus reps?",
+                retrieval_query="What are the best practices for progressive overload, and when should weight be increased/decreasing versus reps? Come with consise guidance on how to choose between increasing/decreasing weight versus increasing reps for progressive overload. When should I prioritize rep increases/decreasing over weight increases if the user is at the lower end of their target rep range? How should RPE feedback influence whether to add weight or reps?",
                 specialized_instructions=self.specialized_instructions.get("progression", ""),
                 dependencies=[],
             )
@@ -138,15 +138,14 @@ class Critic:
         
         # Week 2+ specific queries
         if self.is_week2plus and task_type == "progression":
-            return "How should I choose between increasing weight versus increasing reps for progressive overload? When should I prioritize rep increases over weight increases if the user is at the lower end of their target rep range? How should the user's position within their prescribed rep range (e.g., 6 reps in a 6-10 range) affect progression decisions? How should RPE feedback influence whether to add weight or reps?"
+            return "What are the best practices for progressive overload, and when should weight be increased/decreasing versus reps? Come with consise guidance on how to choose between increasing/decreasing weight versus increasing reps for progressive overload. When should I prioritize rep increases/decreasing over weight increases if the user is at the lower end of their target rep range? How should RPE feedback influence whether to add weight or reps?"
         
         # Week 1 queries - removed set_volume query
         queries = {
-            "frequency_and_split": "What is a good training frequency and training splits for strength training programs?",
-            "exercise_selection": "What exercises are most effective and appropriate for different muscle groups and fitness goals (strength, bodybuilding, hypertrophy) and experience levels?",            
-            # Removed set_volume query
+            "frequency_and_split": "How do I structure a training plan for {user_input}? What are good training frequency and training splits for strength training programs?",
+            "exercise_selection": "What exercises are most effective and appropriate for different muscle groups based on: {user_input}. Give 3 exampel exercises for each movement pattern: Upper: Horizontal Push (Chest/pressing), Upper: Horizontal Pull (Rows/rear back), Upper: Vertical Push (Overhead/shoulders), Upper: Vertical Pull (Pull-ups/lats), Lower: Anterior Chain (Quads), Lower: Posterior Chain (Glutes/Hams)",            
             "rep_ranges": "What are optimal rep ranges for specific exercises and for different strength training goals?",
-            "rpe": "How should RPE (Rating of Perceived Exertion) targets be assigned in strength training? When should RPE be expressed as a single value versus a range? How should RPE vary between compound exercises and isolation exercises?",
+            "rpe": "How should RPE targets be assigned in strength training for different types exercises and experience levels?",
         }
         
         return queries.get(task_type, f"Best practices for {task_type} in strength training programs")
@@ -196,8 +195,14 @@ class Critic:
         # Retrieve context if needed
         if task_config.needs_retrieval:
             print(f"Retrieving context...")
+            # Format the retrieval query with user input if placeholders are present
+            retrieval_query = task_config.retrieval_query
+            if "{user_input}" in retrieval_query:
+                user_input = program.get('user-input', '')
+                retrieval_query = retrieval_query.format(user_input=user_input)
+            
             retrieval_result, _ = self.retrieval_fn(
-                task_config.retrieval_query, 
+                retrieval_query, 
                 task_config.specialized_instructions
             )
             context = f"\nRelevant context from training literature:\n{retrieval_result}\n"

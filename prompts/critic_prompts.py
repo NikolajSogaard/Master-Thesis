@@ -86,8 +86,14 @@ Evaluate whether:
 - The chosen exercises align with the individual's goals, experience level, and personal preferences
 - NOTE: If the frequency_and_split critique suggested different training splits or structure, consider how exercises would fit into that revised structure rather than the original
 - Each training day should contain NO MORE THAN 8 exercises to ensure workout want be too long.
- 
-For hypertrophy-focused goals:
+
+For beginners:
+- Prioritize compound movements (e.g., squats, rows, presses) to maximize training efficiency.
+- Maintain a balanced routine targeting all major muscle groups each week.
+- Think about the mix of free-weight and machine exercises for the specific user.
+- Keep workouts short and focused—quality over quantity.
+
+For bodybuilding/hypertrophy-focused goals:
 - Maintain a balanced mix of compound (50-70%) and isolation (30-50%) exercises
 - Include a variety of exercises to target each muscle group from different angles
 - Aim for a 50-50 mix of free-weight and machine exercises
@@ -137,6 +143,8 @@ NOTE: Consider any changes suggested by previous critiques (frequency_and_split,
    - If volume is too high: Either reduce the number of sets for specific exercises OR completely remove certain exercises. Specify exactly which exercises to modify and from which days
    - If volume is too low: Either increase the number of sets for existing exercises OR add new exercises. Specify exactly which exercises to modify or add, with specific set/rep recommendations
    - If movement pattern balance is off: Identify which patterns are overemphasized or underemphasized, then suggest specific exercises to add, remove, or modify numbers of sets to create proper balance. Specify exactly which adjustments to make on which training days
+        - FOR POWERLIFTING or Stregth fokused goal: Ensure the main lifts are trained with sufficient volume and frequency, and that accessory work complements the main lifts without overloading them
+        - FOR other goals: ensure the volume is balanced across all muscle groups and movement patterns are are spread evenly throughout the week
    - Ensure volume for each movement pattern is distributed appropriately across multiple training days rather than concentrated on a single day
    - IMPORTANT: 
         - When suggesting a range of sets (e.g., 10-12 sets per week), ALWAYS start at the lower end of the range, especially for a beginner.
@@ -162,7 +170,8 @@ Evaluate whether:
 - Make sure your rep range recommendations work with the training split exercise selection, and volume recommendations
 
 Guidelines:
-- For compound exercises (like squat or deadlift), use lower rep-ranges like 5–8 reps
+- Evaluate if the user is a powerlifter, bodybuilder, or beginner, and adjust the rep ranges accordingly.
+- For compound exercises (like squat or deadlift), use lower rep-ranges like 1–8 reps
 - For isolation exercises, use higher rep-ranges like 8-15 reps
 - Do not include AMRAP (As Many Reps As Possible)
 
@@ -180,6 +189,7 @@ The individual has provided these details:
 Focus ONLY on the RPE (Rating of Perceived Exertion) Targets. Do NOT comment on frequency, split structure, exercise selection, or rep ranges.
 
 Evaluate whether:
+- Evaluate if the user is a powerlifter, bodybuilder, or beginner, and adjust the rep ranges accordingly.
 - The RPE values are appropriate for the individual's experience level
 - NOTE: Consider any changes suggested by ALL previous critiques (frequency_and_split, exercise_selection, set_volume, rep_ranges) when evaluating RPE targets
 - Your RPE recommendations should be compatible with the training frequency, exercise selection, set volume, and rep ranges previously recommended
