@@ -1,12 +1,14 @@
 import dataclasses
+from typing import Optional
 
 
 @dataclasses.dataclass
 class WriterPromptSettings:
     role: dict[str, str]
-    task: str
-    task_revision: str
     structure: str
+    task: Optional[str] = None
+    task_revision: Optional[str] = None
+    task_progression: Optional[str] = None
 
     def save(self, fname: str):
         raise NotImplementedError
@@ -24,9 +26,9 @@ Follow this JSON structure as a guide for your response. The Editor will handle 
 {}
 
 Important: 
-- Make sure your program matches the persona's experience level, goals, available training time, and any specific information they've provided. Create a personalized program that directly addresses their needs.
-- Make sure your program provides sufficient frequency for each major muscle group (each major muscle group should typically be trained at least twice per week for optimal hypertrophy).
-- Include appropriate exercise selection for the individual's goals (hypertrophy, strength, etc.).
+- Make sure your program matches the user's experience level, goals, available training time, and any specific information they've provided. Create a personalized program that directly addresses their needs.
+- Make sure your program provides sufficient frequency for each major muscle group: chest, back, legs (posterior anterior chain).
+- Pick exercises for the individual's goals and needs (hypertrophy, strength, etc.), what order the exercises are placed, and consider set-volume for a whole week.
 '''
 
 # Revision task based on critic feedback
@@ -38,30 +40,51 @@ Based on feedback from your colleague below:
 {}
 
 IMPORTANT: 
-- You MUST directly implement all the suggested changes in the program itself, not just in the suggestion field. For example, if feedback says to increase RPE from 7 to 8-9, you should change the actual target_rpe value in the exercise.
+- Address all the feedback provided in the critique and adjust the program based on those suggestions.
+- Make sure to adjust the program according to the critique from: frequency and split, exercise selection, set volume, rep ranges, and RPE (Rating of Perceived Exertion).
+- You MUST always directly implement all the suggested changes in the program itself from the critique, not just in the suggestion field.
 - Maintain the same number of training days unless the feedback explicitly suggests changing it.
-
 Follow this JSON structure as a guide for your response:
 {}
 '''
+
 
 # Progressive overload task for Week 2+
 TASK_PROGRESSION = '''
 Create the next week's training program based on:
 
-1) The previous program structure:
+1) The previous week's program:
 {}
 
 2) The detailed feedback and performance data:
 {}
 
 IMPORTANT:
-- Use the same overall program structure (days, split) as the previous week.
-- Apply appropriate progressive overload based on the performance data.
-- Include personalized 'suggestion' fields for EACH exercise with SPECIFIC numbers for weights (in kg), reps and RPE targets.
-- For exercises where the user achieved their target RPE and completed all prescribed reps, increase the load appropriately.
-- For exercises where the user struggled (higher than target RPE or failed to complete reps), adjust accordingly.
-- If the user provided specific feedback for an exercise, address it directly in your updated programming.
+- ONLY modify the "AI Progression" field - keep all exercises, sets, rep ranges and rest periods identical
+- YOUR RESPONSE MUST FOLLOW EXACTLY THIS FORMAT FOR LOAD ADJUSTMENTS WITH NO VARIATION:
+  Set 1:(8 reps @ 80kg, RPE 7)
+  Set 2:(8 reps @ 80kg, RPE 8)
+  Set 3:(7 reps @ 80kg, RPE 9)
+        75kg ↓
+
+- YOUR RESPONSE MUST FOLLOW EXACTLY THIS FORMAT FOR REP ADJUSTMENTS WITH NO VARIATION:
+  Set 1:(8 reps @ 80kg, RPE 7)
+  Set 2:(8 reps @ 80kg, RPE 8)
+  Set 3:(7 reps @ 80kg, RPE 9)
+        10 reps ↑
+  
+- First line must be "Set 1:" followed by performance data in parentheses "(reps @ weight, RPE score)"
+- Include ONE line per set showing the actual performance data from last week
+- Then provide ONE line with ONLY the adjustment with arrow symbol - nothing else
+- Use "↑" for increases and "↓" for decreases
+- For weight changes: "85kg ↑" or "75kg ↓" 
+- For rep changes: "10 reps ↑" or "8 reps ↓"
+- DO NOT include any other explanatory text whatsoever
+- DO NOT include phrases like "Based on your performance" or "Aim for" or "Target RPE"
+- DO NOT include any recommendations about RPE targets
+- If no performance data is available, leave the suggestion field empty
+
+IMPORTANT: Your AI Progression field must contain ONLY the set data and adjustment line as shown above.
 
 Follow this JSON structure as a guide for your response:
 {}
@@ -75,9 +98,25 @@ PROGRAM_STRUCTURE_WEEK1 = '''
         "name": "Exercise name",
         "sets": 3,
         "reps": "8-12",
-        "target_rpe": 7-8,
+        "target_rpe": "7-8",
         "rest": "60-90 seconds",
-        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)"
+      },
+      {
+        "name": "Exercise name",
+        "sets": 3,
+        "reps": "8-12",
+        "target_rpe": "7-8",
+        "rest": "2 minutes",
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)"
+      },
+      {
+        "name": "Exercise name",
+        "sets": 3,
+        "reps": "8-12",
+        "target_rpe": "7-8",
+        "rest": "60-90 seconds",
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)"
       }
     ],
     "Day 2": [
@@ -85,9 +124,9 @@ PROGRAM_STRUCTURE_WEEK1 = '''
         "name": "Exercise name",
         "sets": 4,
         "reps": "5-8",
-        "target_rpe": 8-10,
+        "target_rpe": "8-10",
         "rest": "2-3 minutes",
-        "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
+        "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)"
       }
     ],
     "Day X": etc. continue generating each training day of the week.
@@ -103,10 +142,19 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
         "name": "Exercise name",
         "sets": 3,
         "reps": "8-12",
-        "target_rpe": 7-8,
+        "target_rpe": "7-8",
         "rest": "60-90 seconds",
         "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
-        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135kg for 3x8 at RPE 8')"
+        "AI Progression": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135kg for 3x8 at RPE 8')"
+      },
+      {
+        "name": "Exercise name",
+        "sets": 3,
+        "reps": "8-12",
+        "target_rpe": "7-8",
+        "rest": "60-90 seconds",
+        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
+        "AI Progression": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135kg for 3x8 at RPE 8')"
       }
     ],
     "Day 2": [
@@ -114,10 +162,10 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
         "name": "Exercise name",
         "sets": 4,
         "reps": "5-8",
-        "target_rpe": 8-10,
+        "target_rpe": "8-10",
         "rest": "2-3 minutes",
         "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
-        "suggestion": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5lkg to 222kg for 4x6 at RPE 7-8')"
+        "AI Progression": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5kg to 222kg for 4x6 at RPE 7-8')"
       }
     ],
     "Day X": etc. continue generating each training day of the week.
@@ -125,52 +173,58 @@ PROGRAM_STRUCTURE_WEEK2PLUS = '''
 }
 '''
 
-# Base role for writers
-WRITER_ROLE = {
+# Specific role for initial program creation
+INITIAL_WRITER_ROLE = {
     'role': 'system',
-    'content': 'You are an AI system specialized in creating personalized strength training programs.' 
-                'You have expertise in exercise science, biomechanics, and training periodization. '
-                'Your task is to create effective, and evidence-based strength training programs tailored to the user\'s needs, goals, and experience level. '
-                'Always prioritize proper progression, and training variety. '
-                'Provide clear CONCISE, actionable instructions that are appropriate for the specified experience level.'
+    'content': 'You are an AI system specialized in creating initial strength training programs, with expertise in exercise science.' 
+                'Your task is to create effective and evidence-based strength training programs tailored to the user’s needs, goals, and experience level. '
+                'Focus on establishing the right training frequency, training split, weekly set volume, and exercise selection for the users exerpience level '
+                'Provide clear CONCISE, actionable instructions that are appropriate for the specified experience level and don’t go outside the scope of your tasks.'
 }
+
+# Specific role for program revision
+REVISION_WRITER_ROLE = {
+    'role': 'system',
+    'content': 'You are an AI system specialized in revising strength training programs based on feedback, with expertise in exercise science.' 
+                'Your task is to implement specific feedback and improvements to existing training program.'
+                'Focus on addressing weaknesses identified by critics while maintaining program coherence. '
+                'Always ensure changes are evidence-based and maintain the program\'s overall structure unless explicitly required to change it.'
+                'Provide clear CONCISE adjustments that directly address the feedback given.' 
+}
+
 
 # Enhanced role for progression writer
 PROGRESSION_ROLE = {
     'role': 'system',
-    'content': 'You are an AI system specialized in creating personalized strength training programs with a focus on progression.' 
-                'You have expertise in exercise science, biomechanics, and training periodization. '
-                'Your task is to create effective, evidence-based training progressions based on previous performance data. '
-                'Analyze the actual performance (weights, reps achieved, RPE reported) to make data-driven decisions for the next training week. '
-                'Be specific with weight recommendations and progression strategies. '
-                'Provide clear, actionable instructions that are appropriate for the specified experience level.'
+    'content': 'You are an AI system specialized adjustion strength training programs based on previous weeks performance' 
+                'Your task is to analyze previous performance data and provide specific progression recommendations. '
+                'ONLY provide specific weight and effort suggestions in the "AI Progression" field. KEEP the rest of the program identical to the previous week.'
+                'Analyze the actual performance (weights, reps achieved, RPE reported) to make data-driven decisions. '
+                'Be specific with weight in kg or rep recommendations and explain your reasoning briefly.'
 }
 
 # Dictionary to store all prompt settings
 WRITER_PROMPT_SETTINGS: dict[str, WriterPromptSettings] = {}
 
-# Initial program creation settings
+# Initial program creation settings - only has TASK_INITIAL with its own role
 WRITER_PROMPT_SETTINGS['initial'] = WriterPromptSettings(
-    role=WRITER_ROLE,
+    role=INITIAL_WRITER_ROLE,
     task=TASK_INITIAL,
-    task_revision=TASK_REVISION,  # Not typically used for initial
     structure=PROGRAM_STRUCTURE_WEEK1,
 )
 
-# Revision based on critic feedback
+# Revision based on critic feedback - only has TASK_REVISION with its own role
 WRITER_PROMPT_SETTINGS['revision'] = WriterPromptSettings(
-    role=WRITER_ROLE,
-    task=TASK_INITIAL,  # Included as fallback
+    role=REVISION_WRITER_ROLE,
     task_revision=TASK_REVISION,
     structure=PROGRAM_STRUCTURE_WEEK1,
 )
 
-# Week 2+ progression
+# Week 2+ progression - should use task_progression, not task_revision
 WRITER_PROMPT_SETTINGS['progression'] = WriterPromptSettings(
     role=PROGRESSION_ROLE,
-    task=TASK_INITIAL,  # Included as fallback
-    task_revision=TASK_PROGRESSION,
-    structure=PROGRAM_STRUCTURE_WEEK2PLUS,
+    task_progression=TASK_PROGRESSION,
+    structure=None,  # Remove the structure so it doesn't generate a new program structure
 )
 
 # Add the original v1 as an alias to initial for backward compatibility

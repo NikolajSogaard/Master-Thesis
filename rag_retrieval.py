@@ -5,7 +5,7 @@ from agent_system.setup_api import setup_embeddings, setup_llm
 
 
 embedding_model = setup_embeddings(model="models/text-embedding-004")
-generate_response = setup_llm(model="models/gemini-2.0-flash", max_tokens=1000, temperature=0.7)
+generate_response = setup_llm(model="models/gemini-2.0-flash", max_tokens=1000, temperature=0.3)
 
 vector_store = Chroma(
     persist_directory="data/chroma_db",
@@ -62,8 +62,9 @@ def retrieve_and_generate(query, specialized_instructions=""):
     prompt = f"""You are a specialized strength training expert.
 {specialized_instructions}
 
-Using the following excerpts from strength training books, programs, provide concise guidance.
+Using the following excerpts from strength training books, programs.
 Include practical advice recommendations, and clear explanations.
+Do not answer outside the scope of the query.
 
 Summary of Retrieved Information:
 {summary}

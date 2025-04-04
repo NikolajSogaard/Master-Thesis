@@ -68,7 +68,7 @@ def setup_llm(
 
     return generate_response
 
-def setup_embeddings(model="models/text-embedding-004"):
+def setup_embeddings(model="models/gemini-embedding-exp-03-07"):
     """
     Set up and return a Google Generative AI embeddings model.
     

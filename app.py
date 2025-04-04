@@ -43,13 +43,13 @@ Session(app)  # Initialize Flask-Session
 
 # Default configuration
 DEFAULT_CONFIG = {
-    'model': 'gemini-2.0-flash',
-    'max_tokens': 2048,
-    'writer_temperature': 0.6,
+    'model': 'gemini-2.5-pro-exp-03-25',
+    'max_tokens': 8000,
+    'writer_temperature': 0.4,
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
     'critic_prompt_settings': 'week1',
-    'max_iterations': 4
+    'max_iterations': 1
 }
 
 def get_program_generator(config=None):
@@ -59,19 +59,25 @@ def get_program_generator(config=None):
     
     # Setup prompt settings based on week/task
     week_number = config.get('week_number', 1)
+    is_revision = config.get('is_revision', False)
     
     # Select writer prompt settings based on week/task
     writer_type = "initial"  # Default for initial program
     
     if week_number > 1:
         writer_type = "progression"  # Use progression for week 2+
-    elif config.get('is_revision', False):
+    elif is_revision:
         writer_type = "revision"  # Use revision for critique-based revisions
         
     writer_prompt_settings = WRITER_PROMPT_SETTINGS[writer_type]
     
+    # Add debugging to understand what's loaded
+    print(f"DEBUG: Writer type selected: {writer_type}")
+    print(f"DEBUG: Has task: {writer_prompt_settings.task is not None}")
+    print(f"DEBUG: Has task_revision: {writer_prompt_settings.task_revision is not None}")
+    
     # Use week-specific critic settings
-    critic_setting_key = 'week2plus' if week_number > 1 else 'week1'
+    critic_setting_key = 'progression' if week_number > 1 else 'week1'
     critic_prompt_settings = CRITIC_PROMPT_SETTINGS[critic_setting_key]
     
     # Underlying LLMs
@@ -87,13 +93,26 @@ def get_program_generator(config=None):
         respond_as_json=False,
     )
     
+    # Ensure we have both revision tasks for all writer types to handle both initial creation and feedback revision
+    all_revision_tasks = {}
+    for type_key, settings in WRITER_PROMPT_SETTINGS.items():
+        if settings.task_revision:
+            all_revision_tasks[type_key] = settings.task_revision
+    
+    # Always include the revision task for the current writer type
+    task_revision = writer_prompt_settings.task_revision
+    if not task_revision and 'revision' in WRITER_PROMPT_SETTINGS:
+        # Fallback to revision writer's task_revision if current writer has none
+        task_revision = WRITER_PROMPT_SETTINGS['revision'].task_revision
+    
     # Agents
     writer = Writer(
         model=llm_writer,
         role=writer_prompt_settings.role,
         structure=writer_prompt_settings.structure,
         task=writer_prompt_settings.task,
-        task_revision=writer_prompt_settings.task_revision,
+        task_revision=task_revision,  # Ensure we have a task_revision
+        task_progression=getattr(writer_prompt_settings, 'task_progression', None),  # Pass task_progression
         writer_type=writer_type,  # Pass the writer type
         retrieval_fn=retrieve_and_generate  # Add retrieval function
     )
@@ -117,32 +136,95 @@ def get_program_generator(config=None):
 
 def parse_program(program_output):
     """Parse the program output into a structured format for the template"""
+    print(f"DEBUG: parse_program received: {type(program_output)}")
+    print(f"DEBUG: program_output content: {program_output}")
+    
     try:
         # Parse JSON if it's a string
         if isinstance(program_output, str):
-            program_output = json.loads(program_output)
+            try:
+                program_output = json.loads(program_output)
+                print(f"DEBUG: Parsed string to JSON: {type(program_output)}")
+            except json.JSONDecodeError:
+                print(f"DEBUG: Failed to parse string as JSON")
         
-        # Extract the weekly program structure
+        # Handle case where program_output is the formatted field
         if isinstance(program_output, dict):
+            # Check for weekly_program directly
             if 'weekly_program' in program_output:
+                print(f"DEBUG: Found weekly_program directly")
                 return program_output['weekly_program']
-            elif 'formatted' in program_output:
+            
+            # Check for formatted field
+            if 'formatted' in program_output:
                 formatted = program_output['formatted']
+                print(f"DEBUG: Found formatted field (type {type(formatted)})")
+                
+                # If formatted is a string, try to parse it
                 if isinstance(formatted, str):
                     try:
-                        return json.loads(formatted)['weekly_program']
-                    except (json.JSONDecodeError, KeyError):
-                        pass
-                elif isinstance(formatted, dict) and 'weekly_program' in formatted:
-                    return formatted['weekly_program']
-                return formatted
+                        parsed = json.loads(formatted)
+                        if 'weekly_program' in parsed:
+                            print(f"DEBUG: Found weekly_program in parsed formatted string")
+                            return parsed['weekly_program']
+                        return parsed
+                    except json.JSONDecodeError:
+                        print(f"DEBUG: Failed to parse formatted string")
+                
+                # If formatted is a dict, extract weekly_program or return it directly
+                elif isinstance(formatted, dict):
+                    if 'weekly_program' in formatted:
+                        print(f"DEBUG: Found weekly_program in formatted dict")
+                        return formatted['weekly_program']
+                    print(f"DEBUG: Returning formatted dict directly")
+                    return formatted
+            
+            # If message field exists and contains JSON
+            if 'message' in program_output and isinstance(program_output['message'], str):
+                print(f"DEBUG: Checking message field for JSON")
+                try:
+                    message_content = program_output['message']
+                    
+                    # Try to extract JSON from code blocks if present
+                    if "```json" in message_content:
+                        json_content = message_content.split("```json", 1)[1]
+                        if "```" in json_content:
+                            json_content = json_content.split("```", 1)[0]
+                        message_content = json_content.strip()
+                    
+                    # Try to parse as JSON
+                    if message_content.strip().startswith("{") and message_content.strip().endswith("}"):
+                        parsed_message = json.loads(message_content)
+                        if isinstance(parsed_message, dict):
+                            if 'weekly_program' in parsed_message:
+                                print(f"DEBUG: Found weekly_program in message JSON")
+                                return parsed_message['weekly_program']
+                            print(f"DEBUG: Returning parsed message directly")
+                            return parsed_message
+                except (json.JSONDecodeError, IndexError) as e:
+                    print(f"DEBUG: Failed to extract JSON from message: {e}")
+            
+            # If draft field exists
+            if 'draft' in program_output:
+                print(f"DEBUG: Checking draft field")
+                draft = program_output['draft']
+                
+                # If draft is a dict
+                if isinstance(draft, dict):
+                    if 'weekly_program' in draft:
+                        print(f"DEBUG: Found weekly_program in draft dict")
+                        return draft['weekly_program']
+                    print(f"DEBUG: Returning draft dict directly")
+                    return draft
         
-        # If we get here, try to use the program as-is
-        return program_output
+        # If we got here, create a minimal valid structure
+        print(f"DEBUG: Creating fallback empty program structure")
+        return {"Day 1": [{"name": "No program data found", "sets": 0, "reps": "0", "target_rpe": 0, "rest": "N/A", "cues": "Please try generating a new program."}]}
+        
     except Exception as e:
-        print(f"Error parsing program: {e}")
+        print(f"ERROR parsing program: {e}")
         # Return a default empty program structure if parsing fails
-        return {}
+        return {"Day 1": [{"name": "Error parsing program", "sets": 0, "reps": "0", "target_rpe": 0, "rest": "N/A", "cues": f"Error: {str(e)}"}]}
 
 @app.route('/')
 def index():
@@ -308,13 +390,34 @@ def next_week():
     # Store feedback in session
     session['feedback'] = feedback_data
     
-    # Prepare input for next week's program
+    # Store the raw_program and all feedback data for progression tasks
     current_program = session['raw_program']
+    
+    # Ensure we have the complete raw_program with the weekly_program field
+    if 'formatted' in current_program and isinstance(current_program['formatted'], dict):
+        # Make sure raw_program structure includes weekly_program
+        if 'weekly_program' in current_program['formatted']:
+            # Ensure our raw_program also has the weekly_program for easier access
+            if not isinstance(current_program, dict):
+                current_program = {}
+            if 'weekly_program' not in current_program:
+                current_program['weekly_program'] = current_program['formatted']['weekly_program']
+    
+    # IMPORTANT: Store the original week 1 program structure if moving to week 2
+    current_week = session.get('current_week', 1)
+    if current_week == 1:
+        # We're moving from week 1 to week 2, save the original program structure
+        session['original_program_structure'] = session['program']
+        print(f"Saved original Week 1 program structure for future weeks")
+    
+    # Ensure we include the current week in the program data
+    current_program['week_number'] = current_week
+    current_program['feedback'] = feedback_data
     
     # Use the helper function to create the prompt
     next_week_input = create_next_week_prompt(
         user_input=session.get('user_input', ''),
-        current_program=session['raw_program'],
+        current_program=current_program,  # Now has week_number and properly structured data
         feedback_data=feedback_data,
         current_week=current_week,
         persona=session.get('persona_data') if session.get('persona') else None
@@ -340,8 +443,38 @@ def next_week():
     program_generator = get_program_generator(config)
     program_result = program_generator.create_program(user_input=next_week_input)
     
+    # Apply special handling for Week 2+
+    if new_week > 1 and 'original_program_structure' in session:
+        print(f"Week {new_week}: Preserving original program structure from Week 1")
+        # Get the original structure and formatted new program
+        original_structure = session['original_program_structure']
+        new_program = parse_program(program_result.get('formatted'))
+        
+        # Create merged program that preserves original structure but adds new suggestions
+        merged_program = {}
+        for day, exercises in original_structure.items():
+            merged_program[day] = []
+            for i, exercise in enumerate(exercises):
+                # Create a copy of the original exercise
+                preserved_exercise = exercise.copy()
+                
+                # Try to find a matching suggestion from the new program
+                if day in new_program and i < len(new_program[day]):
+                    new_exercise = new_program[day][i]
+                    if 'suggestion' in new_exercise:
+                        preserved_exercise['suggestion'] = new_exercise['suggestion']
+                    elif 'AI Progression' in new_exercise:
+                        preserved_exercise['suggestion'] = new_exercise['AI Progression']
+                
+                merged_program[day].append(preserved_exercise)
+        
+        # Update the parsed_program with our carefully merged result
+        parsed_program = merged_program
+    else:
+        # Original parsing for Week 1
+        parsed_program = parse_program(program_result.get('formatted'))
+    
     # Update session with new program
-    parsed_program = parse_program(program_result.get('formatted'))
     session['program'] = parsed_program
     session['raw_program'] = program_result
     session['feedback'] = {}
