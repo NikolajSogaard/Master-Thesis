@@ -92,17 +92,17 @@ class Critic:
                             "Upper_horizontal_pull": {"min": 10, "max": 16, "description": "Rows/rear back"},
                             "Upper_vertical_push": {"min": 8, "max": 14, "description": "Overhead/shoulders"},
                             "Upper_vertical_pull": {"min": 10, "max": 18, "description": "Pull-ups/lats"},
-                            "Lower_anterior_chain": {"min": 8, "max": 14, "description": "Quads"},
-                            "Lower_posterior_chain": {"min": 8, "max": 14, "description": "Glutes/Hams"}
+                            "Lower_anterior_chain": {"min": 10, "max": 16, "description": "Quads"},
+                            "Lower_posterior_chain": {"min": 10, "max": 16, "description": "Glutes/Hams"}
                         },
                         "advanced": {
                             # New movement pattern guidelines
-                            "Upper_horizontal_push": {"min": 16, "max": 22, "description": "Chest/pressing"},
-                            "Upper_horizontal_pull": {"min": 16, "max": 22, "description": "Rows/rear back"},
-                            "Upper_vertical_push": {"min": 14, "max": 20, "description": "Overhead/shoulders"},
-                            "Upper_vertical_pull": {"min": 16, "max": 24, "description": "Pull-ups/lats"},
-                            "Lower_anterior_chain": {"min": 12, "max": 18, "description": "Quads"},
-                            "Lower_posterior_chain": {"min": 12, "max": 18, "description": "Glutes/Hams"}
+                            "Upper_horizontal_push": {"min": 10, "max": 16, "description": "Chest/pressing"},
+                            "Upper_horizontal_pull": {"min": 10, "max": 16, "description": "Rows/rear back"},
+                            "Upper_vertical_push": {"min": 8, "max": 14, "description": "Overhead/shoulders"},
+                            "Upper_vertical_pull": {"min": 10, "max": 18, "description": "Pull-ups/lats"},
+                            "Lower_anterior_chain": {"min": 10, "max": 16, "description": "Quads"},
+                            "Lower_posterior_chain": {"min": 10, "max": 16, "description": "Glutes/Hams"}
                         }
                     }
                 }
