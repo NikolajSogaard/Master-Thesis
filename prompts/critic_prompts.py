@@ -229,17 +229,18 @@ CRITERIA FOR REP VS WEIGHT ADJUSTMENTS:
   * RPE is consistently below target range (e.g., RPE 5-6 when target is 7-8)
   * User is in middle-to-upper end of the rep range AND RPE is below target
   * Exercise is a compound movement focused on strength development
-  
+
+- RECOMMEND WEIGHT DECREASE WHEN:
+  * RPE is consistently above target range (e.g., RPE 9-10 when target is 7-8)
+  * User is below target reps, and RPE is very high or over target range
+
 - RECOMMEND REP INCREASE WHEN:
   * User is at the LOWER END of the rep range (e.g., 6 reps when range is 6-10)
   * RPE is within target range but reps have room to increase within range
   * Exercise is isolation or hypertrophy-focused
   * Adding 1-2 reps would still keep user within the prescribed rep range
 
-- RECOMMEND NO CHANGE WHEN:
-  * RPE is already at upper end of target range (8-9)
-  * User failed to complete all prescribed reps with good form
-  * Performance was inconsistent between sets
+
 
 Provide concise, concrete feedback with a single adjustment per set (either rep or load), using the following format:
   - One line per set showing the performance data exactly as provided.
@@ -247,6 +248,10 @@ Provide concise, concrete feedback with a single adjustment per set (either rep 
 
 If the progression strategy is already optimal, simply return "None" with no further text.
 '''
+#- RECOMMEND NO CHANGE WHEN:
+#  * RPE is already at upper end of target range (8-9)
+#  * User failed to complete all prescribed reps with good form
+#  * Performance was inconsistent between sets
 
 # Dictionary of specialized critic settings for different evaluation tasks
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}

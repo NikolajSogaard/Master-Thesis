@@ -44,12 +44,12 @@ Session(app)  # Initialize Flask-Session
 # Default configuration
 DEFAULT_CONFIG = {
     'model': 'gemini-2.5-pro-preview-03-25',
-    'max_tokens': 10000,
+    'max_tokens': 20000,
     'writer_temperature': 0.4,
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
     'critic_prompt_settings': 'week1',
-    'max_iterations': 2
+    'max_iterations': 1
 }
 
 def get_program_generator(config=None):
