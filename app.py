@@ -1,7 +1,3 @@
-"""
-This file should be the new main file insteed of main.py.
-This is to get the output as a web application. 
-"""
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_session import Session  # Import Flask-Session extension
 import json
@@ -25,8 +21,6 @@ from prompts import (
     WRITER_PROMPT_SETTINGS,
     CRITIC_PROMPT_SETTINGS,
 )
-
-# Removed MultiCritic import as it's no longer needed
 
 from rag_retrieval import retrieve_and_generate
 
