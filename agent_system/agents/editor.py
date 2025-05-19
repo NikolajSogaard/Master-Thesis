@@ -1,3 +1,10 @@
+"""
+To simplify the system's explanation, 
+the report states that the final implementation round occurs in the writer agent, 
+whereas it actually takes place in the editor agent. 
+This minor discrepancy was introduced for ease of understanding
+"""
+
 import json
 
 class Editor:

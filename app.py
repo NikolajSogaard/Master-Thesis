@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-from flask_session import Session  # Import Flask-Session extension
+from flask_session import Session
 import json
 import os
 import argparse
