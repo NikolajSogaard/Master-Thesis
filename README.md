@@ -4,12 +4,9 @@ This project uses AI agents, including Large Language Models (LLMs) and Retrieva
 
 ## Setup
 ### 1. API Key Configuration
-This project uses Google Gemini for its AI capabilities. You'll need an API key.
-
-**Get your API Key:**
-You'll need a Google Gemini API key.
+This project uses Google Gemini for its AI capabilities.
 **Configure the Key:**
-    1.  Create a file named `cre.env` in the main project directory and add your API key.
+    1.  Create a file named `cre.env` in the main project directory and add your own API key.
     2.  Inside `cre.env`, add your API key like this:
     *   The file `agent_system/setup_api.py` is responsible for loading this key to allow the AI models to work.
 
