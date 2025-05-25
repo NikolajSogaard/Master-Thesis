@@ -13,13 +13,9 @@ def setup_llm(
         respond_as_json: bool = False,
 ):
     # Load environment variables from cre.env
-    load_dotenv('cre.env')  # adjust the path if needed
-
-    # Get your credentials from the environment variables
+    load_dotenv('cre.env')
     credentials_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
     api_key = os.environ.get("GOOGLE_GEMINI_API_KEY")
-
-    # Check if both credentials are available
     if not credentials_path or not api_key:
         raise EnvironmentError("Required environment variables are missing.")
 
@@ -38,31 +34,23 @@ def setup_llm(
     def generate_response(prompt):
         response = gemini_model.generate_content(prompt, generation_config=generation_config)
         response_text = response.text.strip()
-        
         if respond_as_json:
-            # Attempt to parse JSON if expected, with fallback on failure
+            # Attempt to parse JSON from the response text
             try:
-                # Try to extract JSON from code blocks
                 if "```json" in response_text:
                     json_content = response_text.split("```json", 1)[1]
                     if "```" in json_content:
                         json_content = json_content.split("```", 1)[0]
                     response_text = json_content.strip()
-                # If it's raw JSON starting with {
                 elif response_text.strip().startswith("{") and response_text.strip().endswith("}"):
-                    # Already in JSON format, keep as is
                     pass
-                # If it's plain text, convert it to a valid JSON structure
                 else:
                     print("Converting plain text response to JSON")
-                    # Create a minimal valid structure with the text as a message
                     return {"weekly_program": {"Day 1": []}, "message": response_text}
-                    
                 return json.loads(response_text)
             except json.JSONDecodeError as e:
                 print(f"Failed to decode JSON: {e}")
                 print(f"Raw text: {response_text}")
-                # Return a valid structure with the text preserved
                 return {"weekly_program": {"Day 1": []}, "message": response_text}
         return response_text
 
@@ -78,19 +66,12 @@ def setup_embeddings(model="models/gemini-embedding-exp-03-07"):
     Returns:
         A configured embedding model
     """
-    # Load environment variables if not already loaded
-    load_dotenv('cre.env')  # adjust the path if needed
-    
-    # Get API key from environment variables
+
+    load_dotenv('cre.env')
     api_key = os.environ.get("GOOGLE_GEMINI_API_KEY")
-    
-    # Check if API key is available
     if not api_key:
         raise EnvironmentError("Google API Key is missing.")
-    
-    # Configure Gemini API if not already configured
     genai.configure(api_key=api_key)
-    
     print(f"Setting up embedding model: {model}")
     
     # Initialize with retry mechanism
@@ -100,8 +81,6 @@ def setup_embeddings(model="models/gemini-embedding-exp-03-07"):
     for attempt in range(max_retries):
         try:
             embedding_model = GoogleGenerativeAIEmbeddings(model=model)
-            
-            # Test the model with a simple embedding
             test_result = embedding_model.embed_query("test")
             if test_result and len(test_result) > 0:
                 print(f"Embedding model initialized successfully: {model}")

@@ -6,14 +6,13 @@ from .agents import (
     Editor,
 )
 
-
 class ProgramGenerator:
     def __init__(
             self,
             writer: Writer,
             critic: Critic,
             editor: Editor,
-            max_iterations: int = 3,
+            max_iterations: int = 3, # number of critique cycles before accepting the program as is
             ):
         # Agents
         self.writer = writer
@@ -51,27 +50,17 @@ class ProgramGenerator:
         # Set start and end node
         graph.set_entry_point('writer')
         graph.set_finish_point('editor')
-
         self.app = graph.compile()
 
     def provide_critique(self, program: dict[str, str | None]) -> str:
-        # Check if this is the first critique cycle
         if 'iteration_count' not in program:
             program['iteration_count'] = 0
-            
-        # Increment iteration count
         program['iteration_count'] += 1
-        
-        # Check if we've reached the maximum number of iterations
         if program['iteration_count'] >= self.max_iterations:
             print(f"Reached maximum iterations ({self.max_iterations}), accepting program as is.")
-            # Note: The editor will now implement the final feedback
             return 'accept'
-            
-        # Check if there's feedback to consider
         if program['feedback'] is None:
             return 'accept'
-
         return 'revise'
 
     def create_program(
@@ -84,7 +73,7 @@ class ProgramGenerator:
             'draft': None,  
             'feedback': None,
             'formatted': None,
-            'iteration_count': 0,  # Initialize iteration counter
+            'iteration_count': 0,
         }
 
         final_state = self.app.invoke(program)

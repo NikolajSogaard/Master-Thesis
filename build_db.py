@@ -7,7 +7,6 @@ from pypdf import PdfReader
 
 def main():
     path = os.path.join("Data", "books")
-    # Check if directory exists
     if not os.path.exists(path):
         print(f"Directory '{path}' not found. Please create it and add PDF files.")
         return

@@ -9,32 +9,24 @@ generate_response = setup_llm(model="models/gemini-2.0-flash", max_tokens=1000, 
 
 vector_store = Chroma(
     persist_directory="data/chroma_db",
-    embedding_function=embedding_model,  # Pass the entire embedding_model object, not just the method
+    embedding_function=embedding_model,
     collection_name="strength_training_books"
 )
 
-# Helper Functions
-
 def simple_summary(text):
-    # Returns a simple summary (first 200 characters)
     return text[:200] + "..." if len(text) > 200 else text
 
 def rerank_results(results):
-    # Rerank by sorting results based on the length of page_content (longer first)
     return sorted(results, key=lambda x: len(x.page_content), reverse=True)
 
 # Retrieval Function: Get Context from ChromaDB
-
 def retrieve_context(query, k=8):
     """
     Retrieves the top k relevant chunks from the vector store for the query.
     Returns the prompt context, a simple summary, and the source metadata.
     """
-    # Use the original query directly without expansion
     results = vector_store.similarity_search(query, k=k)
     results = rerank_results(results)
-    
-    # Extract page content for the prompt context
     context = "\n\n".join([res.page_content for res in results])
     
     # Generate a simple summary from the context

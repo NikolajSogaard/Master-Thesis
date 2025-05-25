@@ -134,45 +134,6 @@ PROGRAM_STRUCTURE_WEEK1 = '''
 }
 '''
 
-PROGRAM_STRUCTURE_WEEK2PLUS = '''
-{
-  "weekly_program": {
-    "Day 1": [
-      {
-        "name": "Exercise name",
-        "sets": 3,
-        "reps": "8-12",
-        "target_rpe": "7-8",
-        "rest": "60-90 seconds",
-        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
-        "AI Progression": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135kg for 3x8 at RPE 8')"
-      },
-      {
-        "name": "Exercise name",
-        "sets": 3,
-        "reps": "8-12",
-        "target_rpe": "7-8",
-        "rest": "60-90 seconds",
-        "cues": "Brief note from AI about form, focus, or exercise purpose (keep it short)",
-        "AI Progression": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Based on your performance, try 135kg for 3x8 at RPE 8')"
-      }
-    ],
-    "Day 2": [
-      {
-        "name": "Exercise name",
-        "sets": 4,
-        "reps": "5-8",
-        "target_rpe": "8-10",
-        "rest": "2-3 minutes",
-        "cues": "Brief note from AI about form, focus points, or exercise purpose (keep it short)",
-        "AI Progression": "For week 2+, include specific recommendations based on previous week's performance (e.g., 'Increase weight by 5kg to 222kg for 4x6 at RPE 7-8')"
-      }
-    ],
-    "Day X": etc. continue generating each training day of the week.
-  }
-}
-'''
-
 # Specific role for initial program creation
 INITIAL_WRITER_ROLE = {
     'role': 'system',
@@ -224,7 +185,7 @@ WRITER_PROMPT_SETTINGS['revision'] = WriterPromptSettings(
 WRITER_PROMPT_SETTINGS['progression'] = WriterPromptSettings(
     role=PROGRESSION_ROLE,
     task_progression=TASK_PROGRESSION,
-    structure=None,  # Remove the structure so it doesn't generate a new program structure
+    structure=None,
 )
 
 # Add the original v1 as an alias to initial for backward compatibility

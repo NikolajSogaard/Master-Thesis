@@ -37,7 +37,7 @@ Session(app)  # Initialize Flask-Session
 
 # Default configuration
 DEFAULT_CONFIG = {
-    'model': 'gemini-2.5-pro-exp-03-25',
+    'model': 'gemini-2.5-pro-preview-03-25',
     'max_tokens': 8000,
     'writer_temperature': 0.4,
     'writer_top_p': 0.9,

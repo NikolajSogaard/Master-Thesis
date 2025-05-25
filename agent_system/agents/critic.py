@@ -3,26 +3,22 @@ from rag_retrieval import retrieve_and_generate, retrieve_context
 from .critique_task import CritiqueTask
 
 class Critic:
-    """
-    A critic that runs multiple specialized critiques sequentially with RAG retrieval.
-    """
     def __init__(
             self,
             model,
             role: dict[str, str],
-            tasks: Dict[str, str] = None,  # Dictionary of task templates by type
+            tasks: Dict[str, str] = None, 
             retrieval_fn: Optional[Callable] = None,
             ):
         self.model = model
         self.role = role
-        self.tasks = tasks or {}  # Dictionary of task templates by task type
+        self.tasks = tasks or {}
         self.retrieval_fn = retrieval_fn or retrieve_and_generate
         
         # Default specialized instructions for different task types
         self.specialized_instructions = {
             "frequency_and_split": "Provide concise guidance tailored to the user's training goals. Focus on structuring workout frequency and splits to ensure balanced coverage of muscle groups and key movement patterns. Adapt recommendations based on the user's training experience (beginner or advanced), specialization (e.g., bodybuilding or powerlifting), and overall objectives",
             "exercise_selection": "Provide concise guidance. Retrieve information about exercise selection principles based on specific user goals, experience level, and any physical limitations. Provide the answer as a list of exercises for each goal and muscle group ",            
-            # Removed set_volume instructions - will use only the task template
             "rpe": "Provide consise guidance, and do not answer outside the scope of the query. Retrieve information about appropriate RPE (Rating of Perceived Exertion) targets for different exercise types and experience levels. Include guidance on when to use absolute RPE values (like 8) versus RPE ranges (like 7-8), and how RPE should differ between compound and isolation exercises.",
             "rep_ranges": "Provide concise guidance on rep ranges for different exercises, experience levels and goals. Include information on optimal rep ranges for compound and isolation exercises, as well as how rep ranges can vary based on strength, hypertrophy, or endurance goals.",
             "progression": "Focus on clear decision-making between weight or rep increases. Provide specific guidance on when to increase weight versus when to increase reps based on RPE, performance data, and position within the target rep range. For RPE below target range, consider weight increases if the user is in the middle/upper end of the rep range, but favor rep increases if the user is at the lower end of their rep range. Always consider the prescribed rep range when deciding between weight or rep increases."
@@ -34,7 +30,7 @@ class Critic:
             self.task_types = ["progression"]
             self.is_week2plus = True
         else:
-            # Default Week 1 tasks - add set_volume after exercise_selection
+            # Default Week 1 tasks
             self.task_types = ["frequency_and_split", "exercise_selection", "set_volume", "rep_ranges", "rpe"]
             self.is_week2plus = False
 
@@ -140,7 +136,7 @@ class Critic:
         if self.is_week2plus and task_type == "progression":
             return "What are the best practices for progressive overload, and when should weight be increased/decreasing versus reps? Come with consise guidance on how to choose between increasing/decreasing weight versus increasing reps for progressive overload. When should I prioritize rep increases/decreasing over weight increases if the user is at the lower end of their target rep range? How should RPE feedback influence whether to add weight or reps?"
         
-        # Week 1 queries - removed set_volume query
+        # Week 1 queries 
         queries = {
             "frequency_and_split": "How do I structure a training plan for {user_input}? What are good training frequency and training splits for strength training programs?",
             "exercise_selection": "What exercises are most effective and appropriate for different muscle groups based on: {user_input}. Give 3 exampel exercises for each movement pattern: Upper: Horizontal Push (Chest/pressing), Upper: Horizontal Pull (Rows/rear back), Upper: Vertical Push (Overhead/shoulders), Upper: Vertical Pull (Pull-ups/lats), Lower: Anterior Chain (Quads), Lower: Posterior Chain (Glutes/Hams)",            
@@ -195,12 +191,10 @@ class Critic:
         # Retrieve context if needed
         if task_config.needs_retrieval:
             print(f"Retrieving context...")
-            # Format the retrieval query with user input if placeholders are present
             retrieval_query = task_config.retrieval_query
             if "{user_input}" in retrieval_query:
                 user_input = program.get('user-input', '')
                 retrieval_query = retrieval_query.format(user_input=user_input)
-            
             retrieval_result, _ = self.retrieval_fn(
                 retrieval_query, 
                 task_config.specialized_instructions
@@ -209,12 +203,8 @@ class Critic:
         else:
             print(f"Skipping retrieval for {task_type} - using only task template guidance...")
             context = ""
-        
-        # Add reference data to context if available
         if reference_data_context:
             context = reference_data_context + "\n" + context
-        
-        # Add dependency context to prompt if available
         if dependency_context:
             print(f"Including feedback from {len(task_config.dependencies)} previous critiques...")
             context = f"\nConsiderations from previous critiques:\n{dependency_context}\n{context}"
@@ -222,7 +212,6 @@ class Critic:
         # Make sure 'draft' contains the actual program content
         program_content = program.get('draft')
         if isinstance(program_content, dict) and 'weekly_program' in program_content:
-            # If draft is a dict with weekly_program, convert it to a string for the prompt
             import json
             program_content = json.dumps(program_content, indent=2)
         
@@ -240,17 +229,10 @@ class Critic:
         
         # For Week 2+ progression task, format with week number and feedback data
         if self.is_week2plus and task_type == "progression":
-            # Get week number from program data or default to 2
             week_number = program.get('week_number', 2)
-            
-            # Format the progression task with week number
             user_input = program.get('user-input', '')
             feedback_data = program.get('feedback', '{}')
-            
-            # Replace the format placeholder for week_number before using the template
             task_template = task_template.replace("{week_number}", str(week_number))
-            
-            # Create the prompt content using the task template
             prompt_content = task_template.format(
                 program_content,
                 user_input,
@@ -265,12 +247,9 @@ class Critic:
         
         # Format system instructions
         system_instructions = self.role.get('content', '')
-        
-        # Use a direct string approach instead of the chat format
         full_prompt = f"{system_instructions}\n\n{prompt_content}"
         
         print(f"Generating critique...")
-        # Call the model with the properly formatted prompt
         try:
             feedback = self.model(full_prompt)
             return feedback if feedback else None
@@ -287,31 +266,18 @@ class Critic:
         # Run each task type with its own specialized retrieval
         for task_type in self.task_types:
             feedback = self.run_single_critique(program, task_type, previous_results)
-            
-            # First store the feedback for dependency tracking regardless of the content
             if feedback and isinstance(feedback, str) and len(feedback.strip()) > 10:
                 processed_feedback = feedback
-                
-                # If feedback ends with None on its own line or at the end, it means no changes needed
-                # But we might still want to keep the analysis part
                 if feedback.strip().endswith("None"):
-                    processed_feedback = feedback.strip()[:-4].strip()  # Remove "None" from the end
-                    
-                # Save feedback for dependencies if there's any meaningful content
+                    processed_feedback = feedback.strip()[:-4].strip()
                 if processed_feedback and len(processed_feedback.strip()) > 10:
                     previous_results[task_type] = processed_feedback
-                
-                # Only add to displayed feedback if there's actual recommendations
                 if processed_feedback and 'no changes' not in processed_feedback.lower() and 'therefore, no changes' not in processed_feedback.lower():
-                    # Add the formatted feedback with task type header
                     formatted_feedback = f"[{task_type.upper()} FEEDBACK]:\n{processed_feedback}\n" 
                     all_feedback.append(formatted_feedback)
-                    
-                    # Display the actual feedback in the terminal with clear formatting
                     print(f"\n{'='*50}")
                     print(f"{task_type.upper()} CRITIQUE:")
                     print(f"{'='*50}")
-                    # Print the feedback with a max width for readability
                     words = processed_feedback.split()
                     line = ""
                     for word in words:

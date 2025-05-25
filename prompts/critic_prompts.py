@@ -11,7 +11,6 @@ IMPORTANT:
 
 @dataclasses.dataclass
 class PromptComponent:
-    """Reusable components for building prompts"""
     intro: str
     evaluation_criteria: List[str]
     guidelines: Dict[str, List[str]]
@@ -21,8 +20,6 @@ class PromptComponent:
     def format_for_task(self, task_type: str) -> str:
         """Format the component for a specific task type"""
         criteria = "\n".join([f"{i+1}. {c}" for i, c in enumerate(self.evaluation_criteria)])
-        
-        # Only include guidelines relevant to this task
         guidelines_text = ""
         if task_type in self.guidelines:
             guidelines = self.guidelines[task_type]
@@ -35,8 +32,9 @@ class PromptComponent:
 @dataclasses.dataclass
 class CriticPromptSettings:
     role: dict[str, str]
-    tasks: Optional[Dict[str, str]] = None  # Dictionary of task templates by type
+    tasks: Optional[Dict[str, str]] = None
 
+# All task templates for the critic
 TASK_FREQUENCY_AND_SPLIT = '''
 Your colleague has written the following training program:
 {}
@@ -256,7 +254,7 @@ If the progression strategy is already optimal, simply return "None" with no fur
 # Dictionary of specialized critic settings for different evaluation tasks
 CRITIC_PROMPT_SETTINGS: dict[str, CriticPromptSettings] = {}
 
-# Update the CRITIC_PROMPT_SETTINGS to include Week 1 tasks (without progression)
+# Setting for Week 1 with all tasks
 CRITIC_PROMPT_SETTINGS['week1'] = CriticPromptSettings(
     role={
         'role': 'system',
@@ -293,7 +291,6 @@ CRITIC_PROMPT_SETTINGS['progression'] = CriticPromptSettings(
     },
 )
 
-# Update other individual task settings - remove progression from non-progression settings
 for setting_key in ['frequency_and_split', 'exercise_selection', 'set_volume', 'rep_ranges', 'rpe']:
     if setting_key in CRITIC_PROMPT_SETTINGS:
         task_var_name = f"TASK_{setting_key.upper()}"

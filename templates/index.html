@@ -192,7 +192,7 @@
       color: #27ae60;
       font-size: 0.75rem;
       padding: 3px 0;
-      white-space: pre-line; /* Preserve line breaks */
+      white-space: pre-line;
     }
  
     .performance-data {
@@ -213,7 +213,6 @@
       color: #e74c3c;
     }
  
-    /* Save program modal styles */
     .modal {
       display: none;
       position: fixed;
@@ -280,7 +279,6 @@
       color: #721c24;
     }
  
-    /* New styles for side-by-side tables */
     .day-container {
       display: flex;
       flex-wrap: wrap;
@@ -381,8 +379,6 @@
               {% endfor %}
             </tbody>
           </table>
-         
-          <!-- Progression table has been removed - progression is now shown in the Set Feedback column -->
         </div>
       {% endfor %}
     </div>
@@ -455,7 +451,6 @@
       saveMessage.style.display = 'block';
      
       if (data.success) {
-        // Clear form and close modal after 2 seconds on success
         setTimeout(() => {
           saveForm.reset();
           modal.style.display = 'none';
@@ -477,15 +472,9 @@
     
     progressionElements.forEach(function(element) {
       const content = element.textContent;
-      
-      // Check if content exists
       if (!content || content.trim() === '') return;
-      
-      // Get the parent TD element
       const tdElement = element.closest('td');
       if (!tdElement) return;
-      
-      // Skip processing if content doesn't follow our format
       if (!content.includes('Set 1:')) {
         console.log("Progression feedback doesn't match expected format:", content);
         return;
@@ -512,14 +501,10 @@
           adjustmentLine = trimmedLine;
         }
       }
-      
-      // Only proceed if we have performance data
+
       if (performanceLines.length === 0) return;
-      
-      // Clear the original content element
       element.innerHTML = '';
       
-      // Replace text arrows with proper arrow characters
       if (adjustmentLine) {
         adjustmentLine = adjustmentLine
           .replace('(arrow up)', '↑')
@@ -533,13 +518,9 @@
       performanceData.className = 'performance-data';
       performanceData.innerHTML = performanceLines.join('<br>');
       element.appendChild(performanceData);
-      
-      // Add the adjustment line right after the performance data
       if (adjustmentLine) {
         const adjustmentDiv = document.createElement('div');
         adjustmentDiv.className = 'adjustment';
-        
-        // Apply color to arrows
         if (adjustmentLine.includes('↑')) {
           adjustmentDiv.innerHTML = adjustmentLine.replace('↑', '<span class="arrow-up">↑</span>');
         } else if (adjustmentLine.includes('↓')) {
@@ -547,15 +528,10 @@
         } else {
           adjustmentDiv.textContent = adjustmentLine;
         }
-        
-        // Add the adjustment line
         element.appendChild(adjustmentDiv);
       }
-      
-      // Move the element to position right above the first set-input
       const firstSetInput = tdElement.querySelector('.set-input');
       if (firstSetInput) {
-        // Position the element directly before the first set input
         tdElement.insertBefore(element, firstSetInput);
       }
     });

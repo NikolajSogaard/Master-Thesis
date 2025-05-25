@@ -48,11 +48,8 @@ def parse_structured_feedback(feedback: str) -> Dict:
 
 def has_actionable_recommendations(feedback: Dict) -> bool:
     """Check if the feedback contains actionable recommendations"""
-    # Check if recommendations section exists and isn't empty
     if not feedback.get("recommendations"):
         return False
-        
-    # Check if the only recommendation is that no changes are needed
     recommendations = "\n".join(feedback["recommendations"]).lower()
     no_changes_phrases = ["no changes needed", "none", "no changes are needed", "no changes required"]
     

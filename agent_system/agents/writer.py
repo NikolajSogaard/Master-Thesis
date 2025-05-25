@@ -23,18 +23,15 @@ class Writer:
         self.writer_type = writer_type
         self.retrieval_fn = retrieval_fn or retrieve_and_generate
         
-        # Define specialized instructions only for initial writing task
+        # Specialized instructions for initial writing
         self.specialized_instructions = {
             "initial": "Focus on creating the best strength training program based on the {user_input}. Consider appropriate training splits and frequency, rep-ranges, exercises that fits the user and the order of these exercises, set volume for each week and intensity."
         }
     
     def get_retrieval_query(self, program: dict[str, str | None]) -> str:
-        """Generate appropriate retrieval query based on writer type and user input"""
         # Only perform retrieval for initial type
         if self.writer_type == "initial":
-            return "Best practices for designing a strength training program"
-        
-        # Return empty string for other types to skip retrieval
+            return "Best practices for designing a strength training program based on {user_input} and preferences."
         return ""
 
     def format_previous_week_program(self, program: dict[str, str | None]) -> str:
@@ -42,7 +39,7 @@ class Writer:
         Format the previous week's program data specifically for progression tasks.
         This ensures the model has access to properly formatted program data.
         """
-        # Get the Editor to extract the weekly program (avoid circular imports)
+        # Get the Editor to extract the weekly program
         from .editor import Editor
         editor = Editor()
         
@@ -52,8 +49,7 @@ class Writer:
         if 'formatted' in program and isinstance(program['formatted'], dict):
             if 'weekly_program' in program['formatted']:
                 previous_program = program['formatted']['weekly_program']
-        
-        # If not found in formatted, try to extract it from draft
+
         if previous_program is None and 'draft' in program:
             previous_program = editor.extract_weekly_program(program['draft'])
         
@@ -63,11 +59,9 @@ class Writer:
         
         # Convert to a clean, formatted JSON string for the prompt
         if previous_program:
-            # Build a clear, structured representation
             formatted_output = {
                 "weekly_program": previous_program
             }
-            # Pretty-print as JSON for readability in the prompt
             return json.dumps(formatted_output, indent=2)
         
         # Fallback: Just convert whatever we have to a string
@@ -79,26 +73,18 @@ class Writer:
             self,
             program: dict[str, str | None],
             ) -> tuple[str, dict[str, str]]:
-        # Get retrieval context first
         query = self.get_retrieval_query(program)
         user_input = program.get('user-input', '')
-        
-        # Format the retrieval instructions with user input
         retrieval_instructions = self.specialized_instructions.get(self.writer_type, "")
         if '{user_input}' in retrieval_instructions:
             retrieval_instructions = retrieval_instructions.format(user_input=user_input)
-        
-        # Check if we have a task for writing (for initial type)
         if not self.task:
             raise ValueError(f"Writer of type '{self.writer_type}' does not support initial program creation")
-        
-        # Only perform retrieval for initial writer type
         enhanced_task = self.task
         if self.writer_type == "initial" and query:
             print(f"\n--- Writer (initial) retrieving context ---")
             retrieval_result, _ = self.retrieval_fn(query, retrieval_instructions)
             context = f"\nRelevant context from training literature:\n{retrieval_result}\n"
-            # Add context to the task content
             enhanced_task = self.task + context
         
         prompt = [
@@ -111,7 +97,6 @@ class Writer:
                 ),
             },
         ]
-        # Convert prompt to a single string as expected by the Gemini API
         combined_prompt = "\n".join(item.get("content", "") if isinstance(item, dict) else str(item) for item in prompt)
         
         print(f"Generating initial program...")
