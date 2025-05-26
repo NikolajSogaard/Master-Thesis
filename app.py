@@ -25,17 +25,16 @@ from prompts import (
 from rag_retrieval import retrieve_and_generate
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # For session management
+app.secret_key = os.urandom(24)
 
-# Configure server-side sessions to avoid cookie size limit issues
-app.config["SESSION_TYPE"] = "filesystem"  # Store sessions on filesystem instead of cookies
+# Configure server-side sessions
+app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_FILE_DIR"] = os.path.join(tempfile.gettempdir(), "flask_session_files")
 app.config["SESSION_PERMANENT"] = True
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)  # Session timeout
-app.config["SESSION_USE_SIGNER"] = True  # Sign the session cookie
-Session(app)  # Initialize Flask-Session
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=24)
+app.config["SESSION_USE_SIGNER"] = True
+Session(app) # initialize session management
 
-# Default configuration
 DEFAULT_CONFIG = {
     'model': 'gemini-2.5-pro-preview-03-25',
     'max_tokens': 8000,
@@ -43,7 +42,7 @@ DEFAULT_CONFIG = {
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
     'critic_prompt_settings': 'week1',
-    'max_iterations': 1 # set the max iterations for critique and revision
+    'max_iterations': 1
 }
 
 def get_program_generator(config=None):
@@ -54,27 +53,19 @@ def get_program_generator(config=None):
     # Setup prompt settings based on week/task
     week_number = config.get('week_number', 1)
     is_revision = config.get('is_revision', False)
-    
-    # Select writer prompt settings based on week/task
-    writer_type = "initial"  # Default for initial program
-    
+    writer_type = "initial" 
     if week_number > 1:
-        writer_type = "progression"  # Use progression for week 2+
+        writer_type = "progression"
     elif is_revision:
-        writer_type = "revision"  # Use revision for critique-based revisions
-        
+        writer_type = "revision"
+
     writer_prompt_settings = WRITER_PROMPT_SETTINGS[writer_type]
-    
-    # Add debugging to understand what's loaded
     print(f"DEBUG: Writer type selected: {writer_type}")
-    print(f"DEBUG: Has task: {writer_prompt_settings.task is not None}")
-    print(f"DEBUG: Has task_revision: {writer_prompt_settings.task_revision is not None}")
-    
-    # Use week-specific critic settings
+
     critic_setting_key = 'progression' if week_number > 1 else 'week1'
     critic_prompt_settings = CRITIC_PROMPT_SETTINGS[critic_setting_key]
     
-    # Underlying LLMs
+    # LLMs
     llm_writer = setup_llm(
         model=config['model'],
         respond_as_json=True,
@@ -86,17 +77,14 @@ def get_program_generator(config=None):
         max_tokens=config['max_tokens'],
         respond_as_json=False,
     )
-    
-    # Ensure we have both revision tasks for all writer types to handle both initial creation and feedback revision
+
     all_revision_tasks = {}
     for type_key, settings in WRITER_PROMPT_SETTINGS.items():
         if settings.task_revision:
             all_revision_tasks[type_key] = settings.task_revision
-    
-    # Always include the revision task for the current writer type
+
     task_revision = writer_prompt_settings.task_revision
     if not task_revision and 'revision' in WRITER_PROMPT_SETTINGS:
-        # Fallback to revision writer's task_revision if current writer has none
         task_revision = WRITER_PROMPT_SETTINGS['revision'].task_revision
     
     # Agents
@@ -105,56 +93,49 @@ def get_program_generator(config=None):
         role=writer_prompt_settings.role,
         structure=writer_prompt_settings.structure,
         task=writer_prompt_settings.task,
-        task_revision=task_revision,  # Ensure we have a task_revision
-        task_progression=getattr(writer_prompt_settings, 'task_progression', None),  # Pass task_progression
-        writer_type=writer_type,  # Pass the writer type
-        retrieval_fn=retrieve_and_generate  # Add retrieval function
+        task_revision=task_revision,
+        task_progression=getattr(writer_prompt_settings, 'task_progression', None),
+        writer_type=writer_type,
+        retrieval_fn=retrieve_and_generate # Retrieval function
     )
-    
+
     critic = Critic(
         model=llm_critic,
         role=critic_prompt_settings.role,
-        tasks=getattr(critic_prompt_settings, 'tasks', None),  # Only tasks are provided now
+        tasks=getattr(critic_prompt_settings, 'tasks', None),
         retrieval_fn=retrieve_and_generate
     )
-    
+
     editor = Editor()
-    
-    # Coordinator
+
     return ProgramGenerator(
         writer=writer,
         critic=critic,
         editor=editor,
-        max_iterations=config.get('max_iterations', 2)  # Get max_iterations from config
+        max_iterations=config.get('max_iterations', 2)
     )
 
 def parse_program(program_output):
     """Parse the program output into a structured format for the template"""
     print(f"DEBUG: parse_program received: {type(program_output)}")
     print(f"DEBUG: program_output content: {program_output}")
-    
     try:
-        # Parse JSON if it's a string
         if isinstance(program_output, str):
             try:
                 program_output = json.loads(program_output)
                 print(f"DEBUG: Parsed string to JSON: {type(program_output)}")
             except json.JSONDecodeError:
                 print(f"DEBUG: Failed to parse string as JSON")
-        
-        # Handle case where program_output is the formatted field
+
         if isinstance(program_output, dict):
-            # Check for weekly_program directly
             if 'weekly_program' in program_output:
                 print(f"DEBUG: Found weekly_program directly")
                 return program_output['weekly_program']
-            
-            # Check for formatted field
+
             if 'formatted' in program_output:
                 formatted = program_output['formatted']
                 print(f"DEBUG: Found formatted field (type {type(formatted)})")
-                
-                # If formatted is a string, try to parse it
+
                 if isinstance(formatted, str):
                     try:
                         parsed = json.loads(formatted)
@@ -164,29 +145,25 @@ def parse_program(program_output):
                         return parsed
                     except json.JSONDecodeError:
                         print(f"DEBUG: Failed to parse formatted string")
-                
-                # If formatted is a dict, extract weekly_program or return it directly
+
                 elif isinstance(formatted, dict):
                     if 'weekly_program' in formatted:
                         print(f"DEBUG: Found weekly_program in formatted dict")
                         return formatted['weekly_program']
                     print(f"DEBUG: Returning formatted dict directly")
                     return formatted
-            
-            # If message field exists and contains JSON
+
             if 'message' in program_output and isinstance(program_output['message'], str):
                 print(f"DEBUG: Checking message field for JSON")
                 try:
                     message_content = program_output['message']
-                    
-                    # Try to extract JSON from code blocks if present
+
                     if "```json" in message_content:
                         json_content = message_content.split("```json", 1)[1]
                         if "```" in json_content:
                             json_content = json_content.split("```", 1)[0]
                         message_content = json_content.strip()
-                    
-                    # Try to parse as JSON
+
                     if message_content.strip().startswith("{") and message_content.strip().endswith("}"):
                         parsed_message = json.loads(message_content)
                         if isinstance(parsed_message, dict):
@@ -197,27 +174,23 @@ def parse_program(program_output):
                             return parsed_message
                 except (json.JSONDecodeError, IndexError) as e:
                     print(f"DEBUG: Failed to extract JSON from message: {e}")
-            
-            # If draft field exists
+
             if 'draft' in program_output:
                 print(f"DEBUG: Checking draft field")
                 draft = program_output['draft']
-                
-                # If draft is a dict
+
                 if isinstance(draft, dict):
                     if 'weekly_program' in draft:
                         print(f"DEBUG: Found weekly_program in draft dict")
                         return draft['weekly_program']
                     print(f"DEBUG: Returning draft dict directly")
                     return draft
-        
-        # If we got here, create a minimal valid structure
+
         print(f"DEBUG: Creating fallback empty program structure")
         return {"Day 1": [{"name": "No program data found", "sets": 0, "reps": "0", "target_rpe": 0, "rest": "N/A", "cues": "Please try generating a new program."}]}
-        
+
     except Exception as e:
         print(f"ERROR parsing program: {e}")
-        # Return a default empty program structure if parsing fails
         return {"Day 1": [{"name": "Error parsing program", "sets": 0, "reps": "0", "target_rpe": 0, "rest": "N/A", "cues": f"Error: {str(e)}"}]}
 
 @app.route('/')
@@ -238,8 +211,6 @@ def generate_program():
         # Get user input
         user_input = request.form.get('user_input', '')
         persona = request.form.get('persona', '')
-        
-        # No longer need to get critic_task_type from the form
         
         # Handle empty input
         if not user_input.strip():
@@ -289,45 +260,34 @@ def submit_feedback():
     if 'program' not in session:
         flash("No active program to provide feedback for.")
         return redirect(url_for('index'))
-    
-    # Collect feedback data
     feedback_data = {}
     program = session.get('program', {})
-    
+
     for day, exercises in program.items():
         day_key = day.replace(' ', '')
         feedback_data[day] = []
-        
+
         for i, exercise in enumerate(exercises):
             exercise_feedback = {
                 'name': exercise['name'],
                 'sets_data': [],
                 'overall_feedback': request.form.get(f"{day_key}_ex{i}_feedback", "")
             }
-            
-            # Get the number of sets correctly - it's already an integer
-            sets_count = exercise.get('sets', 0)
-            
-            # Process each set's feedback
-            for j in range(sets_count):
+            for j in range(exercise.get('sets', 0)):
                 set_data = {
                     'weight': request.form.get(f"{day_key}_ex{i}_set{j}_weight"),
                     'reps': request.form.get(f"{day_key}_ex{i}_set{j}_reps"),
                     'actual_rpe': request.form.get(f"{day_key}_ex{i}_set{j}_actual_rpe")
                 }
                 exercise_feedback['sets_data'].append(set_data)
-            
+
             feedback_data[day].append(exercise_feedback)
-    
-    # Store feedback in session
+
     session['feedback'] = feedback_data
-    
     flash("Feedback submitted successfully!")
     return redirect(url_for('index'))
 
-# Simplified helper function that doesn't specify field details since they're in the prompt structure
 def create_next_week_prompt(user_input, current_program, feedback_data, current_week, persona=None):
-    """Creates the prompt for generating the next week's program"""
     prompt = f"""
     Original User Input: {user_input}
     
@@ -338,10 +298,8 @@ def create_next_week_prompt(user_input, current_program, feedback_data, current_
     Please generate Week {current_week + 1} program considering the feedback provided.
     Autoregulate the training loads based on the actual performance data.
     """
-    
     if persona:
         prompt += f"\nTarget Persona: {persona}"
-    
     return prompt
 
 @app.route('/next_week', methods=['GET', 'POST'])
@@ -350,46 +308,34 @@ def next_week():
     if 'program' not in session:
         flash("No program available to generate next week's program")
         return redirect(url_for('generate_program'))
-    
-    # First, collect feedback data for the current week
+
     feedback_data = {}
     program = session.get('program', {})
     current_week = session.get('current_week', 1)
-    
+
     for day, exercises in program.items():
         day_key = day.replace(' ', '')
         feedback_data[day] = []
-        
+
         for i, exercise in enumerate(exercises):
             exercise_feedback = {
                 'name': exercise['name'],
                 'sets_data': [],
                 'overall_feedback': request.form.get(f"{current_week}_{day_key}_ex{i}_feedback", "")
             }
-            
-            # Get the number of sets correctly - it's already an integer
-            sets_count = exercise.get('sets', 0)
-            
-            # Process each set's feedback
-            for j in range(sets_count):
+            for j in range(exercise.get('sets', 0)):
                 set_data = {
                     'weight': request.form.get(f"{current_week}_{day_key}_ex{i}_set{j}_weight"),
                     'reps': request.form.get(f"{current_week}_{day_key}_ex{i}_set{j}_reps"),
                     'actual_rpe': request.form.get(f"{current_week}_{day_key}_ex{i}_set{j}_actual_rpe")
                 }
                 exercise_feedback['sets_data'].append(set_data)
-            
             feedback_data[day].append(exercise_feedback)
-    
-    # Store feedback in session
+
     session['feedback'] = feedback_data
-    
-    # Store the raw_program and all feedback data for progression tasks
     current_program = session['raw_program']
-    
-    # Ensure we have the complete raw_program with the weekly_program field
+
     if 'formatted' in current_program and isinstance(current_program['formatted'], dict):
-        # Make sure raw_program structure includes weekly_program
         if 'weekly_program' in current_program['formatted']:
             # Ensure our raw_program also has the weekly_program for easier access
             if not isinstance(current_program, dict):
@@ -397,26 +343,22 @@ def next_week():
             if 'weekly_program' not in current_program:
                 current_program['weekly_program'] = current_program['formatted']['weekly_program']
     
-    # IMPORTANT: Store the original week 1 program structure if moving to week 2
+    # Store the original week 1 program structure if moving to week 2
     current_week = session.get('current_week', 1)
     if current_week == 1:
-        # We're moving from week 1 to week 2, save the original program structure
         session['original_program_structure'] = session['program']
-        print(f"Saved original Week 1 program structure for future weeks")
-    
-    # Ensure we include the current week in the program data
+
     current_program['week_number'] = current_week
     current_program['feedback'] = feedback_data
-    
-    # Use the helper function to create the prompt
+
     next_week_input = create_next_week_prompt(
         user_input=session.get('user_input', ''),
-        current_program=current_program,  # Now has week_number and properly structured data
+        current_program=current_program,
         feedback_data=feedback_data,
         current_week=current_week,
         persona=session.get('persona_data') if session.get('persona') else None
     )
-    
+
     if session.get('persona'):
         try:
             with open('Data/personas/personas_vers2.json') as f:
@@ -426,8 +368,7 @@ def next_week():
                 next_week_input += f"\nTarget Persona: {selected_persona}"
         except Exception as e:
             flash(f"Error loading persona: {e}")
-    
-    # Update config for next week's program with week number
+
     new_week = current_week + 1
     config = DEFAULT_CONFIG.copy()
     config['critic_prompt_settings'] = 'week2plus'  # Use week2plus for any week after week 1
@@ -436,54 +377,34 @@ def next_week():
     # Generate next week's program
     program_generator = get_program_generator(config)
     program_result = program_generator.create_program(user_input=next_week_input)
-    
-    # Apply special handling for Week 2+
+
     if new_week > 1 and 'original_program_structure' in session:
-        print(f"Week {new_week}: Preserving original program structure from Week 1")
-        # Get the original structure and formatted new program
         original_structure = session['original_program_structure']
         new_program = parse_program(program_result.get('formatted'))
-        
-        # Create merged program that preserves original structure but adds new suggestions
+
         merged_program = {}
         for day, exercises in original_structure.items():
             merged_program[day] = []
             for i, exercise in enumerate(exercises):
-                # Create a copy of the original exercise
                 preserved_exercise = exercise.copy()
-                
-                # Try to find a matching suggestion from the new program
                 if day in new_program and i < len(new_program[day]):
                     new_exercise = new_program[day][i]
-                    if 'suggestion' in new_exercise:
-                        preserved_exercise['suggestion'] = new_exercise['suggestion']
-                    elif 'AI Progression' in new_exercise:
-                        preserved_exercise['suggestion'] = new_exercise['AI Progression']
-                
+                    preserved_exercise['suggestion'] = new_exercise.get('suggestion', new_exercise.get('AI Progression'))
                 merged_program[day].append(preserved_exercise)
-        
-        # Update the parsed_program with our carefully merged result
+
         parsed_program = merged_program
     else:
-        # Original parsing for Week 1
         parsed_program = parse_program(program_result.get('formatted'))
-    
-    # Update session with new program
+
     session['program'] = parsed_program
     session['raw_program'] = program_result
     session['feedback'] = {}
-    
-    # Increment week number and add to programs list
-    new_week = current_week + 1
     session['current_week'] = new_week
-    
+
     all_programs = session.get('all_programs', [])
-    all_programs.append({
-        'week': new_week,
-        'program': parsed_program
-    })
+    all_programs.append({'week': new_week, 'program': parsed_program})
     session['all_programs'] = all_programs
-    
+
     flash(f"Week {new_week} program generated successfully!")
     return redirect(url_for('index'))
 
@@ -553,8 +474,6 @@ def list_saved_programs():
                         })
                 except Exception as e:
                     print(f"Error reading program file {filename}: {e}")
-        
-        # Sort by date (most recent first)
         programs.sort(key=lambda x: x.get('date', ''), reverse=True)
         return jsonify({'success': True, 'programs': programs})
     
