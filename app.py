@@ -43,7 +43,7 @@ DEFAULT_CONFIG = {
     'writer_top_p': 0.9,
     'writer_prompt_settings': 'v1',
     'critic_prompt_settings': 'week1',
-    'max_iterations': 1
+    'max_iterations': 1 # set the max iterations for critique and revision
 }
 
 def get_program_generator(config=None):

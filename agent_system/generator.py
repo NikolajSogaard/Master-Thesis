@@ -12,7 +12,7 @@ class ProgramGenerator:
             writer: Writer,
             critic: Critic,
             editor: Editor,
-            max_iterations: int = 3, # number of critique cycles before accepting the program as is
+            max_iterations: int = 3, #default maximum iterations for critique and revision
             ):
         # Agents
         self.writer = writer
